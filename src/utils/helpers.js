@@ -1,10 +1,28 @@
 // ─── Toast ──────────────────────────────────────────────────────────────────
 let _toastFn = null;
-export const registerToast = (fn) => { _toastFn = fn; };
+export const registerToast = (fn) => {
+  _toastFn = fn;
+};
+
+const emitToast = (type, msg) => {
+  const message = String(msg || "").trim();
+  if (!message) return;
+  _toastFn?.(type, message);
+};
+
 export const toast = {
-  success: (msg) => _toastFn?.("success", msg),
-  error: (msg) => _toastFn?.("error", msg),
-  info: (msg) => _toastFn?.("info", msg),
+  success: (msg) => emitToast("success", msg),
+  error: (msg) => emitToast("error", msg),
+  info: (msg) => emitToast("info", msg),
+  warning: (msg) => emitToast("warning", msg),
+  apiError: (err, fallback = "Có lỗi xảy ra, vui lòng thử lại!") =>
+    emitToast(
+      "error",
+      err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
+        fallback,
+    ),
 };
 
 // ─── Format Date ─────────────────────────────────────────────────────────────
@@ -12,16 +30,21 @@ export const formatDate = (dateStr) => {
   if (!dateStr) return "—";
   try {
     return new Date(dateStr).toLocaleDateString("vi-VN", {
-      day: "2-digit", month: "2-digit", year: "numeric",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
-  } catch { return dateStr; }
+  } catch {
+    return dateStr;
+  }
 };
 
 // ─── Format Currency ─────────────────────────────────────────────────────────
 export const formatCurrency = (amount) => {
   if (amount == null) return "—";
   return new Intl.NumberFormat("vi-VN", {
-    style: "currency", currency: "VND",
+    style: "currency",
+    currency: "VND",
   }).format(amount);
 };
 
@@ -30,7 +53,7 @@ export const ROLE_LEVELS = {
   "Cộng tác viên": 1,
   "Nhân viên": 2,
   "Quản lý": 3,
-  "Admin": 4,
+  Admin: 4,
 };
 export const getRoleLevel = (chucvu) => ROLE_LEVELS[chucvu] || 1;
 
@@ -39,13 +62,17 @@ export const exportToCsv = (filename, headers, rows) => {
   const csvContent = [
     headers.join(","),
     ...rows.map((row) =>
-      row.map((cell) =>
-        String(cell ?? "").includes(",") ? `"${cell}"` : (cell ?? "")
-      ).join(",")
+      row
+        .map((cell) =>
+          String(cell ?? "").includes(",") ? `"${cell}"` : (cell ?? ""),
+        )
+        .join(","),
     ),
   ].join("\n");
 
-  const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+  const blob = new Blob(["\uFEFF" + csvContent], {
+    type: "text/csv;charset=utf-8;",
+  });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
   link.download = `${filename}_${new Date().toISOString().split("T")[0]}.csv`;

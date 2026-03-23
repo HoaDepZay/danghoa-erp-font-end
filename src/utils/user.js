@@ -32,13 +32,40 @@ export const ROLE_LEVELS = {
   "Cộng tác viên": 1,
   "Nhân viên": 2,
   "Quản lý": 3,
-  "Admin": 4,
+  Admin: 4,
+};
+
+const normalizeRole = (value) =>
+  String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const ROLE_LEVELS_NORMALIZED = {
+  "cong tac vien": 1,
+  "nhan vien": 2,
+  "quan ly": 3,
+  admin: 4,
+};
+
+const ROLE_LABELS = {
+  "cong tac vien": "Cộng tác viên",
+  "nhan vien": "Nhân viên",
+  "quan ly": "Quản lý",
+  admin: "Admin",
 };
 
 export const getUserLevel = (user) => {
   // handle lowercase (login) and uppercase (employee API)
   const role = user?.chuc_vu || user?.CHUCVU || user?.role || "";
-  return ROLE_LEVELS[role] || 1;
+  return ROLE_LEVELS[role] || ROLE_LEVELS_NORMALIZED[normalizeRole(role)] || 1;
+};
+
+export const getDisplayRole = (user) => {
+  const role = user?.chuc_vu || user?.CHUCVU || user?.role || "";
+  if (!role) return "Nhân viên";
+  return ROLE_LABELS[normalizeRole(role)] || role;
 };
 
 // ─── Lấy email từ user object ─────────────────────────────────────────────────
