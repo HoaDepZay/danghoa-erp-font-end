@@ -26,13 +26,14 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
   React.useEffect(() => {
     if (!loading && profile) {
       const emp = profile;
-      const isMissing = 
-        !(emp?.HOTEN || emp?.HoTen || emp?.hoten) ||
-        !(emp?.NGAYSINH || emp?.NgaySinh || emp?.ngaysinh) ||
-        !(emp?.GIOITINH || emp?.GioiTinh || emp?.gioitinh) ||
-        !(emp?.DIACHINHAN || emp?.DiaChiNhan || emp?.DIACHI || emp?.DiaChi || emp?.diachi) ||
-        !(emp?.SODIENTHOA || emp?.SODIENTHOAI || emp?.SoDienThoai || emp?.SDT || emp?.sdt);
-      
+      // Chỉ kiểm tra 5 trường: Mã NV, Email, SĐT, Ngày sinh, Địa chỉ
+      const isMissing =
+        !(emp?.MANV   || emp?.MaNV  || emp?.manv  || emp?.ma_nv) ||
+        !(emp?.EMAIL  || emp?.Email || emp?.email) ||
+        !(emp?.SODIENTHOA || emp?.SODIENTHOAI || emp?.SoDienThoai || emp?.SDT || emp?.sdt) ||
+        !(emp?.NGAYSINH   || emp?.NgaySinh    || emp?.ngaysinh) ||
+        !(emp?.DIACHINHAN || emp?.DiaChiNhan  || emp?.DIACHI || emp?.DiaChi || emp?.diachi);
+
       if (isMissing) {
         setShowNotice(true);
       }
