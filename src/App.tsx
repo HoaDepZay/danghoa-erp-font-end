@@ -15,6 +15,7 @@ import Profile from "./pages/Profile/MyProfile/Profile";
 import Admin from "./pages/Admin/Admin";
 
 import { getUserLevel } from "./utils/user";
+import { api } from "./services/api";
 
 // ── Error Boundary ──────────────────────────────────────────────────────────
 interface ErrorBoundaryProps {
@@ -88,16 +89,27 @@ function App() {
   const [appLoading, setAppLoading] = useState(true);
 
   useEffect(() => {
+    const handleAuthLogout = () => {
+      setUser(null);
+      setAuthView("login");
+      setActivePage("dashboard");
+    };
+    window.addEventListener("auth:logout", handleAuthLogout);
+
     try {
       const savedUser = localStorage.getItem("user");
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("accessToken") || localStorage.getItem("token");
       if (savedUser && token) setUser(JSON.parse(savedUser));
     } catch {
       localStorage.removeItem("user");
       localStorage.removeItem("token");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
     } finally {
       setAppLoading(false);
     }
+
+    return () => window.removeEventListener("auth:logout", handleAuthLogout);
   }, []);
 
   const handleLogin = (userData: any) => {
@@ -105,11 +117,18 @@ function App() {
     setActivePage("dashboard");
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (window.confirm("Xác nhận đăng xuất?")) {
+      try {
+        await api.logout(); // Gọi API logout xóa cookie hoặc thao tác ở backend (nếu có)
+      } catch (error) {
+        console.error("Logout error", error);
+      }
       setUser(null);
       localStorage.removeItem("user");
       localStorage.removeItem("token");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
       setAuthView("login");
       setActivePage("dashboard");
     }

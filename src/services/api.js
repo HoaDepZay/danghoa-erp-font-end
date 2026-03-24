@@ -2,39 +2,132 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:5000/api";
 
+// ── Token helpers ────────────────────────────────────────────────────────────
+export const tokenStorage = {
+  getAccessToken: () => localStorage.getItem("accessToken"),
+  getRefreshToken: () => localStorage.getItem("refreshToken"),
+  setTokens: (accessToken, refreshToken) => {
+    if (accessToken) localStorage.setItem("accessToken", accessToken);
+    if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
+  },
+  clearTokens: () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("token"); // xóa luôn token cũ nếu còn
+    localStorage.removeItem("user");
+  },
+};
+
+// ── Axios instance ────────────────────────────────────────────────────────────
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: { "Content-Type": "application/json" },
 });
 
-// Auto-attach JWT token
+// ── Request interceptor: gắn accessToken vào header ──────────────────────────
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    // Ưu tiên accessToken mới, fallback sang token cũ để tương thích
+    const token =
+      tokenStorage.getAccessToken() || localStorage.getItem("token");
     if (token) config.headers["Authorization"] = `Bearer ${token}`;
     return config;
   },
   (error) => Promise.reject(error),
 );
 
-// Auto logout on 401
+// ── Biến tránh gọi refresh nhiều lần đồng thời ───────────────────────────────
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+// ── Response interceptor: tự động refresh khi hết hạn ────────────────────────
 axiosInstance.interceptors.response.use(
   (res) => res,
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
     const status = error.response?.status;
-    const requestUrl = error.config?.url || "";
+    const requestUrl = originalRequest?.url || "";
+
+    // Danh sách endpoint công khai (không cần refresh)
     const isPublicAuthRequest =
       requestUrl.includes("/auth/login") ||
       requestUrl.includes("/auth/register") ||
       requestUrl.includes("/auth/forgot-password") ||
-      requestUrl.includes("/auth/verify-otp");
+      requestUrl.includes("/auth/verify-otp") ||
+      requestUrl.includes("/auth/refresh-token");
 
-    // Only force logout/reload for protected requests.
-    if (status === 401 && !isPublicAuthRequest) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.reload();
+    // Chỉ xử lý 401/403 với request được bảo vệ và chưa retry
+    if (
+      (status === 401 || status === 403) &&
+      !isPublicAuthRequest &&
+      !originalRequest._retry
+    ) {
+      const refreshToken = tokenStorage.getRefreshToken();
+
+      // Không có refresh token → logout ngay
+      if (!refreshToken) {
+        tokenStorage.clearTokens();
+        window.dispatchEvent(new CustomEvent("auth:logout"));
+        return Promise.reject(error);
+      }
+
+      // Nếu đang refresh rồi, đưa request vào hàng đợi
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers["Authorization"] = `Bearer ${token}`;
+            return axiosInstance(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        // Gọi API refresh token
+        const refreshRes = await axios.post(
+          `${BASE_URL}/auth/refresh-token`,
+          { refreshToken },
+          { headers: { "Content-Type": "application/json" } },
+        );
+
+        const newAccessToken =
+          refreshRes.data?.accessToken || refreshRes.data?.token;
+        const newRefreshToken =
+          refreshRes.data?.refreshToken || refreshToken;
+
+        // Lưu token mới
+        tokenStorage.setTokens(newAccessToken, newRefreshToken);
+        // Tương thích ngược: cập nhật cả "token" cũ
+        if (newAccessToken) localStorage.setItem("token", newAccessToken);
+
+        processQueue(null, newAccessToken);
+        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+        return axiosInstance(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        tokenStorage.clearTokens();
+        window.dispatchEvent(new CustomEvent("auth:logout"));
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
     }
+
     return Promise.reject(error);
   },
 );
@@ -49,6 +142,12 @@ export const api = {
 
   // POST /api/auth/login          { email, password }
   login: (data) => axiosInstance.post("/auth/login", data),
+
+  // POST /api/auth/refresh-token  { refreshToken }
+  refreshToken: (data) => axiosInstance.post("/auth/refresh-token", data),
+
+  // POST /api/auth/logout
+  logout: () => axiosInstance.post("/auth/logout"),
 
   // PUT  /api/auth/change-password { email, oldPassword, newPassword }
   changePassword: (data) => axiosInstance.put("/auth/change-password", data),

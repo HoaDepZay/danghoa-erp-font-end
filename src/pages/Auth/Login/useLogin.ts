@@ -34,8 +34,15 @@ export const useLogin = (onLogin: (user: any) => void) => {
     try {
       const res = await api.login({ email: form.email, password: form.password });
       const data = res.data;
-      if (data.success || data.token) {
-        localStorage.setItem("token", data.token);
+      if (data.success || data.token || data.accessToken) {
+        const accToken = data.accessToken || data.token;
+        const refToken = data.refreshToken;
+        
+        // Tương thích ngược: vẫn lưu token
+        if (accToken) localStorage.setItem("token", accToken);
+        if (accToken) localStorage.setItem("accessToken", accToken);
+        if (refToken) localStorage.setItem("refreshToken", refToken);
+
         const userData = data.user || data.nhanvien || data.employee || data.data || {};
         localStorage.setItem("user", JSON.stringify(userData));
         onLogin(userData);
