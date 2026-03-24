@@ -33,10 +33,11 @@ export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, u
               )}
             </div>
 
-            {dept.TruongPhong && (
+            {/* Trưởng phòng — API trả TenTruongPhong */}
+            {(dept.TenTruongPhong || dept.TruongPhong) && (
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 12, fontSize: 12, color: "#666" }}>
                 <Users size={12} />
-                <span>TP: {dept.TruongPhong}</span>
+                <span>TP: {dept.TenTruongPhong || dept.TruongPhong}</span>
               </div>
             )}
 

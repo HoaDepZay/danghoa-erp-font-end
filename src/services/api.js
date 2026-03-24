@@ -78,8 +78,8 @@ export const api = {
   // GET  /api/employees/:manv   (cần Token)
   getProfile: (manv) => axiosInstance.get(`/employees/${manv}`),
 
-  // GET  /api/employees/my-projects/:manv  (cần Token)
-  getMyProjects: (manv) => axiosInstance.get(`/employees/my-projects/${manv}`),
+  // GET  /api/projects/employee/:id  — dự án của một nhân viên
+  getMyProjects: (manv) => axiosInstance.get(`/projects/employee/${manv}`),
 
   // GET  /api/employees/coworkers/:maphg  (cần Token)
   getCoworkers: (maphg) => axiosInstance.get(`/employees/coworkers/${maphg}`),
@@ -125,16 +125,16 @@ export const api = {
     axiosInstance.delete(`/admin/phong-ban/${maphg}`),
 
   // ───── DEPARTMENTS ───────────────────────────────────────────────────────────
-  // GET  /api/departments
+  // GET  /api/departments  → { success, data: [{ MAPHG, TENPB, NG_THANHLAP, MaTruongPhg, TenTruongPhong }] }
   getDepartments: () => axiosInstance.get("/departments"),
 
-  // GET  /api/departments/:id
+  // GET  /api/departments/:id  → { success, data: { ...dept, nhanVien: [] } }
   getDepartment: (id) => axiosInstance.get(`/departments/${id}`),
 
-  // POST /api/departments
+  // POST /api/departments  body: { maphg?, tenpb, matruongphg?, ng_thanhlap? }
   createDepartment: (data) => axiosInstance.post("/departments", data),
 
-  // PUT  /api/departments/:id
+  // PUT  /api/departments/:id  body: { tenpb?, matruongphg? }
   updateDepartment: (id, data) => axiosInstance.put(`/departments/${id}`, data),
 
   // DELETE /api/departments/:id
@@ -159,7 +159,7 @@ export const api = {
   // GET  /api/projects/employee/:id
   getProjectsByEmployee: (id) => axiosInstance.get(`/projects/employee/${id}`),
 
-  // POST /api/projects/:id/members   { MaNV, VaiTroDuAn, ThoiGian }
+  // POST /api/projects/:id/members   { manv, vaitroduan }
   addProjectMember: (id, data) =>
     axiosInstance.post(`/projects/${id}/members`, data),
 

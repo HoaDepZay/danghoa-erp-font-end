@@ -6,14 +6,14 @@ import { DepartmentTable } from "./DepartmentTable";
 import { DeptModal, DeptDetailModal } from "./DepartmentModal";
 
 export const Departments: React.FC<{ user: any }> = ({ user }) => {
-  const { departments, employees, loading, modal, setModal, userLevel, fetchDepts } = useDepartments(user);
+  const { departments, employees, loading, modal, setModal, isAdmin, fetchDepts } = useDepartments(user);
 
   return (
     <div className="animate-fade-in">
       <SectionHeader
         title="Phòng ban"
         subtitle={`${departments.length} phòng ban trong hệ thống`}
-        actions={userLevel >= 3 && (
+        actions={isAdmin && (
           <Btn size="sm" icon={<Plus size={14} />} onClick={() => setModal({ type: "add", data: null })}>
             Thêm phòng ban
           </Btn>
@@ -30,7 +30,7 @@ export const Departments: React.FC<{ user: any }> = ({ user }) => {
       ) : departments.length === 0 ? (
         <Card><EmptyState icon={<Building2 size={48} />} title="Chưa có phòng ban nào" description="Thêm phòng ban đầu tiên" /></Card>
       ) : (
-        <DepartmentTable departments={departments} userLevel={userLevel} setModal={setModal} />
+        <DepartmentTable departments={departments} userLevel={isAdmin ? 4 : 1} setModal={setModal} />
       )}
 
       <DeptModal
@@ -44,6 +44,9 @@ export const Departments: React.FC<{ user: any }> = ({ user }) => {
         isOpen={modal.type === "detail"}
         onClose={() => setModal({ type: "", data: null })}
         deptId={modal.data}
+        allEmployees={employees}
+        isAdmin={isAdmin}
+        onRefresh={fetchDepts}
        />
     </div>
   );

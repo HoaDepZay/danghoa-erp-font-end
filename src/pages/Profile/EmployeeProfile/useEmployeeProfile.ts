@@ -30,7 +30,9 @@ export const useEmployeeProfile = (user: any) => {
         }
         if (userLevel >= 3) {
           const depts = await api.getDepartments();
-          setDepartments(depts.data);
+          // Response: { success, data: [...] }
+          const d = depts.data;
+          setDepartments(Array.isArray(d) ? d : Array.isArray(d?.data) ? d.data : []);
         }
       } catch (err) {
         console.error("Lỗi ERP:", err);
@@ -47,7 +49,7 @@ export const useEmployeeProfile = (user: any) => {
   const handleUpdateProfile = async () => {
     setLoading(true);
     try {
-      await api.updateInfo({ manv: user.ma_nv, email: modal.data.email });
+      await api.updateEmployeeInfo({ manv: user.ma_nv, email: modal.data.email });
       const updatedUser = { ...user, email: modal.data.email };
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setProfile({ ...profile, EMAIL: modal.data.email });
@@ -83,7 +85,7 @@ export const useEmployeeProfile = (user: any) => {
         luong: Number(modal.data.luong || 0),
         chucvu: modal.data.chucvu || "Nhân viên",
       };
-      await api.editNhanVien(payload);
+      await api.adminUpdateEmployee(payload);
       alert("✅ Thành công!");
       setModal({ isOpen: false, type: "", data: {} });
       if (userLevel >= 2) {
@@ -98,12 +100,14 @@ export const useEmployeeProfile = (user: any) => {
   const handleCreateDepartment = async () => {
     setLoading(true);
     try {
-      await api.createDept({ tenpb: modal.data.tenpb });
+      // POST /api/departments  body: { tenpb, matruongphg? }
+      await api.createDepartment({ tenpb: modal.data.tenpb, matruongphg: modal.data.matruongphg || undefined });
       const depts = await api.getDepartments();
-      setDepartments(depts.data);
+      const d = depts.data;
+      setDepartments(Array.isArray(d) ? d : Array.isArray(d?.data) ? d.data : []);
       setModal({ isOpen: false, type: "", data: {} });
     } catch (err: any) {
-      alert(err.response?.data?.error || "Lỗi!");
+      alert(err.response?.data?.message || err.response?.data?.error || "Lỗi!");
     }
     setLoading(false);
   };
@@ -111,9 +115,14 @@ export const useEmployeeProfile = (user: any) => {
   const handleUpdateDepartment = async () => {
     setLoading(true);
     try {
-      await api.editDept({ maphg: modal.data.MAPHG, tenpb: modal.data.tenpb });
+      // PUT /api/departments/:id  body: { tenpb, matruongphg? }
+      await api.updateDepartment(modal.data.MAPHG, {
+        tenpb: modal.data.tenpb,
+        matruongphg: modal.data.matruongphg || undefined,
+      });
       const depts = await api.getDepartments();
-      setDepartments(depts.data);
+      const d = depts.data;
+      setDepartments(Array.isArray(d) ? d : Array.isArray(d?.data) ? d.data : []);
       setModal({ isOpen: false, type: "", data: {} });
     } catch {
       alert("Lỗi!");
@@ -124,11 +133,13 @@ export const useEmployeeProfile = (user: any) => {
   const handleDeleteDepartment = async (maphg: string | number) => {
     if (!window.confirm("Xác nhận xóa?")) return;
     try {
-      await api.deleteDept(maphg);
+      // DELETE /api/departments/:id
+      await api.deleteDepartment(maphg);
       const depts = await api.getDepartments();
-      setDepartments(depts.data);
+      const d = depts.data;
+      setDepartments(Array.isArray(d) ? d : Array.isArray(d?.data) ? d.data : []);
     } catch (err: any) {
-      alert(err.response?.data?.error || "Lỗi!");
+      alert(err.response?.data?.message || err.response?.data?.error || "Lỗi!");
     }
   };
 
@@ -136,7 +147,7 @@ export const useEmployeeProfile = (user: any) => {
     const { manv, hoten, maphg, luong, chucvu } = modal.data;
     setLoading(true);
     try {
-      await api.createNhanVien({
+      await api.createEmployee({
         manv,
         hoten,
         maphg: parseInt(maphg),
@@ -196,7 +207,7 @@ export const useEmployeeProfile = (user: any) => {
           const vals = lines[i].split(",").map(v => v.trim().replace(/"/g, ""));
           if (!vals[mIdx] || !vals[hIdx]) continue;
           try {
-            await api.createNhanVien({
+            await api.createEmployee({
               manv: vals[mIdx], hoten: vals[hIdx], maphg: parseInt(vals[pIdx]) || user.ma_phg,
               luong: 0, chucvu: vals[cIdx] || "Nhân viên"
             });
@@ -232,13 +243,14 @@ export const useEmployeeProfile = (user: any) => {
           const vals = lines[i].split(",").map(v => v.trim().replace(/"/g, ""));
           if (!vals[tIdx]) continue;
           try {
-            await api.createDept({ tenpb: vals[tIdx] });
+            await api.createDepartment({ tenpb: vals[tIdx] });
              success++;
           } catch (err) {}
         }
         alert(`Đã nhập thành công ${success} phòng ban!`);
         const depts = await api.getDepartments();
-        setDepartments(depts.data);
+        const d = depts.data;
+        setDepartments(Array.isArray(d) ? d : Array.isArray(d?.data) ? d.data : []);
       } catch (err: any) { alert("Lỗi đọc file: " + err.message); }
     };
     reader.readAsText(file, "UTF-8");
@@ -247,7 +259,7 @@ export const useEmployeeProfile = (user: any) => {
 
   const handlers = {
     handleUpdateProfile, handleChangePass, handleAdminEditNV,
-    handleCreateDepartment, handleUpdateDepartment, handleCreateEmployee,
+    handleCreateDepartment, handleUpdateDepartment, handleDeleteDepartment, handleCreateEmployee,
   };
 
   return {

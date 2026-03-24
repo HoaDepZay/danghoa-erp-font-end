@@ -40,5 +40,4 @@ export const formatFullAddress = (province, district, ward) => {
   return parts.join(", ");
 };
 
-// Legacy object to avoid breaking imports elsewhere if any, but we will mostly use the functions above
 export const VIETNAM_ADDRESSES = {};
