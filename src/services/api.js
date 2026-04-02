@@ -158,6 +158,12 @@ export const api = {
   // (legacy alias – giữ để không break ForgotPassword.jsx)
   forgotPassword: (data) => axiosInstance.post("/auth/forgot-password", data),
 
+  // GET  /api/dashboard/realtime
+  getDashboardRealtime: () => axiosInstance.get("/dashboard/realtime"),
+
+  // POST /api/auth/reset-password  { email, otpCode, newPassword }
+  resetPassword: (data) => axiosInstance.post("/auth/reset-password", data),
+
   // ───── EMPLOYEES ─────────────────────────────────────────────────────────────
   // GET  /api/employees            (params: page, pageSize, search)
   getEmployees: (params) => axiosInstance.get("/employees", { params }),

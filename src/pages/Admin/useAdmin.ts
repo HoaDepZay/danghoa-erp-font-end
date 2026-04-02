@@ -99,13 +99,14 @@ export const useAdmin = (user: any) => {
     }
   };
 
-  const handleDeleteEmployee = async (manv: string) => {
-    if (!window.confirm(`Xác nhận xóa nhân viên ${manv}? Thao tác này không thể hoàn tác!`)) return;
+  const handleDeleteEmployee = async (id: string) => {
     try {
-      await api.adminDeleteEmployee(manv);
-      toast.success(`Đã xóa nhân viên ${manv}!`);
+      await api.deleteEmployee(id);
+      toast.success(`Đã xóa nhân viên ${id}!`);
       fetchEmployees();
-    } catch (err: any) { toast.error(err.response?.data?.message || "Không thể xóa nhân viên!"); }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Không thể xóa nhân viên!");
+    }
   };
 
   const handleDeleteDepartment = async (maphg: string | number, tenpb: string) => {

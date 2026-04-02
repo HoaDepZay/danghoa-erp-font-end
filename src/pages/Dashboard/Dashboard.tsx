@@ -1,5 +1,5 @@
 import React from "react";
-import { TrendingUp } from "lucide-react";
+import { TrendingUp, RefreshCw } from "lucide-react";
 import { Spinner } from "../../components/UI/index";
 import { getUserName } from "../../utils/user";
 import { useDashboard } from "./useDashboard";
@@ -11,7 +11,11 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ user }) => {
-  const { stats, myProjects, myPayroll, loading, userLevel, month, year, pay } = useDashboard(user);
+  const {
+    realtimeData, myProjects, myPayroll,
+    loading, realtimeLoading, lastUpdated,
+    userLevel, month, year, pay, fetchRealtime,
+  } = useDashboard(user);
 
   if (loading) {
     return (
@@ -25,6 +29,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }} className="animate-fade-in">
+
       {/* Welcome banner */}
       <div style={{
         background: "linear-gradient(135deg, #111 0%, #333 100%)",
@@ -40,21 +45,60 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             {role} · Tháng {month}/{year}
           </p>
         </div>
-        <div style={{
-          width: 52, height: 52, borderRadius: 14,
-          background: "rgba(255,255,255,0.1)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}>
-          <TrendingUp size={24} color="#fff" />
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {/* Nút refresh realtime */}
+          {userLevel >= 2 && (
+            <button
+              onClick={fetchRealtime}
+              disabled={realtimeLoading}
+              title="Làm mới dữ liệu realtime"
+              style={{
+                background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)",
+                borderRadius: 10, width: 38, height: 38, display: "flex",
+                alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#fff",
+              }}
+            >
+              <RefreshCw
+                size={16}
+                style={{ animation: realtimeLoading ? "spin 0.8s linear infinite" : "none" }}
+              />
+            </button>
+          )}
+          <div style={{
+            width: 52, height: 52, borderRadius: 14,
+            background: "rgba(255,255,255,0.1)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <TrendingUp size={24} color="#fff" />
+          </div>
         </div>
       </div>
 
-      <DashboardStats userLevel={userLevel} stats={stats} myProjects={myProjects} month={month} pay={pay} />
-      
-      <DashboardChart myProjects={myProjects} myPayroll={myPayroll} pay={pay} month={month} year={year} />
+      {/* Stats cards */}
+      <DashboardStats
+        userLevel={userLevel}
+        realtimeData={realtimeData}
+        myProjects={myProjects}
+        month={month}
+        pay={pay}
+        realtimeLoading={realtimeLoading}
+      />
+
+      {/* Charts + danh sách */}
+      <DashboardChart
+        myProjects={myProjects}
+        myPayroll={myPayroll}
+        pay={pay}
+        month={month}
+        year={year}
+        realtimeData={realtimeData}
+        realtimeLoading={realtimeLoading}
+        lastUpdated={lastUpdated}
+        fetchRealtime={fetchRealtime}
+        userLevel={userLevel}
+      />
     </div>
   );
 };
 
 export default Dashboard;
-

@@ -176,7 +176,7 @@ export const AdminEmployeeTab: React.FC<{ adminData: any }> = ({ adminData }) =>
                           style={{ fontSize: 12, color: "#666", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
                            <Edit3 size={12} /> Sửa
                         </button>
-                        <button onClick={() => handleDeleteEmployee(emp.MANV || emp.MaNV)}
+                        <button onClick={() => setModal({ type: "deleteEmp", data: emp })}
                            style={{ fontSize: 12, color: "#f87171", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
                           <Trash2 size={12} /> Xóa
                         </button>
@@ -193,6 +193,28 @@ export const AdminEmployeeTab: React.FC<{ adminData: any }> = ({ adminData }) =>
         isOpen={modal.type === "editEmp"} onClose={() => setModal({ type: "", data: null })}
         editData={modal.data} departments={departments} onSuccess={fetchEmployees}
       />
+
+      <Modal 
+        isOpen={modal.type === "deleteEmp"} 
+        onClose={() => setModal({ type: "", data: null })} 
+        title="Xác nhận xóa nhân viên"
+        footer={<><Btn variant="secondary" onClick={() => setModal({ type: "", data: null })}>Hủy</Btn><Btn variant="danger" onClick={async () => {
+          await handleDeleteEmployee(modal.data.MANV || modal.data.MaNV);
+          setModal({ type: "", data: null });
+        }}>Xác nhận xóa</Btn></>}
+      >
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "10px 0" }}>
+          <div style={{ width: 60, height: 60, background: "#fef2f2", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Trash2 size={30} color="#ef4444" />
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <p style={{ margin: "0 0 8px 0", fontWeight: 600, fontSize: 16 }}>Bạn có chắc chắn muốn xóa nhân viên này?</p>
+            <p style={{ margin: 0, color: "#666", fontSize: 14 }}>
+              Hành động này sẽ xóa vĩnh viễn nhân viên <strong style={{ color: "#111" }}>{modal.data?.HOTEN || modal.data?.HoTen}</strong> ({modal.data?.MANV || modal.data?.MaNV}) khỏi hệ thống. Thao tác này không thể hoàn tác!
+            </p>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };
