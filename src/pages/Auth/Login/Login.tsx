@@ -156,7 +156,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister, onForgotPass
             <ShieldCheck size={28} color="#fff" />
           </div>
           <h1 style={S.title}>
-            HUIT <span style={{ color: "#999" }}>ERP</span>
+            <span style={{ color: "#999" }}>ERP</span>
           </h1>
           <p style={S.subtitle}>Hệ thống Quản trị Nhân sự</p>
         </div>

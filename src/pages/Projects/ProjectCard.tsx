@@ -1,7 +1,7 @@
 import React from "react";
 import { FolderKanban, User } from "lucide-react";
 import { Badge } from "../../components/UI/index";
-import { formatDate } from "../../utils/helpers";
+import { formatDate, checkOverdue } from "../../utils/helpers";
 import { STATUS_COLOR } from "./useProjects";
 
 interface ProjectCardProps {
@@ -22,6 +22,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) =>
   const start  = get(project, "NGAYBATDAU", "NgayBatDau");
   const status = get(project, "TRANGTHAI", "TrangThai") || "—";
   const role   = get(project, "VAITRODUAN", "VaiTroDuAn", "vaitroduan");
+  const end    = get(project, "NGAYKETTHUC", "NgayKetThuc");
+  const isOverdue = checkOverdue(end, status);
 
   return (
     <div
@@ -60,7 +62,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) =>
           >
             <FolderKanban size={18} color="#fff" />
           </div>
-          <Badge color={STATUS_COLOR[status] || "gray"}>{status}</Badge>
+          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+             {isOverdue && <Badge color="red">Quá hạn</Badge>}
+             <Badge color={STATUS_COLOR[status] || "gray"}>{status}</Badge>
+          </div>
         </div>
 
         <h4 style={{ fontWeight: 700, color: "#111", marginBottom: 4, fontSize: 14 }}>

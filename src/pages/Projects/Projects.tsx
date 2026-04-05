@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FolderKanban, Plus, UserPlus, Trash2, Pencil } from "lucide-react";
 import { api } from "../../services/api";
-import { toast, formatDate } from "../../utils/helpers";
+import { toast, formatDate, checkOverdue } from "../../utils/helpers";
 import {
   CREATE_PROJECT_INITIAL_FORM,
   buildCreateProjectModel,
@@ -19,6 +19,7 @@ import {
 import Modal from "../../components/UI/Modal";
 import { STATUS_COLOR, STATUS_OPTIONS, useProjects } from "./useProjects";
 import { ProjectCard } from "./ProjectCard";
+import ProjectTasks from "../../components/ProjectTasks";
 
 // ─── Tạo dự án ──────────────────────────────────────────────────────────────
 const CreateProjectModal: React.FC<any> = ({ isOpen, onClose, onSuccess }) => {
@@ -272,17 +273,22 @@ const ProjectDetailModal: React.FC<any> = ({
 }) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  // { manv, vaitroduan } — lowercase theo backend mới
   const [addMember, setAddMember] = useState({ manv: "", vaitroduan: "Thành viên" });
   const [addingMember, setAddingMember] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
+
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab("overview");
+      fetchDetail();
+    }
+  }, [isOpen]);
 
   const fetchDetail = useCallback(async () => {
     if (!projectId) return;
     setLoading(true);
     try {
       const res = await api.getProject(projectId);
-      // API trả { success: true, data: { MADA, TENDA, ..., thanhVien: [] } }
-      // => unwrap data.data để lấy object project thực sự
       setData(res.data?.data ?? res.data);
     } catch {
       toast.error("Không thể tải chi tiết dự án");
@@ -291,15 +297,10 @@ const ProjectDetailModal: React.FC<any> = ({
     }
   }, [projectId]);
 
-  useEffect(() => {
-    if (isOpen) fetchDetail();
-  }, [isOpen, fetchDetail]);
-
   const handleAddMember = async () => {
     if (!addMember.manv) return toast.error("Chọn nhân viên!");
     setAddingMember(true);
     try {
-      // Body: { manv, vaitroduan } — đúng theo backend mới
       await api.addProjectMember(projectId, addMember);
       toast.success("Phân công thành công!");
       setAddMember({ manv: "", vaitroduan: "Thành viên" });
@@ -324,7 +325,6 @@ const ProjectDetailModal: React.FC<any> = ({
     }
   };
 
-  // Sau khi unwrap, data chính là object project
   const project = data;
   const members = data?.thanhVien || data?.ThanhVien || data?.members || [];
 
@@ -335,260 +335,99 @@ const ProjectDetailModal: React.FC<any> = ({
       title="Chi tiết dự án"
       size="lg"
       footer={
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            width: "100%",
-          }}
-        >
-          {isAdmin && project && (
+        <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+          {isAdmin && project && activeTab === "overview" && (
             <div style={{ display: "flex", gap: 8 }}>
-              <Btn
-                variant="secondary"
-                size="sm"
-                icon={<Pencil size={13} />}
-                onClick={() => {
-                  onClose();
-                  onEdit(project);
-                }}
-              >
-                Sửa
-              </Btn>
-              <Btn
-                variant="danger"
-                size="sm"
-                icon={<Trash2 size={13} />}
-                onClick={() => {
-                  onClose();
-                  onDelete(project);
-                }}
-              >
-                Xóa
-              </Btn>
+              <Btn variant="secondary" size="sm" icon={<Pencil size={13} />} onClick={() => { onClose(); onEdit(project); }}>Sửa</Btn>
+              <Btn variant="danger" size="sm" icon={<Trash2 size={13} />} onClick={() => { onClose(); onDelete(project); }}>Xóa</Btn>
             </div>
           )}
-          <Btn variant="secondary" onClick={onClose}>
-            Đóng
-          </Btn>
+          <Btn variant="secondary" onClick={onClose} style={{ marginLeft: "auto" }}>Đóng</Btn>
         </div>
       }
     >
-      {loading ? (
-        <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
-          <Spinner size={28} />
-        </div>
-      ) : project ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          {/* Thông tin chung */}
-          <div
-            style={{
-              background: "var(--bg-secondary, #f8f8f8)",
-              borderRadius: 14,
-              padding: 16,
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                justifyContent: "space-between",
-              }}
-            >
-              <h4 style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>
-                {project.TENDA || project.TenDA}
-              </h4>
-              <Badge
-                color={
-                  STATUS_COLOR[project.TRANGTHAI || project.TrangThai] || "gray"
-                }
-              >
-                {project.TRANGTHAI || project.TrangThai || "Đang thực hiện"}
-              </Badge>
-            </div>
-            {(project.MOTA || project.MoTa) && (
-              <p style={{ fontSize: 13, color: "#666", marginTop: 6 }}>
-                {project.MOTA || project.MoTa}
-              </p>
-            )}
-            <div
-              style={{
-                display: "flex",
-                gap: 16,
-                marginTop: 8,
-                fontSize: 12,
-                color: "#aaa",
-              }}
-            >
-              {(project.NGAYBATDAU || project.NgayBatDau) && (
-                <span>Bắt đầu: {formatDate(project.NGAYBATDAU || project.NgayBatDau)}</span>
-              )}
-              {(project.NGAYKETTHUC || project.NgayKetThuc) && (
-                <span>Kết thúc: {formatDate(project.NGAYKETTHUC || project.NgayKetThuc)}</span>
-              )}
-            </div>
-          </div>
+      <div style={{ display: "flex", borderBottom: "1px solid #f1f5f9", gap: 24, marginBottom: 16 }}>
+        <button 
+          onClick={() => setActiveTab("overview")}
+          style={{
+            padding: "8px 4px", fontSize: 13, fontWeight: 700, border: "none", background: "none", cursor: "pointer",
+            color: activeTab === "overview" ? "#111" : "#94a3b8",
+            borderBottom: `2.5px solid ${activeTab === "overview" ? "#111" : "transparent"}`,
+          }}
+        >
+          Tổng quan
+        </button>
+        <button 
+          onClick={() => setActiveTab("tasks")}
+          style={{
+            padding: "8px 4px", fontSize: 13, fontWeight: 700, border: "none", background: "none", cursor: "pointer",
+            color: activeTab === "tasks" ? "#111" : "#94a3b8",
+            borderBottom: `2.5px solid ${activeTab === "tasks" ? "#111" : "transparent"}`,
+          }}
+        >
+          Nhiệm vụ
+        </button>
+      </div>
 
-          {/* Danh sách thành viên */}
-          <div>
-            <p
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                color: "#888",
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                marginBottom: 10,
-              }}
-            >
-              Thành viên ({members.length} người)
-            </p>
-            {members.length === 0 ? (
-              <p
-                style={{
-                  fontSize: 13,
-                  color: "#aaa",
-                  textAlign: "center",
-                  padding: 16,
-                }}
-              >
-                Chưa có thành viên
-              </p>
-            ) : (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 6,
-                  maxHeight: 200,
-                  overflowY: "auto",
-                }}
-              >
+      {loading ? (
+        <div style={{ display: "flex", justifyContent: "center", padding: 40 }}><Spinner size={28} /></div>
+      ) : project ? (
+        activeTab === "overview" ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <div style={{ background: "#f8f8f8", borderRadius: 14, padding: 16 }}>
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+                <h4 style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>{project.TENDA || project.TenDA}</h4>
+                <div style={{ display: "flex", gap: 8 }}>
+                  {checkOverdue(project.NGAYKETTHUC || project.NgayKetThuc, project.TRANGTHAI || project.TrangThai) && (
+                    <Badge color="red">Quá hạn</Badge>
+                  )}
+                  <Badge color={STATUS_COLOR[project.TRANGTHAI || project.TrangThai] || "gray"}>{project.TRANGTHAI || project.TrangThai}</Badge>
+                </div>
+              </div>
+              {(project.MOTA || project.MoTa) && <p style={{ fontSize: 13, color: "#666", marginTop: 6 }}>{project.MOTA || project.MoTa}</p>}
+              <div style={{ display: "flex", gap: 16, marginTop: 8, fontSize: 12, color: "#aaa" }}>
+                <span>Bắt đầu: {formatDate(project.NGAYBATDAU || project.NgayBatDau)}</span>
+                <span>Kết thúc: {formatDate(project.NGAYKETTHUC || project.NgayKetThuc)}</span>
+              </div>
+            </div>
+
+            <div>
+              <p style={{ fontSize: 10, fontWeight: 700, color: "#888", textTransform: "uppercase", marginBottom: 10 }}>Thành viên ({members.length})</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 200, overflowY: "auto" }}>
                 {members.map((m: any) => (
-                  <div
-                    key={m.MANV || m.MaNV || m.manv}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "10px 12px",
-                      background: "var(--bg-secondary, #f8f8f8)",
-                      borderRadius: 12,
-                    }}
-                  >
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 10 }}
-                    >
+                  <div key={m.MANV || m.MaNV || m.manv} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: "#f8f8f8", borderRadius: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       <Avatar name={m.HOTEN || m.HoTen || m.hoten} size="sm" />
                       <div>
-                        <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>
-                          {m.HOTEN || m.HoTen || m.hoten}
-                        </p>
-                        <p style={{ fontSize: 11, color: "#999", margin: 0 }}>
-                          {m.VAITRODUAN || m.VaiTroDuAn || m.vaitroduan || "Thành viên"}
-                          {(m.NgayThamGia || m.NGAYTHAMGIA) && (
-                            <span style={{ marginLeft: 6, color: "#bbb" }}>
-                              · {formatDate(m.NgayThamGia || m.NGAYTHAMGIA)}
-                            </span>
-                          )}
-                        </p>
+                        <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>{m.HOTEN || m.HoTen || m.hoten}</p>
+                        <p style={{ fontSize: 11, color: "#999", margin: 0 }}>{m.VAITRODUAN || m.VaiTroDuAn || m.vaitroduan}</p>
                       </div>
                     </div>
-                    {isAdmin && (
-                      <button
-                        onClick={() =>
-                          handleRemoveMember(m.MANV || m.MaNV || m.manv)
-                        }
-                        style={{
-                          color: "#f87171",
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                          padding: 4,
-                        }}
-                        title="Gỡ nhân viên"
-                      >
-                        <Trash2 size={13} />
-                      </button>
-                    )}
+                    {isAdmin && <button onClick={() => handleRemoveMember(m.MANV || m.MaNV || m.manv)} style={{ color: "#f87171", background: "none", border: "none", cursor: "pointer" }}><Trash2 size={13} /></button>}
                   </div>
                 ))}
               </div>
+            </div>
+
+            {isAdmin && (
+              <div style={{ borderTop: "1px solid #ebebeb", paddingTop: 16 }}>
+                <p style={{ fontSize: 10, fontWeight: 700, color: "#888", textTransform: "uppercase", marginBottom: 10 }}>Phân công</p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <select className="form-input" value={addMember.manv} onChange={(e) => setAddMember({ ...addMember, manv: e.target.value })}>
+                    <option value="">-- Chọn nhân viên --</option>
+                    {employees.map((emp: any) => (<option key={emp.MANV} value={emp.MANV}>{emp.HOTEN}</option>))}
+                  </select>
+                  <select className="form-input" value={addMember.vaitroduan} onChange={(e) => setAddMember({ ...addMember, vaitroduan: e.target.value })}>
+                    <option>Thành viên</option><option>Trưởng dự án</option><option>Backend Developer</option><option>Frontend Developer</option>
+                  </select>
+                </div>
+                <Btn loading={addingMember} size="sm" icon={<UserPlus size={14} />} onClick={handleAddMember} style={{ width: "100%", marginTop: 10, justifyContent: "center" }}>Phân công</Btn>
+              </div>
             )}
           </div>
-
-          {/* Phân công — chỉ admin */}
-          {isAdmin && (
-            <div style={{ borderTop: "1px solid #ebebeb", paddingTop: 16 }}>
-              <p
-                style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  color: "#888",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
-                  marginBottom: 10,
-                }}
-              >
-                Phân công nhân viên
-              </p>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: 10,
-                }}
-              >
-                <select
-                  className="form-input"
-                  value={addMember.manv}
-                  onChange={(e) =>
-                    setAddMember((f) => ({ ...f, manv: e.target.value }))
-                  }
-                >
-                  <option value="">— Chọn nhân viên —</option>
-                  {employees.map((emp: any) => (
-                    <option
-                      key={emp.MANV || emp.MaNV}
-                      value={emp.MANV || emp.MaNV}
-                    >
-                      {emp.HOTEN || emp.HoTen}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  className="form-input"
-                  value={addMember.vaitroduan}
-                  onChange={(e) =>
-                    setAddMember((f) => ({ ...f, vaitroduan: e.target.value }))
-                  }
-                >
-                  <option>Thành viên</option>
-                  <option>Trưởng dự án</option>
-                  <option>Backend Developer</option>
-                  <option>Frontend Developer</option>
-                  <option>Fullstack Developer</option>
-                  <option>Kỹ thuật</option>
-                  <option>Thiết kế</option>
-                  <option>Kiểm thử</option>
-                  <option>Business Analyst</option>
-                  <option>DevOps</option>
-                </select>
-              </div>
-              <div style={{ marginTop: 10 }}>
-                <Btn
-                  loading={addingMember}
-                  size="sm"
-                  icon={<UserPlus size={14} />}
-                  onClick={handleAddMember}
-                  style={{ width: "100%", justifyContent: "center" }}
-                >
-                  Phân công
-                </Btn>
-              </div>
-            </div>
-          )}
-        </div>
+        ) : (
+          <ProjectTasks projectId={projectId} members={members} isAdmin={isAdmin} />
+        )
       ) : null}
     </Modal>
   );
@@ -596,175 +435,52 @@ const ProjectDetailModal: React.FC<any> = ({
 
 // ─── Trang chính ─────────────────────────────────────────────────────────────
 export const Projects: React.FC<{ user: any }> = ({ user }) => {
-  const {
-    displayList,
-    employees,
-    loading,
-    modal,
-    setModal,
-    viewMode,
-    setViewMode,
-    isAdmin,
-    fetchProjects,
-  } = useProjects(user);
+  const { displayList, employees, loading, modal, setModal, viewMode, setViewMode, isAdmin, fetchProjects } = useProjects(user);
 
   const handleDelete = async (project: any) => {
     const id = project.MADA || project.MaDA;
-    const name = project.TENDA || project.TenDA || "dự án này";
-    if (!window.confirm(`Xác nhận xóa "${name}"?`)) return;
+    if (!window.confirm("Xác nhận xóa dự án?")) return;
     try {
       await api.deleteProject(id);
       toast.success("Đã xóa dự án!");
       fetchProjects();
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Lỗi xóa dự án!");
+    } catch {
+      toast.error("Lỗi xóa dự án!");
     }
   };
 
   return (
     <div className="animate-fade-in">
-      <SectionHeader
-        title="Dự án"
-        subtitle={`${displayList.length} dự án`}
-        actions={
-          <>
-            {/* Toggle All / Mine — chỉ admin mới xem được tất cả */}
-            {isAdmin && (
-              <div
-                style={{
-                  display: "flex",
-                  borderRadius: 10,
-                  border: "1.5px solid #e0e0e0",
-                  overflow: "hidden",
-                }}
-              >
-                {["mine", "all"].map((mode) => (
-                  <button
-                    key={mode}
-                    onClick={() => setViewMode(mode)}
-                    style={{
-                      padding: "6px 14px",
-                      fontSize: 12,
-                      fontWeight: 600,
-                      border: "none",
-                      cursor: "pointer",
-                      background: viewMode === mode ? "#111" : "#fff",
-                      color: viewMode === mode ? "#fff" : "#666",
-                      transition: "background 0.15s, color 0.15s",
-                    }}
-                  >
-                    {mode === "mine" ? "Của tôi" : "Tất cả"}
-                  </button>
-                ))}
-              </div>
-            )}
-            {/* Tạo dự án — chỉ admin */}
-            {isAdmin && (
-              <Btn
-                size="sm"
-                icon={<Plus size={14} />}
-                onClick={() => setModal({ type: "create", data: null })}
-              >
-                Tạo dự án
-              </Btn>
-            )}
-          </>
-        }
-      />
+      <SectionHeader title="Dự án" subtitle={`${displayList.length} dự án`} actions={
+        <>
+          {isAdmin && (
+            <div style={{ display: "flex", borderRadius: 10, border: "1.5px solid #e0e0e0", overflow: "hidden" }}>
+              {["mine", "all"].map((mode) => (
+                <button key={mode} onClick={() => setViewMode(mode)} style={{ padding: "6px 14px", fontSize: 12, fontWeight: 600, border: "none", cursor: "pointer", background: viewMode === mode ? "#111" : "#fff", color: viewMode === mode ? "#fff" : "#666" }}>
+                  {mode === "mine" ? "Của tôi" : "Tất cả"}
+                </button>
+              ))}
+            </div>
+          )}
+          {isAdmin && <Btn size="sm" icon={<Plus size={14} />} onClick={() => setModal({ type: "create", data: null })}>Tạo dự án</Btn>}
+        </>
+      } />
 
       {loading ? (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-            gap: 16,
-          }}
-        >
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="card">
-              <div className="card-body">
-                <span
-                  className="skeleton"
-                  style={{
-                    height: 16,
-                    width: "70%",
-                    marginBottom: 10,
-                    display: "block",
-                  }}
-                />
-                <span
-                  className="skeleton"
-                  style={{
-                    height: 12,
-                    width: "100%",
-                    marginBottom: 6,
-                    display: "block",
-                  }}
-                />
-                <span
-                  className="skeleton"
-                  style={{ height: 12, width: "50%", display: "block" }}
-                />
-              </div>
-            </div>
-          ))}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+          {[1,2,3,4,5,6].map(i => (<div key={i} className="card"><div className="card-body"><span className="skeleton" style={{ height: 16, width: "70%", marginBottom: 10, display: "block" }} /></div></div>))}
         </div>
       ) : displayList.length === 0 ? (
-        <Card>
-          <EmptyState
-            icon={<FolderKanban size={48} />}
-            title="Chưa có dự án"
-            description={
-              isAdmin
-                ? "Tạo dự án đầu tiên cho nhóm"
-                : "Bạn chưa được phân công vào dự án nào"
-            }
-          />
-        </Card>
+        <Card><EmptyState icon={<FolderKanban size={48} />} title="Chưa có dự án" description={isAdmin ? "Tạo dự án đầu tiên" : "Chưa được phân công"} /></Card>
       ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-            gap: 16,
-          }}
-        >
-          {displayList.map((p) => (
-            <ProjectCard
-              key={p.MADA || p.MaDA}
-              project={p}
-              onClick={() =>
-                setModal({ type: "detail", data: p.MADA || p.MaDA })
-              }
-            />
-          ))}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+          {displayList.map((p) => (<ProjectCard key={p.MADA || p.MaDA} project={p} onClick={() => setModal({ type: "detail", data: p.MADA || p.MaDA })} />))}
         </div>
       )}
 
-      {/* Modals */}
-      <CreateProjectModal
-        isOpen={modal.type === "create"}
-        onClose={() => setModal({ type: "", data: null })}
-        onSuccess={fetchProjects}
-      />
-
-      <EditProjectModal
-        isOpen={modal.type === "edit"}
-        onClose={() => setModal({ type: "", data: null })}
-        project={modal.data}
-        onSuccess={fetchProjects}
-      />
-
-      <ProjectDetailModal
-        isOpen={modal.type === "detail"}
-        onClose={() => setModal({ type: "", data: null })}
-        projectId={modal.data}
-        employees={employees}
-        isAdmin={isAdmin}
-        onRefresh={fetchProjects}
-        onEdit={(p: any) => setModal({ type: "edit", data: p })}
-        onDelete={(p: any) => handleDelete(p)}
-      />
+      <CreateProjectModal isOpen={modal.type === "create"} onClose={() => setModal({ type: "", data: null })} onSuccess={fetchProjects} />
+      <EditProjectModal isOpen={modal.type === "edit"} onClose={() => setModal({ type: "", data: null })} project={modal.data} onSuccess={fetchProjects} />
+      <ProjectDetailModal isOpen={modal.type === "detail"} onClose={() => setModal({ type: "", data: null })} projectId={modal.data} employees={employees} isAdmin={isAdmin} onRefresh={fetchProjects} onEdit={(p: any) => setModal({ type: "edit", data: p })} onDelete={handleDelete} />
     </div>
   );
 };

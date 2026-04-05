@@ -272,6 +272,20 @@ export const api = {
   removeProjectMember: (id, employeeId) =>
     axiosInstance.delete(`/projects/${id}/members/${employeeId}`),
 
+  // GET  /api/projects/my-projects/full
+  getMyProjectsFull: () => axiosInstance.get("/projects/my-projects/full"),
+
+  // ───── PROJECT TASKS ────────────────────────────────────────────────────────
+  // GET  /api/projects/:id/tasks
+  getProjectTasks: (id) => axiosInstance.get(`/projects/${id}/tasks`),
+
+  // POST /api/projects/:id/tasks
+  createProjectTask: (id, data) => axiosInstance.post(`/projects/${id}/tasks`, data),
+
+  // PUT  /api/projects/:id/tasks/:taskId
+  updateProjectTask: (id, taskId, data) =>
+    axiosInstance.put(`/projects/${id}/tasks/${taskId}`, data),
+
   // ───── PAYROLL ───────────────────────────────────────────────────────────────
   // GET  /api/payroll/:year/:month
   getPayroll: (year, month) => axiosInstance.get(`/payroll/${year}/${month}`),

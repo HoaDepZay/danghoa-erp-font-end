@@ -39,6 +39,17 @@ export const formatDate = (dateStr) => {
   }
 };
 
+// ─── Check Overdue ───────────────────────────────────────────────────────────
+export const checkOverdue = (dateStr, status) => {
+  if (!dateStr || status === "Hoàn thành") return false;
+  const endDate = new Date(dateStr);
+  const now = new Date();
+  
+  // Đặt về cuối ngày để kiểm tra chính xác (23:59:59)
+  endDate.setHours(23, 59, 59, 999);
+  return endDate < now;
+};
+
 // ─── Format Currency ─────────────────────────────────────────────────────────
 export const formatCurrency = (amount) => {
   if (amount == null) return "—";
