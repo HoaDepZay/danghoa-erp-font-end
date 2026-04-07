@@ -30,18 +30,18 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
   }, [showModal]);
 
   useEffect(() => {
-    fetchMyProjects();
-  }, []);
+    if (user) {
+      fetchMyProjects();
+    }
+  }, [user]);
 
   const fetchMyProjects = async () => {
     setLoading(true);
     try {
-      const userLevel = getUserLevel(user);
-      const manv = getManv(user);
-      const isAdmin = userLevel >= 3;
-
-      const res = await (isAdmin ? api.getProjects() : api.getMyProjects(manv));
+      // Sử dụng API lấy toàn bộ dự án mà nhân viên hiện tại tham gia
+      const res = await api.getMyProjectsFull();
       const projects = toArray(res.data);
+      console.log("My Projects Full Data:", projects);
       
       const calendarEvents = projects
         .filter((p: any) => p.NgayBatDau && p.NgayKetThuc) // Chỉ hiển thị dự án có ngày rõ ràng
