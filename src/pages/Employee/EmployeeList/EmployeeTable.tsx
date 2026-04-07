@@ -1,16 +1,27 @@
-import React from "react";
-import { Edit3, Search } from "lucide-react";
+import { Edit3, Search, MessageSquare } from "lucide-react";
 import { Badge, Avatar, SkeletonRows, EmptyState } from "../../../components/UI/index";
 import { ROLE_COLORS } from "./useEmployees";
+import { api } from "../../../services/api";
+import { toast } from "../../../utils/helpers";
 
 interface EmployeeTableProps {
   loading: boolean;
   employees: any[];
   userLevel: number;
   setModal: (val: any) => void;
+  onNavigate: (page: string) => void;
 }
 
-export const EmployeeTable: React.FC<EmployeeTableProps> = ({ loading, employees, userLevel, setModal }) => {
+export const EmployeeTable: React.FC<EmployeeTableProps> = ({ loading, employees, userLevel, setModal, onNavigate }) => {
+  const handleChat = async (emp: any) => {
+    try {
+      await api.createDirectRoom({ targetMaNv: emp.MANV || emp.MaNV });
+      toast.success(`Đã mở phòng chat với ${emp.HOTEN || emp.HoTen}`);
+      onNavigate("chat");
+    } catch (err) {
+      toast.error("Lỗi tạo phòng chat!");
+    }
+  };
   return (
     <div className="overflow-x-auto">
       <table className="data-table">
@@ -30,7 +41,11 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ loading, employees
                <tr key={emp.MANV || emp.MaNV}>
                 <td><span style={{ fontWeight: 600, fontSize: 11, background: "#f0f0f0", padding: "3px 8px", borderRadius: 5 }}>{emp.MANV || emp.MaNV}</span></td>
                 <td>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div 
+                    style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} 
+                    onClick={() => handleChat(emp)}
+                    title={`Nhắn tin với ${emp.HOTEN || emp.HoTen}`}
+                  >
                     <Avatar name={emp.HOTEN || emp.HoTen} size="sm" />
                     <span style={{ fontWeight: 600 }}>{emp.HOTEN || emp.HoTen}</span>
                   </div>
@@ -41,6 +56,7 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ loading, employees
                 <td>
                   <div style={{ display: "flex", gap: 8 }}>
                     <button onClick={() => setModal({ type: "detail", data: emp.MANV || emp.MaNV })} style={{ fontSize: 12, color: "#888", background: "none", border: "none", cursor: "pointer", fontWeight: 500 }}>Chi tiết</button>
+                    <button onClick={() => handleChat(emp)} style={{ fontSize: 12, color: "#888", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}><MessageSquare size={12} /> Nhắn tin</button>
                     {userLevel >= 3 && (
                       <button onClick={() => setModal({ type: "edit", data: emp })} style={{ fontSize: 12, color: "#888", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}><Edit3 size={12} /> Sửa</button>
                     )}

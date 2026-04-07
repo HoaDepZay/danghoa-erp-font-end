@@ -17,14 +17,11 @@ export const useDepartments = (user: any) => {
   const fetchDepts = useCallback(async () => {
     setLoading(true);
     try {
+      // Đối với Admin/Quản lý: Lấy toàn bộ danh sách phòng ban
       const res = await api.getDepartments();
-      // Response: { success: true, data: [...] }
-      const d = res.data;
-      setDepartments(
-        Array.isArray(d) ? d
-        : Array.isArray(d?.data) ? d.data
-        : []
-      );
+      const d = res.data?.data ?? res.data;
+      console.log("Admin/Manager - Loading all departments:", d);
+      setDepartments(Array.isArray(d) ? d : []);
     } catch {
       toast.error("Không thể tải danh sách phòng ban!");
     } finally {

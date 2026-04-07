@@ -14,6 +14,7 @@ import Payroll from "./pages/Payroll/Payroll";
 import Profile from "./pages/Profile/MyProfile/Profile";
 import Admin from "./pages/Admin/Admin";
 import Schedule from "./pages/Schedule/Schedule";
+import Chat from "./pages/Chat/Chat";
 
 import { getUserLevel } from "./utils/user";
 import { api } from "./services/api";
@@ -69,6 +70,7 @@ const PAGES: Record<string, React.FC<any>> = {
   profile: Profile,
   admin: Admin,
   schedule: Schedule,
+  chat: Chat,
 };
 
 const PAGE_MIN_LEVEL: Record<string, number> = {
@@ -76,10 +78,11 @@ const PAGE_MIN_LEVEL: Record<string, number> = {
   profile: 1,
   payroll: 1,
   projects: 1,
-  employees: 2,
-  departments: 2,
+  employees: 1,
+  departments: 3,
   admin: 4,
   schedule: 1,
+  chat: 1,
 };
 
 function App() {

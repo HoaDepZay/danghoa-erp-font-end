@@ -2,18 +2,28 @@ import { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { Calendar as CalendarIcon, Info, CalendarDays, User, Clock, ChevronRight, X, Users, CheckCircle2, AlertCircle } from "lucide-react";
+import { Calendar as CalendarIcon, Info, CalendarDays, User, Clock, ChevronRight, X, Users, CheckCircle2, AlertCircle, MessageSquare } from "lucide-react";
 import { api } from "../../services/api";
-import { toArray, getUserLevel } from "../../utils/user";
+import { toArray, getUserLevel, getManv } from "../../utils/user";
 import { toast, formatDate, checkOverdue } from "../../utils/helpers";
 import ProjectTasks from "../../components/ProjectTasks";
 
-const Schedule = ({ user }: { user: any }) => {
+const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) => void }) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const handleProjectChat = async () => {
+    if (!selectedProject) return;
+    try {
+      await api.getProjectChatRoom(selectedProject.MADA || selectedProject.MaDA);
+      setShowModal(false);
+      onNavigate("chat");
+    } catch (err) {
+      toast.error("Không thể mở phòng chat dự án!");
+    }
+  };
 
   useEffect(() => {
     if (showModal) setActiveTab("overview");
@@ -26,7 +36,11 @@ const Schedule = ({ user }: { user: any }) => {
   const fetchMyProjects = async () => {
     setLoading(true);
     try {
-      const res = await api.getMyProjectsFull();
+      const userLevel = getUserLevel(user);
+      const manv = getManv(user);
+      const isAdmin = userLevel >= 3;
+
+      const res = await (isAdmin ? api.getProjects() : api.getMyProjects(manv));
       const projects = toArray(res.data);
       
       const calendarEvents = projects
@@ -294,9 +308,12 @@ const Schedule = ({ user }: { user: any }) => {
               )}
             </div>
 
-            <div className="modal-footer" style={{ padding: "16px 24px", background: "#f8fafc", borderBottomLeftRadius: "20px", borderBottomRightRadius: "20px" }}>
+
+            <div className="modal-footer" style={{ padding: "16px 24px", background: "#f8fafc", borderBottomLeftRadius: "20px", borderBottomRightRadius: "20px", display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+              <button className="btn btn-primary" style={{ display: "flex", alignItems: "center", gap: "6px" }} onClick={handleProjectChat}>
+                <MessageSquare size={14} /> Chat dự án
+              </button>
               <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Đóng</button>
-              <button className="btn btn-primary">Xuất báo cáo</button>
             </div>
           </div>
         </div>

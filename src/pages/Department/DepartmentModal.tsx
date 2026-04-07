@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Building2, UserPlus, Trash2 } from "lucide-react";
+import { Building2, UserPlus, Trash2, MessageSquare } from "lucide-react";
 import { api } from "../../services/api";
 import { toast } from "../../utils/helpers";
 import { Btn, FormField, Avatar, Spinner } from "../../components/UI/index";
@@ -113,6 +113,8 @@ interface DeptDetailModalProps {
   allEmployees: any[];   // toàn bộ NV để chọn thêm
   isAdmin: boolean;
   onRefresh: () => void;
+  onNavigate?: (page: string) => void;
+  user?: any;
 }
 
 export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
@@ -122,6 +124,8 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
   allEmployees,
   isAdmin,
   onRefresh,
+  onNavigate,
+  user,
 }) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -130,11 +134,14 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
 
   const fetchDetail = useCallback(async () => {
     if (!deptId) return;
+
     setLoading(true);
     try {
+      // Đối với Admin/Quản lý: Sử dụng deptId (mã phòng ban)
       const r = await api.getDepartment(deptId);
-      // Response: { success, data: { ...dept, nhanVien: [] } }
-      setData(r.data?.data ?? r.data);
+      const roomData = r.data?.data ?? r.data;
+      console.log(`Loading Department Detail for Room ID: ${deptId}`, roomData);
+      setData(roomData);
     } catch {
       toast.error("Không thể tải chi tiết phòng ban");
     } finally {
@@ -146,6 +153,28 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
     if (isOpen) fetchDetail();
     else setData(null);
   }, [isOpen, fetchDetail]);
+
+  const handleChat = async () => {
+    if (!deptId) return;
+    try {
+      // Gọi API lấy thông tin phòng chat của phòng ban
+      const res = await api.getDepartmentChatRoom(deptId);
+      const room = res.data?.data || res.data;
+      
+      // Lưu lại MaPhong để trang Chat có thể tự động mở (nếu cần triển khai thêm ở Chat.tsx)
+      if (room && (room.MaPhong || room.id)) {
+        localStorage.setItem("pendingChatRoomId", String(room.MaPhong || room.id));
+        if (onNavigate) {
+          onNavigate("chat");
+          onClose();
+        }
+      } else {
+        toast.error("Không tìm thấy phòng chat cho phòng ban này!");
+      }
+    } catch (err: any) {
+      toast.error("Phòng ban này chưa có phòng chat hoặc lỗi kết nối!");
+    }
+  };
 
   // ── Thêm thành viên: chuyển NV vào phòng này ─────────────────────────────
   const handleAddMember = async () => {
@@ -204,19 +233,24 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
           {/* ── Header ── */}
-          <div style={{ display: "flex", alignItems: "center", gap: 16, paddingBottom: 16, borderBottom: "1px solid #f0f0f0" }}>
-            <div style={{ width: 52, height: 52, background: "#111", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Building2 size={22} color="#fff" />
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16, paddingBottom: 16, borderBottom: "1px solid #f0f0f0" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <div style={{ width: 52, height: 52, background: "#111", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Building2 size={22} color="#fff" />
+              </div>
+              <div>
+                <p style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>{data.TENPB || data.TenPB}</p>
+                <p style={{ fontSize: 12, color: "#888", margin: "2px 0 0" }}>Mã: {data.MAPHG || data.MaPhg}</p>
+                {(data.NG_THANHLAP || data.NgThanhLap) && (
+                  <p style={{ fontSize: 11, color: "#aaa", margin: "2px 0 0" }}>
+                    Thành lập: {formatDate(data.NG_THANHLAP || data.NgThanhLap)}
+                  </p>
+                )}
+              </div>
             </div>
-            <div>
-              <p style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>{data.TENPB || data.TenPB}</p>
-              <p style={{ fontSize: 12, color: "#888", margin: "2px 0 0" }}>Mã: {data.MAPHG || data.MaPhg}</p>
-              {(data.NG_THANHLAP || data.NgThanhLap) && (
-                <p style={{ fontSize: 11, color: "#aaa", margin: "2px 0 0" }}>
-                  Thành lập: {formatDate(data.NG_THANHLAP || data.NgThanhLap)}
-                </p>
-              )}
-            </div>
+            <Btn size="sm" variant="secondary" icon={<MessageSquare size={14} />} onClick={handleChat}>
+              Nhắn tin nhóm
+            </Btn>
           </div>
 
           {/* ── Trưởng phòng ── */}

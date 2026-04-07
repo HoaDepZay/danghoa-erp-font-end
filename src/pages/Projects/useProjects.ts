@@ -26,13 +26,11 @@ export const useProjects = (user: any) => {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState({ type: "", data: null as any });
   const [viewMode, setViewMode] = useState("all");
-
   const userLevel = getUserLevel(user);
   const manv = getManv(user);
 
-  // Admin (level 4) => có thể gọi GET /api/projects (admin-only)
-  // Tất cả => có thể gọi GET /api/projects/employee/:id
-  const isAdmin = userLevel >= 4;
+  // Cập nhật: Quản lý (level 3) và Admin (level 4) đều có quyền xem toàn bộ dự án
+  const isAdmin = userLevel >= 3;
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);

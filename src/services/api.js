@@ -262,7 +262,7 @@ export const api = {
   deleteProject: (id) => axiosInstance.delete(`/projects/${id}`),
 
   // GET  /api/projects/employee/:id
-  getProjectsByEmployee: (id) => axiosInstance.get(`/projects/employee/${id}`),
+  getMyProjects: (id) => axiosInstance.get(`/projects/employee/${id}`),
 
   // POST /api/projects/:id/members   { manv, vaitroduan }
   addProjectMember: (id, data) =>
@@ -299,6 +299,46 @@ export const api = {
 
   // PUT  /api/payroll/:maBl      { Thuong, KhauTruBH }
   updatePayroll: (maBl, data) => axiosInstance.put(`/payroll/${maBl}`, data),
+
+  // ───── CHAT ─────────────────────────────────────────────────────────────────
+  // GET  /api/chat/rooms
+  getChatRooms: () => axiosInstance.get("/chat/rooms"),
+
+  // POST /api/chat/direct-room  body: { targetMaNv }
+  createDirectRoom: (data) => axiosInstance.post("/chat/direct-room", data),
+
+  // GET  /api/chat/rooms/:roomId/messages
+  getMessages: (roomId, params = { limit: 50 }) =>
+    axiosInstance.get(`/chat/rooms/${roomId}/messages`, { params }),
+
+  // POST /api/chat/rooms/:roomId/messages body: { noiDung }
+  sendMessage: (roomId, data) =>
+    axiosInstance.post(`/chat/rooms/${roomId}/messages`, data),
+
+  // POST /api/chat/groups body: { tenPhong, memberIds }
+  createChatGroup: (data) => axiosInstance.post("/chat/groups", data),
+
+  // POST /api/chat/groups/:roomId/members body: { maNv }
+  addChatGroupMember: (roomId, data) =>
+    axiosInstance.post(`/chat/groups/${roomId}/members`, data),
+
+  // DELETE /api/chat/groups/:roomId/members/:memberId
+  removeChatGroupMember: (roomId, memberId) =>
+    axiosInstance.delete(`/chat/groups/${roomId}/members/${memberId}`),
+
+  // GET  /api/chat/projects/:projectId/room
+  getProjectChatRoom: (projectId) =>
+    axiosInstance.get(`/chat/projects/${projectId}/room`),
+
+  // GET  /api/chat/departments/:departmentId/room
+  getDepartmentChatRoom: (departmentId) =>
+    axiosInstance.get(`/chat/departments/${departmentId}/room`),
+
+  // GET  /api/departments/employee/:id
+  getEmployeeDepartments: (id) => axiosInstance.get(`/departments/employee/${id}`),
+
+  // GET  /api/departments/employee/:id/detail (chi tiết theo phòng)
+  getEmployeeDepartmentDetail: (id) => axiosInstance.get(`/departments/employee/${id}/detail`),
 };
 
 export default axiosInstance;

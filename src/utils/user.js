@@ -12,6 +12,10 @@ export const toArray = (val) => {
   if (Array.isArray(val.employees)) return val.employees;
   if (Array.isArray(val.projects)) return val.projects;
   if (Array.isArray(val.departments)) return val.departments;
+  if (Array.isArray(val.messages)) return val.messages;
+  if (Array.isArray(val.rooms)) return val.rooms;
+  if (val.data && Array.isArray(val.data.messages)) return val.data.messages;
+  if (val.data && Array.isArray(val.data.rooms)) return val.data.rooms;
   return [];
 };
 

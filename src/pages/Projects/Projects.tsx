@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { FolderKanban, Plus, UserPlus, Trash2, Pencil } from "lucide-react";
+import { FolderKanban, Plus, UserPlus, Trash2, Pencil, MessageSquare } from "lucide-react";
 import { api } from "../../services/api";
 import { toast, formatDate, checkOverdue } from "../../utils/helpers";
 import {
@@ -270,12 +270,25 @@ const ProjectDetailModal: React.FC<any> = ({
   onRefresh,
   onEdit,
   onDelete,
+  onNavigate,
 }) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [addMember, setAddMember] = useState({ manv: "", vaitroduan: "Thành viên" });
-  const [addingMember, setAddingMember] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [addingMember, setAddingMember] = useState(false);
+  const [addMember, setAddMember] = useState({ manv: "", vaitroduan: "Thành viên" });
+
+  const handleProjectChat = async () => {
+    try {
+      const res = await api.getProjectChatRoom(projectId);
+      if (res.data?.success) {
+        onClose();
+        onNavigate("chat");
+      }
+    } catch (err) {
+      toast.error("Không thể mở phòng chat dự án!");
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -336,12 +349,17 @@ const ProjectDetailModal: React.FC<any> = ({
       size="lg"
       footer={
         <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-          {isAdmin && project && activeTab === "overview" && (
-            <div style={{ display: "flex", gap: 8 }}>
-              <Btn variant="secondary" size="sm" icon={<Pencil size={13} />} onClick={() => { onClose(); onEdit(project); }}>Sửa</Btn>
-              <Btn variant="danger" size="sm" icon={<Trash2 size={13} />} onClick={() => { onClose(); onDelete(project); }}>Xóa</Btn>
-            </div>
-          )}
+          <div style={{ display: "flex", gap: 8 }}>
+            {project && (
+              <Btn variant="primary" size="sm" icon={<MessageSquare size={13} />} onClick={handleProjectChat}>Chat nhóm</Btn>
+            )}
+            {isAdmin && project && activeTab === "overview" && (
+              <>
+                <Btn variant="secondary" size="sm" icon={<Pencil size={13} />} onClick={() => { onClose(); onEdit(project); }}>Sửa</Btn>
+                <Btn variant="danger" size="sm" icon={<Trash2 size={13} />} onClick={() => { onClose(); onDelete(project); }}>Xóa</Btn>
+              </>
+            )}
+          </div>
           <Btn variant="secondary" onClick={onClose} style={{ marginLeft: "auto" }}>Đóng</Btn>
         </div>
       }
@@ -434,7 +452,7 @@ const ProjectDetailModal: React.FC<any> = ({
 };
 
 // ─── Trang chính ─────────────────────────────────────────────────────────────
-export const Projects: React.FC<{ user: any }> = ({ user }) => {
+export const Projects: React.FC<{ user: any; onNavigate: (page: string) => void }> = ({ user, onNavigate }) => {
   const { displayList, employees, loading, modal, setModal, viewMode, setViewMode, isAdmin, fetchProjects } = useProjects(user);
 
   const handleDelete = async (project: any) => {
@@ -480,7 +498,7 @@ export const Projects: React.FC<{ user: any }> = ({ user }) => {
 
       <CreateProjectModal isOpen={modal.type === "create"} onClose={() => setModal({ type: "", data: null })} onSuccess={fetchProjects} />
       <EditProjectModal isOpen={modal.type === "edit"} onClose={() => setModal({ type: "", data: null })} project={modal.data} onSuccess={fetchProjects} />
-      <ProjectDetailModal isOpen={modal.type === "detail"} onClose={() => setModal({ type: "", data: null })} projectId={modal.data} employees={employees} isAdmin={isAdmin} onRefresh={fetchProjects} onEdit={(p: any) => setModal({ type: "edit", data: p })} onDelete={handleDelete} />
+      <ProjectDetailModal isOpen={modal.type === "detail"} onClose={() => setModal({ type: "", data: null })} projectId={modal.data} employees={employees} isAdmin={isAdmin} onRefresh={fetchProjects} onEdit={(p: any) => setModal({ type: "edit", data: p })} onDelete={handleDelete} onNavigate={onNavigate} />
     </div>
   );
 };

@@ -6,7 +6,7 @@ import { EmployeeModal } from "./EmployeeModal";
 import { EmployeeTable } from "./EmployeeTable";
 import { EmployeeDetails } from "../EmployeeDetails/EmployeeDetails";
 
-export const Employees: React.FC<{ user: any }> = ({ user }) => {
+export const Employees: React.FC<{ user: any; onNavigate: (page: string) => void }> = ({ user, onNavigate }) => {
   const {
     employees, departments, loading, search, setSearch, page, setPage, totalPages, total,
     modal, setModal, userLevel, fetchEmployees, handleExport
@@ -41,7 +41,7 @@ export const Employees: React.FC<{ user: any }> = ({ user }) => {
        </Card>
 
       <Card padding={false}>
-         <EmployeeTable loading={loading} employees={employees} userLevel={userLevel} setModal={setModal} />
+         <EmployeeTable loading={loading} employees={employees} userLevel={userLevel} setModal={setModal} onNavigate={onNavigate} />
         <div style={{ padding: "8px 16px", borderTop: "1px solid #f5f5f5" }}>
           <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>

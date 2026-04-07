@@ -5,7 +5,7 @@ import { useDepartments } from "./useDepartments";
 import { DepartmentTable } from "./DepartmentTable";
 import { DeptModal, DeptDetailModal } from "./DepartmentModal";
 
-export const Departments: React.FC<{ user: any }> = ({ user }) => {
+export const Departments: React.FC<{ user: any, onNavigate: (page: string) => void }> = ({ user, onNavigate }) => {
   const { departments, employees, loading, modal, setModal, isAdmin, fetchDepts } = useDepartments(user);
 
   return (
@@ -47,6 +47,8 @@ export const Departments: React.FC<{ user: any }> = ({ user }) => {
         allEmployees={employees}
         isAdmin={isAdmin}
         onRefresh={fetchDepts}
+        onNavigate={onNavigate}
+        user={user}
        />
     </div>
   );

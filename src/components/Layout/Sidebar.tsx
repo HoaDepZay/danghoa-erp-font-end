@@ -11,6 +11,7 @@ import {
   ShieldAlert,
   LogOut,
   CalendarDays,
+  MessageSquare
 } from "lucide-react";
 import { getDisplayRole, getUserLevel, getUserName } from "../../utils/user";
 
@@ -20,8 +21,9 @@ const NAV_ITEMS = [
   { key: "profile", label: "Hồ sơ", icon: UserCircle, minLevel: 1 },
   { key: "payroll", label: "Bảng lương", icon: Wallet, minLevel: 1 },
   { key: "projects", label: "Dự án", icon: FolderKanban, minLevel: 1 },
-  { key: "employees", label: "Nhân viên", icon: Users, minLevel: 2 },
-  { key: "departments", label: "Phòng ban", icon: Building2, minLevel: 2 },
+  { key: "chat", label: "Tin nhắn", icon: MessageSquare, minLevel: 1 },
+  {key: "employees", label: "Nhân viên", icon: Users, minLevel: 1},
+  {key: "departments", label: "Phòng ban", icon: Building2, minLevel: 3},
   { key: "admin", label: "Quản trị", icon: ShieldAlert, minLevel: 4 },
 ];
 
