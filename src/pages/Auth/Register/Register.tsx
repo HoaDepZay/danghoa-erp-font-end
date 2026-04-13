@@ -58,10 +58,10 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
   };
 
   return (
-    <div style={S.page}>
-      <div style={S.card}>
+    <div className="auth-page">
+      <div className="auth-card">
         <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <div style={S.logoBox}>
+          <div className="auth-logo-box">
             <ShieldCheck size={24} color="#fff" />
           </div>
           <h1 style={{ ...S.title, fontSize: 22 }}>{TITLES[step]}</h1>

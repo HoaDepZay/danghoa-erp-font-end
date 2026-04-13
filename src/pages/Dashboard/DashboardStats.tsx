@@ -24,7 +24,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {/* Hàng 1: nhân sự */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+        <div className="grid-4" style={{ gap: 14 }}>
           <StatCard
             label="Tổng nhân viên"
             value={qs.TotalEmployees}
@@ -51,7 +51,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
         </div>
 
         {/* Hàng 2: lương + dự án hoàn thành */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+        <div className="grid-4" style={{ gap: 14 }}>
           <StatCard
             label="Lương TB (VNĐ)"
             value={qs.AvgSalary > 0 ? formatCurrency(qs.AvgSalary) : "Chưa có"}
@@ -79,7 +79,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
 
   // Nhân viên thường: stats cá nhân
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 14 }}>
+    <div className="grid-2" style={{ gap: 14 }}>
       <StatCard
         label="Dự án tham gia"
         value={Array.isArray(myProjects) ? myProjects.length : 0}

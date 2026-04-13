@@ -202,7 +202,7 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
               </div>
 
               {activeTab === "overview" ? (
-                <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "32px" }}>
+                <div className="grid-2" style={{ gap: "32px" }}>
                 {/* Left Column: Details */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                   <div className="detail-section">

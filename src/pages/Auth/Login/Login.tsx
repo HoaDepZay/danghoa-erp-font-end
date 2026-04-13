@@ -148,11 +148,11 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister, onForgotPass
   };
 
   return (
-    <div style={S.page}>
-      <div style={S.card}>
+    <div className="auth-page">
+      <div className="auth-card">
         {/* Logo */}
         <div style={S.logoWrap}>
-          <div style={S.logoBox}>
+          <div className="auth-logo-box">
             <ShieldCheck size={28} color="#fff" />
           </div>
           <h1 style={S.title}>

@@ -31,11 +31,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }} className="animate-fade-in">
 
       {/* Welcome banner */}
-      <div style={{
-        background: "linear-gradient(135deg, #111 0%, #333 100%)",
-        borderRadius: 20, padding: "24px 28px",
-        display: "flex", alignItems: "center", justifyContent: "space-between", color: "#fff",
-      }}>
+      <div className="dashboard-banner">
         <div>
           <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", margin: 0 }}>Chào mừng trở lại 👋</p>
           <h2 style={{ fontSize: 22, fontWeight: 800, margin: "6px 0 4px", color: "#fff" }}>

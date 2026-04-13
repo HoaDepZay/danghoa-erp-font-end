@@ -53,7 +53,7 @@ const DonutSlice: React.FC<{ data: { label: string; value: number; color: string
   });
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+    <div className="flex items-center gap-6 flex-wrap">
       <svg width={100} height={100} viewBox="0 0 100 100">
         <circle cx={50} cy={50} r={R} fill="none" strokeWidth={14} stroke="#f0f0f0" />
         {slices.map((s) => (
@@ -104,7 +104,7 @@ export const DashboardChart: React.FC<DashboardChartProps> = ({
     <>
       {/* ── Charts khi là admin/quản lý ───────────────────────────────── */}
       {userLevel >= 2 && realtimeData && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div className="grid-2">
 
           {/* Nhân sự theo phòng ban */}
           <Card>
@@ -175,7 +175,7 @@ export const DashboardChart: React.FC<DashboardChartProps> = ({
             <Wallet size={17} color="#aaa" />
             <h3 style={{ fontWeight: 700, fontSize: 14, margin: 0 }}>Phiếu lương tháng {month}/{year}</h3>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+          <div className="grid-3">
             {[
               { label: "Lương cơ bản",   val: pay("LuongCoBan"),           raw: false, highlight: false },
               { label: "Phụ cấp",        val: pay("PhuCap"),               raw: false, highlight: false },

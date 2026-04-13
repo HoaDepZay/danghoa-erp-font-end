@@ -90,12 +90,12 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
   const stepIndex = { [STEP.EMAIL]: 0, [STEP.RESET]: 1, [STEP.DONE]: 2 }[step] as number;
 
   return (
-    <div style={S.page}>
-      <div style={S.card}>
+    <div className="auth-page">
+      <div className="auth-card">
 
         {/* Logo + tiêu đề */}
         <div style={S.logoWrap}>
-          <div style={S.logoBox}><ShieldCheck size={28} color="#fff" /></div>
+          <div className="auth-logo-box"><ShieldCheck size={28} color="#fff" /></div>
           <h1 style={S.title}>Quên Mật Khẩu</h1>
           <p style={S.subtitle}>Khôi phục tài khoản HUIT ERP của bạn</p>
         </div>
