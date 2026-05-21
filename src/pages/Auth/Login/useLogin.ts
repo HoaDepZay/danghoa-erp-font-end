@@ -32,7 +32,8 @@ export const useLogin = (onLogin: (user: any) => void) => {
     }
     setLoading(true);
     try {
-      const res = await api.login({ email: form.email, password: form.password });
+      const normalizedEmail = form.email.trim().toLowerCase();
+      const res = await api.login({ email: normalizedEmail, password: form.password });
       const data = res.data;
       if (data.success || data.token || data.accessToken) {
         const accToken = data.accessToken || data.token;

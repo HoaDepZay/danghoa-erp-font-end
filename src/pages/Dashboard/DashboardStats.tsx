@@ -24,7 +24,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {/* Hàng 1: nhân sự */}
-        <div className="grid-4" style={{ gap: 14 }}>
+        <div className="grid-4">
           <StatCard
             label="Tổng nhân viên"
             value={qs.TotalEmployees}
@@ -79,7 +79,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
 
   // Nhân viên thường: stats cá nhân
   return (
-    <div className="grid-2" style={{ gap: 14 }}>
+    <div className="grid-2">
       <StatCard
         label="Dự án tham gia"
         value={Array.isArray(myProjects) ? myProjects.length : 0}

@@ -1,6 +1,9 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000/api";
+const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+const BASE_URL = isLocalhost 
+  ? "http://localhost:5000/api" 
+  : `http://${window.location.hostname}:5000/api`;
 
 // ── Token helpers ────────────────────────────────────────────────────────────
 export const tokenStorage = {
@@ -287,18 +290,27 @@ export const api = {
     axiosInstance.put(`/projects/${id}/tasks/${taskId}`, data),
 
   // ───── PAYROLL ───────────────────────────────────────────────────────────────
-  // GET  /api/payroll/:year/:month
+  // GET  /api/payroll/:year/:month  → { success, data: [{ MaNV, Thang, Nam, GiolamViec, Thuong, BHXH, PhuCap, ThueTNCN, ThucLanh }] }
   getPayroll: (year, month) => axiosInstance.get(`/payroll/${year}/${month}`),
 
-  // GET  /api/payroll/employee/:id
+  // GET  /api/payroll/employee/:id?month=...&year=...  → { success, data: { MaNV, Thang, Nam, GiolamViec, Thuong, BHXH, PhuCap, ThueTNCN, ThucLanh } }
   getMyPayroll: (id, year, month) =>
     axiosInstance.get(`/payroll/employee/${id}`, { params: { year, month } }),
 
-  // POST /api/payroll/generate   { month, year }
-  generatePayroll: (data) => axiosInstance.post("/payroll/generate", data),
+  // POST /api/payroll/check-in  { maNV }
+  checkIn: (data) => axiosInstance.post("/payroll/check-in", data),
 
-  // PUT  /api/payroll/:maBl      { Thuong, KhauTruBH }
-  updatePayroll: (maBl, data) => axiosInstance.put(`/payroll/${maBl}`, data),
+  // POST /api/payroll/check-out  { maNV }
+  checkOut: (data) => axiosInstance.post("/payroll/check-out", data),
+
+  // ───── ATTENDANCE (CHẤM CÔNG) ────────────────────────────────────────────────
+  // GET  /api/payroll/attendance/:date  — tất cả NV theo ngày (YYYY-MM-DD)
+  getAttendanceByDate: (date) => axiosInstance.get(`/payroll/attendance/${date}`),
+
+  // GET  /api/payroll/attendance/employee/:id  — lịch sử của 1 NV
+  // Query params tùy chọn: fromDate, toDate (YYYY-MM-DD)
+  getAttendanceEmployee: (id, params) =>
+    axiosInstance.get(`/payroll/attendance/employee/${id}`, { params }),
 
   // ───── CHAT ─────────────────────────────────────────────────────────────────
   // GET  /api/chat/rooms
@@ -314,6 +326,14 @@ export const api = {
   // POST /api/chat/rooms/:roomId/messages body: { noiDung }
   sendMessage: (roomId, data) =>
     axiosInstance.post(`/chat/rooms/${roomId}/messages`, data),
+
+  // GET  /api/chat/rooms/:roomId/messages/latest
+  getLatestMessage: (roomId) =>
+    axiosInstance.get(`/chat/rooms/${roomId}/messages/latest`),
+
+  // GET  /api/chat/rooms/:roomId/messages/search?keyword=abc
+  searchMessages: (roomId, keyword) =>
+    axiosInstance.get(`/chat/rooms/${roomId}/messages/search`, { params: { keyword } }),
 
   // POST /api/chat/groups body: { tenPhong, memberIds }
   createChatGroup: (data) => axiosInstance.post("/chat/groups", data),

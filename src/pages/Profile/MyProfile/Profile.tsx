@@ -65,19 +65,21 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
     <div className="animate-fade-in" style={{ maxWidth: 780, margin: "0 auto", display: "flex", flexDirection: "column", gap: 20 }}>
       {/* Profile card */}
       <Card>
-        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+        <div className="flex items-center gap-4 flex-wrap">
            <Avatar name={name} size="xl" />
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: "1 1 240px", minWidth: 0 }}>
              <h2 style={{ fontSize: 22, fontWeight: 800, color: "#111", margin: 0 }}>{name}</h2>
-            <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                <Badge color={ROLE_COLORS[chucvu] || "gray"}>{chucvu}</Badge>
               {(emp?.TENPB || emp?.TenPB) && (
                 <span style={{ fontSize: 13, color: "#888" }}>{emp?.TENPB || emp?.TenPB}</span>
               )}
             </div>
           </div>
-          <Btn size="sm" icon={<Lock size={13} />} variant="secondary" onClick={() => setModal("password")}>Đổi mật khẩu</Btn>
-          <Btn size="sm" onClick={() => setModal("profile")}>Cập nhật thông tin</Btn>
+          <div className="flex gap-2 w-full-mobile">
+            <Btn size="sm" icon={<Lock size={13} />} variant="secondary" onClick={() => setModal("password")}>Đổi mật khẩu</Btn>
+            <Btn size="sm" onClick={() => setModal("profile")}>Cập nhật thông tin</Btn>
+          </div>
         </div>
       </Card>
 
@@ -87,13 +89,13 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
           <UserCircle size={16} color="#aaa" />
           <h3 style={{ fontWeight: 700, fontSize: 15, margin: 0 }}>Thông tin cá nhân</h3>
         </div>
-        <div className="grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div className="grid-2">
           {infoItems.map(({ icon, label, value }) => (
-            <div key={label} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "10px 12px", borderRadius: 10, background: "#fafafa" }}>
-              <span style={{ color: "#bbb", marginTop: 1 }}>{icon}</span>
-              <div>
+            <div key={label} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "10px 12px", borderRadius: 10, background: "#fafafa", minWidth: 0 }}>
+              <span style={{ color: "#bbb", marginTop: 1, flexShrink: 0 }}>{icon}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontSize: 10, color: "#aaa", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", margin: 0 }}>{label}</p>
-                <p style={{ fontSize: 13, fontWeight: 600, color: "#111", marginTop: 3 }}>{value || "—"}</p>
+                <p style={{ fontSize: 13, fontWeight: 600, color: "#111", marginTop: 3, wordBreak: "break-word" }}>{value || "—"}</p>
               </div>
             </div>
           ))}
@@ -106,7 +108,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
            <Lock size={16} color="#aaa" />
           <h3 style={{ fontWeight: 700, fontSize: 15, margin: 0 }}>Bảo mật tài khoản</h3>
         </div>
-         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", borderRadius: 12, background: "#f8f8f8" }}>
+         <div className="flex items-center justify-between gap-3 p-4 rounded-xl bg-muted flex-wrap">
           <div>
             <p style={{ fontWeight: 600, fontSize: 13, margin: 0 }}>Mật khẩu đăng nhập</p>
             <p style={{ fontSize: 11, color: "#aaa", marginTop: 3 }}>Cập nhật định kỳ để bảo vệ tài khoản</p>
@@ -116,7 +118,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
       </Card>
 
        <Card>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "14px 16px", borderRadius: 12, background: "#f8f8f8" }}>
+         <div className="flex items-center justify-between gap-3 p-4 rounded-xl bg-muted flex-wrap">
           <div>
              <p style={{ fontWeight: 600, fontSize: 13, margin: 0 }}>Thông tin liên hệ</p>
             <p style={{ fontSize: 11, color: "#aaa", marginTop: 3 }}>Cập nhật họ tên, ngày sinh, giới tính, địa chỉ nhận và số điện thoại</p>

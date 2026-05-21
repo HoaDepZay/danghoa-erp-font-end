@@ -16,7 +16,6 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ loading, employees
   const handleChat = async (emp: any) => {
     try {
       await api.createDirectRoom({ targetMaNv: emp.MANV || emp.MaNV });
-      toast.success(`Đã mở phòng chat với ${emp.HOTEN || emp.HoTen}`);
       onNavigate("chat");
     } catch (err) {
       toast.error("Lỗi tạo phòng chat!");

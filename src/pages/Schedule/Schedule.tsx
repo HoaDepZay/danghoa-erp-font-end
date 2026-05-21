@@ -143,7 +143,7 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
 
       {/* Project Detail Modal */}
       {showModal && selectedProject && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)} style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)" }}>
+        <div className="modal-overlay" onClick={() => setShowModal(false)} style={{ background: "rgba(0,0,0,0.5)" }}>
           <div className="modal-box modal-lg" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>

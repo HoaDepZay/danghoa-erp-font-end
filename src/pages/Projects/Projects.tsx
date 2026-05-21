@@ -17,6 +17,7 @@ import {
   FormField,
 } from "../../components/UI/index";
 import Modal from "../../components/UI/Modal";
+import { Drawer } from "../../components/UI/index";
 import { STATUS_COLOR, STATUS_OPTIONS, useProjects } from "./useProjects";
 import { ProjectCard } from "./ProjectCard";
 import ProjectTasks from "../../components/ProjectTasks";
@@ -342,13 +343,15 @@ const ProjectDetailModal: React.FC<any> = ({
   const members = data?.thanhVien || data?.ThanhVien || data?.members || [];
 
   return (
-    <Modal
+    <Drawer
       isOpen={isOpen}
       onClose={onClose}
-      title="Chi tiết dự án"
+      title={project ? (project.TENDA || project.TenDA || "Chi tiết dự án") : "Chi tiết dự án"}
+      subtitle={project ? `Mã: ${project.MADA || project.MaDA}` : undefined}
+      icon={<FolderKanban size={18} />}
       size="lg"
       footer={
-        <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", width: "100%", flexWrap: "wrap", gap: 8 }}>
           <div style={{ display: "flex", gap: 8 }}>
             {project && (
               <Btn variant="primary" size="sm" icon={<MessageSquare size={13} />} onClick={handleProjectChat}>Chat nhóm</Btn>
@@ -360,12 +363,13 @@ const ProjectDetailModal: React.FC<any> = ({
               </>
             )}
           </div>
-          <Btn variant="secondary" onClick={onClose} style={{ marginLeft: "auto" }}>Đóng</Btn>
+          <Btn variant="secondary" onClick={onClose}>Đóng</Btn>
         </div>
       }
     >
+      {/* Tabs */}
       <div style={{ display: "flex", borderBottom: "1px solid #f1f5f9", gap: 24, marginBottom: 16 }}>
-        <button 
+        <button
           onClick={() => setActiveTab("overview")}
           style={{
             padding: "8px 4px", fontSize: 13, fontWeight: 700, border: "none", background: "none", cursor: "pointer",
@@ -375,7 +379,7 @@ const ProjectDetailModal: React.FC<any> = ({
         >
           Tổng quan
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab("tasks")}
           style={{
             padding: "8px 4px", fontSize: 13, fontWeight: 700, border: "none", background: "none", cursor: "pointer",
@@ -395,7 +399,7 @@ const ProjectDetailModal: React.FC<any> = ({
             <div style={{ background: "#f8f8f8", borderRadius: 14, padding: 16 }}>
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
                 <h4 style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>{project.TENDA || project.TenDA}</h4>
-                <div style={{ display: "flex", gap: 8 }}>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   {checkOverdue(project.NGAYKETTHUC || project.NgayKetThuc, project.TRANGTHAI || project.TrangThai) && (
                     <Badge color="red">Quá hạn</Badge>
                   )}
@@ -411,7 +415,7 @@ const ProjectDetailModal: React.FC<any> = ({
 
             <div>
               <p style={{ fontSize: 10, fontWeight: 700, color: "#888", textTransform: "uppercase", marginBottom: 10 }}>Thành viên ({members.length})</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 200, overflowY: "auto" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {members.map((m: any) => (
                   <div key={m.MANV || m.MaNV || m.manv} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: "#f8f8f8", borderRadius: 12 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -421,7 +425,7 @@ const ProjectDetailModal: React.FC<any> = ({
                         <p style={{ fontSize: 11, color: "#999", margin: 0 }}>{m.VAITRODUAN || m.VaiTroDuAn || m.vaitroduan}</p>
                       </div>
                     </div>
-                    {isAdmin && <button onClick={() => handleRemoveMember(m.MANV || m.MaNV || m.manv)} style={{ color: "#f87171", background: "none", border: "none", cursor: "pointer" }}><Trash2 size={13} /></button>}
+                    {isAdmin && <button onClick={() => handleRemoveMember(m.MANV || m.MaNV || m.manv)} style={{ color: "#f87171", background: "none", border: "none", cursor: "pointer", padding: 6, borderRadius: 8 }}><Trash2 size={13} /></button>}
                   </div>
                 ))}
               </div>
@@ -447,7 +451,7 @@ const ProjectDetailModal: React.FC<any> = ({
           <ProjectTasks projectId={projectId} members={members} isAdmin={isAdmin} />
         )
       ) : null}
-    </Modal>
+    </Drawer>
   );
 };
 

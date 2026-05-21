@@ -75,3 +75,8 @@ export const getDisplayRole = (user) => {
 // ─── Lấy email từ user object ─────────────────────────────────────────────────
 export const getUserEmail = (user) =>
   user?.EMAIL || user?.Email || user?.email || "";
+
+// ─── Lấy mã phòng ban từ user object ──────────────────────────────────────────
+export const getMaPhg = (user) =>
+  user?.MAPHG || user?.MaPhg || user?.maphg || user?.ma_phg || "";
+

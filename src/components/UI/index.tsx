@@ -1,4 +1,5 @@
 import React, { ReactNode, CSSProperties } from "react";
+export { default as Drawer } from "./Drawer";
 
 // ── Spinner ──────────────────────────────────────────────────────────────────
 export const Spinner = ({ size = 20, color = "currentColor" }: { size?: number, color?: string }) => (
@@ -54,11 +55,42 @@ export const Badge = ({ children, color = "gray" }: { children: ReactNode, color
 
 };
 
+// ── Color Hashing Helpers ───────────────────────────────────────────────────
+const AVATAR_COLORS = [
+  { bg: "#FEE2E2", text: "#991B1B" }, // Red
+  { bg: "#FEF3C7", text: "#92400E" }, // Amber
+  { bg: "#D1FAE5", text: "#065F46" }, // Emerald
+  { bg: "#DBEAFE", text: "#1E40AF" }, // Blue
+  { bg: "#E0F2FE", text: "#075985" }, // Sky
+  { bg: "#F3E8FF", text: "#6B21A8" }, // Purple
+  { bg: "#FCE7F3", text: "#9D174D" }, // Pink
+  { bg: "#E0E7FF", text: "#3730A3" }, // Indigo
+  { bg: "#ECFDF5", text: "#047857" }, // Teal
+  { bg: "#E2E8F0", text: "#1E293B" }, // Slate
+];
+
+const stringToColorIndex = (str: string) => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return Math.abs(hash) % AVATAR_COLORS.length;
+};
+
 // ── Avatar ────────────────────────────────────────────────────────────────────
 export const Avatar = ({ name = "", size = "md" }: { name?: string, size?: "sm" | "md" | "lg" | "xl" }) => {
   const letter = name?.split(" ").pop()?.charAt(0)?.toUpperCase() || "?";
   const sizeClass = { sm: "avatar-sm", md: "avatar-md", lg: "avatar-lg", xl: "avatar-xl" }[size] || "avatar-md";
-  return <div className={`avatar ${sizeClass}`}>{letter}</div>;
+  const colorIndex = name ? stringToColorIndex(name) : 0;
+  const colors = AVATAR_COLORS[colorIndex];
+  return (
+    <div 
+      className={`avatar ${sizeClass}`}
+      style={{ backgroundColor: colors.bg, color: colors.text }}
+    >
+      {letter}
+    </div>
+  );
 };
 
 // ── Card ──────────────────────────────────────────────────────────────────────

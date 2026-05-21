@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Building2, UserPlus, Trash2, MessageSquare } from "lucide-react";
 import { api } from "../../services/api";
 import { toast } from "../../utils/helpers";
-import { Btn, FormField, Avatar, Spinner } from "../../components/UI/index";
-import Modal from "../../components/UI/Modal";
+import { Btn, FormField, Avatar, Spinner, Drawer } from "../../components/UI/index";
 import { formatDate } from "../../utils/helpers";
 
 // ─── Modal Tạo / Sửa phòng ban ───────────────────────────────────────────────
@@ -66,10 +65,13 @@ export const DeptModal: React.FC<DeptModalProps> = ({
   };
 
   return (
-    <Modal
+    <Drawer
       isOpen={isOpen}
       onClose={onClose}
       title={isEdit ? "Chỉnh sửa phòng ban" : "Thêm phòng ban mới"}
+      subtitle={isEdit ? `Mã: ${editData?.MAPHG || editData?.MaPhg}` : "Tạo đơn vị tổ chức mới"}
+      icon={<Building2 size={18} />}
+      size="sm"
       footer={
         <>
           <Btn variant="secondary" onClick={onClose}>Hủy</Btn>
@@ -101,7 +103,7 @@ export const DeptModal: React.FC<DeptModalProps> = ({
           </select>
         </FormField>
       </div>
-    </Modal>
+    </Drawer>
   );
 };
 
@@ -218,10 +220,12 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
   );
 
   return (
-    <Modal
+    <Drawer
       isOpen={isOpen}
       onClose={onClose}
-      title="Chi tiết phòng ban"
+      title={data ? (data.TENPB || data.TenPB || "Chi tiết phòng ban") : "Chi tiết phòng ban"}
+      subtitle={data ? `Mã phòng: ${data.MAPHG || data.MaPhg} · ${members.length} thành viên` : undefined}
+      icon={<Building2 size={18} />}
       size="lg"
       footer={<Btn variant="secondary" onClick={onClose}>Đóng</Btn>}
     >
@@ -369,6 +373,6 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
 
         </div>
       ) : null}
-    </Modal>
+    </Drawer>
   );
 };

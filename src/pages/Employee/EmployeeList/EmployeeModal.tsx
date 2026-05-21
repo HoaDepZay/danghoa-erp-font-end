@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { api } from "../../../services/api";
 import { toast } from "../../../utils/helpers";
-import { Btn, FormField } from "../../../components/UI/index";
-import Modal from "../../../components/UI/Modal";
+import { Btn, FormField, Drawer } from "../../../components/UI/index";
+import { Users } from "lucide-react";
 
 interface EmployeeModalProps {
   isOpen: boolean;
@@ -71,9 +71,16 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, e
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={isEdit ? "Chỉnh sửa nhân viên" : "Thêm nhân viên mới"} size="lg"
-      footer={<><Btn variant="secondary" onClick={onClose}>Hủy</Btn><Btn loading={loading} onClick={handleSubmit}>{isEdit ? "Lưu thay đổi" : "Thêm mới"}</Btn></>}>
-      <div className="grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+    <Drawer
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isEdit ? "Chỉnh sửa nhân viên" : "Thêm nhân viên mới"}
+      subtitle={isEdit ? `Mã NV: ${form.MaNV}` : "Điền thông tin nhân viên mới"}
+      icon={<Users size={18} />}
+      size="md"
+      footer={<><Btn variant="secondary" onClick={onClose}>Hủy</Btn><Btn loading={loading} onClick={handleSubmit}>{isEdit ? "Lưu thay đổi" : "Thêm mới"}</Btn></>}
+    >
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         {!isEdit && (
           <FormField label="Mã nhân viên *">
             <input className="form-input" placeholder="VD: NV001" value={form.MaNV} onChange={set("MaNV")} />
@@ -88,14 +95,16 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, e
         <FormField label="Số điện thoại">
           <input className="form-input" placeholder="0901234567" value={form.SoDienThoai} onChange={set("SoDienThoai")} />
         </FormField>
-        <FormField label="Ngày sinh">
-          <input className="form-input" type="date" value={form.NgaySinh} onChange={set("NgaySinh")} />
-        </FormField>
-        <FormField label="Giới tính">
-          <select className="form-input" value={form.GioiTinh} onChange={set("GioiTinh")}>
-            <option>Nam</option><option>Nữ</option>
-          </select>
-        </FormField>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          <FormField label="Ngày sinh">
+            <input className="form-input" type="date" value={form.NgaySinh} onChange={set("NgaySinh")} />
+          </FormField>
+          <FormField label="Giới tính">
+            <select className="form-input" value={form.GioiTinh} onChange={set("GioiTinh")}>
+              <option>Nam</option><option>Nữ</option>
+            </select>
+          </FormField>
+        </div>
         <FormField label="Phòng ban">
           <select className="form-input" value={form.MaPhg} onChange={set("MaPhg")}>
             <option value="">— Chưa chọn —</option>
@@ -104,7 +113,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, e
             ))}
           </select>
         </FormField>
-         <FormField label="Chức vụ">
+        <FormField label="Chức vụ">
           <select className="form-input" value={form.chucvu} onChange={set("chucvu")}>
             <option>Cộng tác viên</option><option>Nhân viên</option><option>Quản lý</option>
           </select>
@@ -113,17 +122,15 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, e
           <input className="form-input" type="number" placeholder="5000000" value={form.LuongCoBan} onChange={set("LuongCoBan")} />
         </FormField>
         {!isEdit && (
-           <FormField label="Mật khẩu mặc định">
+          <FormField label="Mật khẩu mặc định">
             <input className="form-input" placeholder="Mặc định: 123456" value={form.Password} onChange={set("Password")} />
           </FormField>
         )}
-        <div style={{ gridColumn: "1 / -1" }}>
-          <FormField label="Địa chỉ">
-            <input className="form-input" placeholder="Số nhà, đường, quận, TP" value={form.DiaChi} onChange={set("DiaChi")} />
-          </FormField>
-        </div>
+        <FormField label="Địa chỉ">
+          <input className="form-input" placeholder="Số nhà, đường, quận, TP" value={form.DiaChi} onChange={set("DiaChi")} />
+        </FormField>
       </div>
-    </Modal>
+    </Drawer>
   );
 };
 

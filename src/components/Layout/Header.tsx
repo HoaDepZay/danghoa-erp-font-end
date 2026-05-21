@@ -1,6 +1,7 @@
 import { Bell, Search, Menu } from "lucide-react";
 import { Avatar } from "../UI/index";
 import { getDisplayRole, getUserName } from "../../utils/user";
+import { toast } from "../../utils/helpers";
 
 const PAGE_TITLES: Record<string, string> = {
   dashboard: "Tổng quan",
@@ -37,12 +38,12 @@ const Header = ({ activePage, user, onToggleMenu }: any) => {
       </div>
 
       <div className="topbar-right">
-        <div className="topbar-search">
+        <div className="topbar-search" onClick={() => toast.info("Tính năng tìm kiếm đang được phát triển")}>
           <Search size={14} />
           <span>Tìm kiếm...</span>
         </div>
 
-        <button className="topbar-bell">
+        <button className="topbar-bell" onClick={() => toast.info("Tính năng thông báo đang được phát triển")}>
           <Bell size={17} />
           <span className="dot" />
         </button>

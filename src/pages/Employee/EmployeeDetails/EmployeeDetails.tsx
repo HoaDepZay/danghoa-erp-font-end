@@ -1,10 +1,11 @@
-import React from "react";
-import { Avatar, Badge, Spinner } from "../../../components/UI/index";
-import Modal from "../../../components/UI/Modal";
+import React, { useState } from "react";
+import { User, MessageSquare } from "lucide-react";
+import { Avatar, Badge, Spinner, Drawer } from "../../../components/UI/index";
 import { Btn } from "../../../components/UI/index";
 import { formatDate } from "../../../utils/helpers";
 import { ROLE_COLORS } from "../EmployeeList/useEmployees";
 import { useEmployeeDetails } from "./useEmployeeDetails";
+import { api } from "../../../services/api";
 
 const GENDER_MAP: Record<number | string, string> = { 1: "Nam", 2: "Nữ", 3: "Khác" };
 const formatGender = (val: number | string | null | undefined): string => {
@@ -16,43 +17,92 @@ interface EmployeeDetailsProps {
   isOpen: boolean;
   onClose: () => void;
   employeeId: string | null;
+  onNavigate?: (page: string) => void;
 }
 
-export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ isOpen, onClose, employeeId }) => {
+export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ isOpen, onClose, employeeId, onNavigate }) => {
   const { data, loading } = useEmployeeDetails(employeeId);
+  const [chatLoading, setChatLoading] = useState(false);
   const emp = data?.employee || data;
 
+  const handleStartChat = async () => {
+    if (!emp) return;
+    setChatLoading(true);
+    try {
+      const targetMaNv = emp.MANV || emp.MaNV || emp.ma_nv;
+      const res = await api.createDirectRoom({ targetMaNv });
+      const roomId = res.data?.data?.MaPhong || res.data?.MaPhong;
+      if (roomId) {
+        localStorage.setItem("activeRoomId", String(roomId));
+      }
+      onClose();
+      if (onNavigate) {
+        onNavigate("chat");
+      }
+    } catch (error: any) {
+      console.error("Lỗi tạo phòng chat:", error);
+      alert(error.response?.data?.message || "Không thể tạo phòng chat với nhân viên này");
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  const fields = emp ? [
+    ["Mã NV", emp.MANV || emp.MaNV],
+    ["Email", emp.EMAIL || emp.Email],
+    ["SĐT", emp.SDT || emp.SODIENTHOA || emp.SoDienThoai || "—"],
+    ["Ngày sinh", formatDate(emp.NGAYSINH || emp.NgaySinh)],
+    ["Giới tính", formatGender(emp.GIOITINH ?? emp.GioiTinh)],
+    ["Địa chỉ", emp.DIACHINHAN || emp.DIACHI || emp.DiaChi],
+    ["Phòng ban", emp.TENPB || emp.TenPB],
+    ["Lương cơ bản", (emp.LUONG != null || emp.LUONGCOBAN != null)
+      ? `${Number(emp.LUONG ?? emp.LUONGCOBAN).toLocaleString("vi-VN")} VNĐ` : "—"],
+  ] : [];
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Chi tiết nhân viên" size="md" footer={<Btn variant="secondary" onClick={onClose}>Đóng</Btn>}>
+    <Drawer
+      isOpen={isOpen}
+      onClose={onClose}
+      title={emp ? (emp.HOTEN || emp.HoTen || "Chi tiết nhân viên") : "Chi tiết nhân viên"}
+      subtitle={emp ? `Mã NV: ${emp.MANV || emp.MaNV}` : undefined}
+      icon={<User size={18} />}
+      size="sm"
+      footer={
+        <div style={{ display: "flex", gap: 8, width: "100%" }}>
+          {emp && (
+            <Btn variant="primary" onClick={handleStartChat} loading={chatLoading} icon={<MessageSquare size={14} />} style={{ flex: 1 }}>
+              Nhắn tin
+            </Btn>
+          )}
+          <Btn variant="secondary" onClick={onClose} disabled={chatLoading}>Đóng</Btn>
+        </div>
+      }
+    >
       {loading ? (
-        <div style={{ display: "flex", justifyContent: "center", padding: "32px 0" }}><Spinner size={28} /></div>
+        <div style={{ display: "flex", justifyContent: "center", padding: "48px 0" }}><Spinner size={28} /></div>
       ) : emp ? (
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 16, paddingBottom: 16, borderBottom: "1px solid #f0f0f0", marginBottom: 16 }}>
-             <Avatar name={emp.HOTEN || emp.HoTen} size="lg" />
+          {/* Avatar header */}
+          <div style={{ display: "flex", alignItems: "center", gap: 16, background: "#f8f8f8", borderRadius: 14, padding: "16px 18px", marginBottom: 20 }}>
+            <Avatar name={emp.HOTEN || emp.HoTen} size="lg" />
             <div>
-              <p style={{ fontWeight: 700, fontSize: 16 }}>{emp.HOTEN || emp.HoTen}</p>
+              <p style={{ fontWeight: 700, fontSize: 16, margin: "0 0 6px" }}>{emp.HOTEN || emp.HoTen}</p>
               <Badge color={ROLE_COLORS[emp.CHUCVU || emp.chucvu] || "gray"}>{emp.CHUCVU || emp.chucvu}</Badge>
             </div>
           </div>
-          {[
-            ["Mã NV", emp.MANV || emp.MaNV],
-            ["Email", emp.EMAIL || emp.Email],
-            ["SĐT", emp.SDT || emp.SODIENTHOA || emp.SoDienThoai || "—"],
-            ["Ngày sinh", formatDate(emp.NGAYSINH || emp.NgaySinh)],
-            ["Giới tính", formatGender(emp.GIOITINH ?? emp.GioiTinh)],
-            ["Địa chỉ", emp.DIACHINHAN || emp.DIACHI || emp.DiaChi],
-            ["Phòng ban", emp.TENPB || emp.TenPB],
-            ["Lương cơ bản", (emp.LUONG != null || emp.LUONGCOBAN != null) ? `${Number(emp.LUONG ?? emp.LUONGCOBAN).toLocaleString("vi-VN")} VNĐ` : "—"],
-          ].map(([label, value]) => (
-            <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #f8f8f8", fontSize: 13 }}>
-              <span style={{ color: "#888" }}>{label as string}</span>
-               <span style={{ fontWeight: 600, textAlign: "right", maxWidth: "60%" }}>{value || "—"}</span>
-            </div>
-          ))}
+
+          {/* Thông tin chi tiết */}
+          <div className="drawer-section">
+            <p className="drawer-section-title">Thông tin cá nhân</p>
+            {fields.map(([label, value]) => (
+              <div key={label as string} className="drawer-field">
+                <span className="drawer-field-label">{label as string}</span>
+                <span className="drawer-field-value">{(value as string) || "—"}</span>
+              </div>
+            ))}
+          </div>
         </div>
       ) : null}
-    </Modal>
+    </Drawer>
   );
 };
-

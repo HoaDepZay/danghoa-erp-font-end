@@ -37,9 +37,18 @@ export const useAdmin = (user: any) => {
   const fetchDepartments = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.adminGetDepartments();
-      const d = res.data;
-      setDepartments(Array.isArray(d) ? d : Array.isArray(d?.data) ? d.data : []);
+      const [deptRes, empRes] = await Promise.allSettled([
+        api.adminGetDepartments(),
+        api.getEmployees({ pageSize: 200 })
+      ]);
+      if (deptRes.status === "fulfilled") {
+        const d = deptRes.value.data;
+        setDepartments(Array.isArray(d) ? d : Array.isArray(d?.data) ? d.data : []);
+      }
+      if (empRes.status === "fulfilled") {
+        const d = empRes.value.data;
+        setEmployees(Array.isArray(d) ? d : Array.isArray(d?.data) ? d.data : Array.isArray(d?.employees) ? d.employees : []);
+      }
     } catch { toast.error("Không thể tải danh sách phòng ban!"); }
     finally { setLoading(false); }
   }, []);

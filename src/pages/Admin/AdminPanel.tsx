@@ -4,6 +4,7 @@ import { api } from "../../services/api";
 import { toast } from "../../utils/helpers";
 import { Btn, Badge, Card, SkeletonRows, EmptyState, Avatar, FormField } from "../../components/UI/index";
 import Modal from "../../components/UI/Modal";
+import { DeptDetailModal } from "../Department/DepartmentModal";
 
 interface AdminEditEmpModalProps {
   isOpen: boolean; onClose: () => void; editData: any; departments: any[]; onSuccess: () => void;
@@ -77,17 +78,21 @@ export const AdminEditEmpModal: React.FC<AdminEditEmpModalProps> = ({ isOpen, on
 };
 
 interface AdminDeptModalProps {
-  isOpen: boolean; onClose: () => void; editData: any; onSuccess: () => void;
+  isOpen: boolean; onClose: () => void; editData: any; employees: any[]; onSuccess: () => void;
 }
-export const AdminDeptModal: React.FC<AdminDeptModalProps> = ({ isOpen, onClose, editData, onSuccess }) => {
+export const AdminDeptModal: React.FC<AdminDeptModalProps> = ({ isOpen, onClose, editData, employees, onSuccess }) => {
   const isEdit = !!editData;
-  const [form, setForm] = useState({ tenpb: "", maphg: "" });
+  const [form, setForm] = useState({ tenpb: "", maphg: "", matruongphg: "" });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setForm(editData
-      ? { tenpb: editData.TENPB || editData.tenpb || "", maphg: editData.MAPHG || editData.maphg || "" }
-      : { tenpb: "", maphg: "" }
+      ? { 
+          tenpb: editData.TENPB || editData.tenpb || "", 
+          maphg: editData.MAPHG || editData.maphg || "",
+          matruongphg: editData.MATRUONGPHG || editData.matruongphg || editData.MaTruongPhg || ""
+        }
+      : { tenpb: "", maphg: "", matruongphg: "" }
     );
   }, [editData, isOpen]);
 
@@ -95,11 +100,15 @@ export const AdminDeptModal: React.FC<AdminDeptModalProps> = ({ isOpen, onClose,
     if (!form.tenpb.trim()) return toast.error("Tên phòng ban không được trống!");
     setLoading(true);
     try {
+      const payload: any = { 
+        tenpb: form.tenpb, 
+        matruongphg: form.matruongphg || undefined 
+      };
       if (isEdit) {
-         await api.adminUpdateDepartment({ maphg: form.maphg, tenpb: form.tenpb });
+        await api.adminUpdateDepartment({ maphg: form.maphg, ...payload });
         toast.success("Cập nhật phòng ban thành công!");
       } else {
-        await api.adminCreateDepartment({ tenpb: form.tenpb });
+        await api.adminCreateDepartment(payload);
         toast.success("Tạo phòng ban thành công!");
       }
       onSuccess(); onClose();
@@ -115,6 +124,20 @@ export const AdminDeptModal: React.FC<AdminDeptModalProps> = ({ isOpen, onClose,
         <FormField label="Tên phòng ban *">
           <input className="form-input" placeholder="VD: Phòng Công nghệ" value={form.tenpb}
              onChange={(e) => setForm((f) => ({ ...f, tenpb: e.target.value }))} />
+        </FormField>
+        <FormField label="Trưởng phòng">
+          <select 
+            className="form-input" 
+            value={form.matruongphg} 
+            onChange={(e) => setForm((f) => ({ ...f, matruongphg: e.target.value }))}
+          >
+            <option value="">— Chưa chọn —</option>
+            {employees.map((emp) => (
+              <option key={emp.MANV || emp.MaNV} value={emp.MANV || emp.MaNV}>
+                {emp.HOTEN || emp.HoTen} ({emp.MANV || emp.MaNV})
+              </option>
+            ))}
+          </select>
         </FormField>
         {isEdit && (
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 10, fontSize: 12, color: "#92400e" }}>
@@ -241,30 +264,37 @@ export const AdminDepartmentTab: React.FC<{ adminData: any }> = ({ adminData }) 
       ) : (
          <Card padding={false}>
           <table className="data-table">
-             <thead><tr><th>Mã PB</th><th>Tên phòng ban</th><th style={{ width: 140 }}>Thao tác</th></tr></thead>
+             <thead><tr><th>Mã PB</th><th>Tên phòng ban</th><th>Trưởng phòng</th><th style={{ width: 140 }}>Thao tác</th></tr></thead>
             <tbody>
               {departments.map((dept: any) => (
-                 <tr key={dept.MAPHG || dept.maphg}>
-                  <td>
-                    <span style={{ fontWeight: 600, fontSize: 11, background: "#f0f0f0", padding: "3px 8px", borderRadius: 5 }}>
-                      {dept.MAPHG || dept.maphg}
-                    </span>
-                  </td>
-                  <td>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                       <div style={{ width: 32, height: 32, background: "#111", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <Building2 size={14} color="#fff" />
-                      </div>
-                      <span style={{ fontWeight: 600 }}>{dept.TENPB || dept.tenpb}</span>
-                    </div>
-                  </td>
+                   <tr key={dept.MAPHG || dept.maphg} 
+                      onClick={() => setModal({ type: "detailDept", data: dept.MAPHG || dept.maphg })}
+                      style={{ cursor: "pointer" }}
+                      className="hover:bg-gray-50 transition-colors"
+                  >
+                   <td>
+                     <span style={{ fontWeight: 600, fontSize: 11, background: "#f0f0f0", padding: "3px 8px", borderRadius: 5 }}>
+                       {dept.MAPHG || dept.maphg}
+                     </span>
+                   </td>
+                   <td>
+                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{ width: 32, height: 32, background: "#111", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                         <Building2 size={14} color="#fff" />
+                       </div>
+                       <span style={{ fontWeight: 600 }}>{dept.TENPB || dept.tenpb}</span>
+                     </div>
+                   </td>
+                   <td style={{ fontSize: 13, color: "#666" }}>
+                      {dept.TenTruongPhong || dept.TruongPhong || "—"}
+                   </td>
                    <td>
                     <div style={{ display: "flex", gap: 8 }}>
-                      <button onClick={() => setModal({ type: "editDept", data: dept })}
+                      <button onClick={(e) => { e.stopPropagation(); setModal({ type: "editDept", data: dept }); }}
                          style={{ fontSize: 12, color: "#666", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
                         <Edit3 size={12} /> Sửa
                       </button>
-                       <button onClick={() => handleDeleteDepartment(dept.MAPHG || dept.maphg, dept.TENPB || dept.tenpb)}
+                       <button onClick={(e) => { e.stopPropagation(); handleDeleteDepartment(dept.MAPHG || dept.maphg, dept.TENPB || dept.tenpb); }}
                         style={{ fontSize: 12, color: "#f87171", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
                         <Trash2 size={12} /> Xóa
                       </button>
@@ -279,9 +309,19 @@ export const AdminDepartmentTab: React.FC<{ adminData: any }> = ({ adminData }) 
 
       <AdminDeptModal
         isOpen={modal.type === "addDept" || modal.type === "editDept"}
-         onClose={() => setModal({ type: "", data: null })}
+        onClose={() => setModal({ type: "", data: null })}
         editData={modal.type === "editDept" ? modal.data : null}
-         onSuccess={fetchDepartments}
+        employees={adminData.employees || []}
+        onSuccess={fetchDepartments}
+      />
+      
+      <DeptDetailModal
+        isOpen={modal.type === "detailDept"}
+        onClose={() => setModal({ type: "", data: null })}
+        deptId={modal.data}
+        allEmployees={adminData.employees || []}
+        isAdmin={true}
+        onRefresh={fetchDepartments}
       />
     </>
   );

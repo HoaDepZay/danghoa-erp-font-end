@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { api } from "../../../services/api";
+import { getManv, getUserLevel, getMaPhg } from "../../../utils/user";
 
 export const useEmployeeProfile = (user: any) => {
   const [profile, setProfile] = useState<any>(null);
@@ -10,22 +11,21 @@ export const useEmployeeProfile = (user: any) => {
   const [modal, setModal] = useState({ isOpen: false, type: "", data: {} as any });
   const [loading, setLoading] = useState(false);
 
-  const roleLevels: Record<string, number> = { "Cộng tác viên": 1, "Nhân viên": 2, "Quản lý": 3 };
-  const userLevel = roleLevels[user?.chuc_vu] || 1;
+  const userLevel = getUserLevel(user);
 
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
       try {
         const [prof, proj] = await Promise.all([
-          api.getProfile(user.MANV),
-          api.getMyProjects(user.MANV),
+          api.getProfile(getManv(user)),
+          api.getMyProjects(getManv(user)),
         ]);
         setProfile(prof.data);
         setMyProjects(proj.data);
 
         if (userLevel >= 2) {
-          const team = await api.getCoworkers(user.ma_phg);
+          const team = await api.getCoworkers(getMaPhg(user));
           setCoworkers(team.data);
         }
         if (userLevel >= 3) {
@@ -49,7 +49,7 @@ export const useEmployeeProfile = (user: any) => {
   const handleUpdateProfile = async () => {
     setLoading(true);
     try {
-      await api.updateEmployeeInfo({ manv: user.ma_nv, email: modal.data.email });
+      await api.updateEmployeeInfo({ manv: getManv(user), email: modal.data.email });
       const updatedUser = { ...user, email: modal.data.email };
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setProfile({ ...profile, EMAIL: modal.data.email });
@@ -65,7 +65,7 @@ export const useEmployeeProfile = (user: any) => {
     if (modal.data.newPass !== modal.data.confirmPass) return alert("Mật khẩu không khớp!");
     try {
       await api.changePassword({
-        manv: user.ma_nv,
+        manv: getManv(user),
         oldPassword: modal.data.oldPass,
         newPassword: modal.data.newPass,
       });
@@ -89,7 +89,7 @@ export const useEmployeeProfile = (user: any) => {
       alert("✅ Thành công!");
       setModal({ isOpen: false, type: "", data: {} });
       if (userLevel >= 2) {
-        const team = await api.getCoworkers(user.ma_phg);
+        const team = await api.getCoworkers(getMaPhg(user));
         setCoworkers(team.data);
       }
     } catch (err: any) {
@@ -155,7 +155,7 @@ export const useEmployeeProfile = (user: any) => {
         chucvu,
       });
       if (userLevel >= 2) {
-        const team = await api.getCoworkers(user.ma_phg);
+        const team = await api.getCoworkers(getMaPhg(user));
         setCoworkers(team.data);
       }
       setModal({ isOpen: false, type: "", data: {} });
@@ -208,7 +208,7 @@ export const useEmployeeProfile = (user: any) => {
           if (!vals[mIdx] || !vals[hIdx]) continue;
           try {
             await api.createEmployee({
-              manv: vals[mIdx], hoten: vals[hIdx], maphg: parseInt(vals[pIdx]) || user.ma_phg,
+              manv: vals[mIdx], hoten: vals[hIdx], maphg: parseInt(vals[pIdx]) || Number(getMaPhg(user)),
               luong: 0, chucvu: vals[cIdx] || "Nhân viên"
             });
             success++;
@@ -216,7 +216,7 @@ export const useEmployeeProfile = (user: any) => {
         }
         alert(`Đã nhập thành công ${success} nhân viên!`);
         if (userLevel >= 2) {
-          const team = await api.getCoworkers(user.ma_phg);
+          const team = await api.getCoworkers(getMaPhg(user));
           setCoworkers(team.data);
         }
       } catch (err: any) { alert("Lỗi đọc file: " + err.message); }

@@ -18,6 +18,7 @@ import {
   LoadingScreen,
 } from "./Profile/ProfileUI";
 import ProfileModals from "./Profile/ProfileModals";
+import { getManv, getUserLevel, getDisplayRole, getMaPhg } from "../utils/user";
 
 const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }) => {
   const [profile, setProfile] = useState<any>(null);
@@ -28,20 +29,20 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
   const [modal, setModal] = useState<{ isOpen: boolean, type: string, data: any }>({ isOpen: false, type: "", data: {} });
   const [loading, setLoading] = useState(false);
 
-  const roleLevels: Record<string, number> = { "Cộng tác viên": 1, "Nhân viên": 2, "Quản lý": 3 };
-  const userLevel = roleLevels[user.chuc_vu] || 1;
+  const userLevel = getUserLevel(user);
+
 
   const fetchData = async () => {
     try {
       const [prof, proj] = await Promise.all([
-        api.getProfile(user.ma_nv),
-        api.getMyProjects(user.ma_nv),
+        api.getProfile(getManv(user)),
+        api.getMyProjects(getManv(user)),
       ]);
       setProfile(prof.data);
       setMyProjects(proj.data);
 
       if (userLevel >= 2) {
-        const team = await api.getCoworkers(user.ma_phg);
+        const team = await api.getCoworkers(getMaPhg(user));
         setCoworkers(team.data);
       }
       if (userLevel >= 3) {
@@ -66,7 +67,7 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
   const handlers = {
     handleUpdateProfile: async () => {
       try {
-        await api.updateProfile({ manv: user.ma_nv, email: modal.data.email });
+        await api.updateProfile({ manv: getManv(user), email: modal.data.email });
         setProfile({ ...profile, EMAIL: modal.data.email });
         alert("Thành công!");
         setModal({ isOpen: false, type: "", data: {} });
@@ -79,7 +80,7 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
         return alert("Mật khẩu không khớp!");
       try {
         await api.changePassword({
-          manv: user.ma_nv,
+          manv: getManv(user),
           oldPassword: modal.data.oldPass,
           newPassword: modal.data.newPass,
         });
@@ -183,7 +184,7 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
               <div>
                 <h1 className="text-3xl font-black">{profile.HOTEN}</h1>
                 <p className="text-lg font-medium text-red-500 uppercase tracking-tighter">
-                  {user.chuc_vu}
+                  {getDisplayRole(user)}
                 </p>
                 <p className="text-slate-400 font-bold">{profile.TENPB}</p>
               </div>

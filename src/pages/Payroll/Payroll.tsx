@@ -1,86 +1,112 @@
-import React, { useState, useEffect } from "react";
-import { Wallet, Play, ChevronLeft, ChevronRight } from "lucide-react";
-import { api } from "../../services/api";
-import { toast, formatCurrency } from "../../utils/helpers";
-import { Btn, Card, SectionHeader, EmptyState, Badge, Spinner, FormField } from "../../components/UI/index";
-import Modal from "../../components/UI/Modal";
+import React, { useState } from "react";
+import { Wallet, ChevronLeft, ChevronRight, Clock, TrendingUp, ShieldCheck, Receipt } from "lucide-react";
+import { formatCurrency } from "../../utils/helpers";
+import { Btn, Card, SectionHeader, EmptyState, Badge, Spinner, Drawer } from "../../components/UI/index";
 import { usePayroll, MONTHS } from "./usePayroll";
 import { PayrollTable } from "./PayrollTable";
 
-const UpdatePayrollModal: React.FC<any> = ({ isOpen, onClose, record, onSuccess }) => {
-  const [form, setForm] = useState({ Thuong: "", KhauTruBH: "" });
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (record) setForm({ Thuong: record.THUONG ?? record.Thuong ?? "", KhauTruBH: record.KHAUTRUBH ?? record.KhauTruBH ?? "" });
-  }, [record, isOpen]);
-
-  const handleSubmit = async () => {
-    setLoading(true);
-    try {
-      await api.updatePayroll(record.MABL || record.MaBl, {
-        Thuong: Number(form.Thuong) || 0, KhauTruBH: Number(form.KhauTruBH) || 0,
-      });
-      toast.success("Cập nhật phiếu lương thành công!");
-      onSuccess(); onClose();
-    } catch (err: any) { toast.error(err.response?.data?.message || "Lỗi cập nhật!"); }
-    finally { setLoading(false); }
-  };
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Cập nhật phiếu lương" footer={<><Btn variant="secondary" onClick={onClose}>Hủy</Btn><Btn loading={loading} onClick={handleSubmit}>Lưu</Btn></>}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-        <div style={{ background: "#f8f8f8", borderRadius: 12, padding: "12px 16px" }}>
-          <p style={{ fontWeight: 600, fontSize: 14, margin: 0 }}>{record?.HOTEN || record?.HoTen}</p>
-          <p style={{ fontSize: 11, color: "#888", marginTop: 2 }}>{record?.MANV || record?.MaNV}</p>
-        </div>
-        <FormField label="Thưởng (VNĐ)"><input className="form-input" type="number" placeholder="0" value={form.Thuong} onChange={(e) => setForm((f) => ({ ...f, Thuong: e.target.value }))} /></FormField>
-        <FormField label="Khấu trừ bảo hiểm (VNĐ)"><input className="form-input" type="number" placeholder="0" value={form.KhauTruBH} onChange={(e) => setForm((f) => ({ ...f, KhauTruBH: e.target.value }))} /></FormField>
-      </div>
-    </Modal>
-  );
-};
-
-const PayslipModal: React.FC<any> = ({ isOpen, onClose, data }) => {
+// ─── Modal phiếu lương chi tiết ────────────────────────────────────────────────
+const PayslipModal: React.FC<{ isOpen: boolean; onClose: () => void; data: any }> = ({ isOpen, onClose, data }) => {
   if (!data) return null;
+
+  const rows = [
+    { label: "Giờ làm việc", value: `${data.GiolamViec ?? 0} giờ`, icon: <Clock size={14} /> },
+    { label: "Phụ cấp", value: formatCurrency(data.PhuCap ?? 0), icon: <TrendingUp size={14} /> },
+    { label: "Thưởng", value: formatCurrency(data.Thuong ?? 0), icon: <TrendingUp size={14} />, color: "#10b981" },
+    { label: "Bảo hiểm xã hội (BHXH)", value: `- ${formatCurrency(data.BHXH ?? 0)}`, icon: <ShieldCheck size={14} />, color: "#ef4444" },
+    { label: "Thuế thu nhập cá nhân", value: `- ${formatCurrency(data.ThueTNCN ?? 0)}`, icon: <Receipt size={14} />, color: "#f59e0b" },
+  ];
+
+  const net = data.ThucLanh ?? 0;
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Phiếu lương" size="sm" footer={<Btn variant="secondary" onClick={onClose}>Đóng</Btn>}>
+    <Drawer
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Phiếu lương chi tiết"
+      subtitle={`Mã NV: ${data.MaNV} · ${MONTHS[(data.Thang ?? 1) - 1]} ${data.Nam}`}
+      icon={<Wallet size={18} />}
+      size="sm"
+      footer={<Btn variant="secondary" onClick={onClose}>Đóng</Btn>}
+    >
       <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-        <div style={{ textAlign: "center", paddingBottom: 16, borderBottom: "1px solid #f0f0f0", marginBottom: 16 }}>
-          <p style={{ fontWeight: 700, fontSize: 17, margin: 0 }}>{data.HOTEN || data.HoTen}</p>
-          <p style={{ fontSize: 12, color: "#aaa", marginTop: 4 }}>{MONTHS[(data.THANG || data.Thang || 1) - 1]} / {data.NAM || data.Nam}</p>
+        {/* Header tổng quát */}
+        <div style={{ background: "#111", borderRadius: 14, padding: "18px 20px", marginBottom: 20, textAlign: "center" }}>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 6px" }}>Tổng thực lãnh</p>
+          <p style={{ fontSize: 26, fontWeight: 800, color: "#fff", margin: 0 }}>{formatCurrency(net)}</p>
         </div>
-        {[
-          { label: "Lương cơ bản", value: formatCurrency(data.LUONGCOBAN || data.LuongCoBan) },
-          { label: "Phụ cấp", value: formatCurrency(data.PHUCAP || data.PhuCap) },
-          { label: "Ngày công", value: `${data.SONGAYCONGTHUCTE || data.SoNgayCongThucTe || 0} ngày` },
-          { label: "Thưởng", value: formatCurrency(data.THUONG || data.Thuong || 0) },
-          { label: "Khấu trừ BH", value: `- ${formatCurrency(data.KHAUTRUBH || data.KhauTruBH || 0)}` },
-        ].map(({ label, value }) => (
-          <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", fontSize: 13 }}>
-            <span style={{ color: "#888" }}>{label}</span>
-            <span style={{ fontWeight: 600 }}>{value}</span>
-          </div>
-        ))}
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", marginTop: 8, borderTop: "2px solid #f0f0f0", fontSize: 15 }}>
-          <span style={{ fontWeight: 700 }}>Tổng thực nhận</span>
-          <span style={{ fontWeight: 800 }}>{formatCurrency(data.TONGLUONG || data.TongLuong)}</span>
+
+        {/* Các dòng chi tiết */}
+        <div className="drawer-section">
+          <p className="drawer-section-title">Chi tiết khoản</p>
+          {rows.map(({ label, value, color }) => (
+            <div className="drawer-field" key={label}>
+              <span className="drawer-field-label">{label}</span>
+              <span className="drawer-field-value" style={{ color: color ?? "#111" }}>{value}</span>
+            </div>
+          ))}
         </div>
       </div>
-    </Modal>
+    </Drawer>
   );
 };
 
+// ─── Card thống kê nhỏ ─────────────────────────────────────────────────────────
+const StatCard: React.FC<{ label: string; value: string; highlight?: boolean; color?: string }> = ({
+  label, value, highlight, color,
+}) => (
+  <div style={{
+    borderRadius: 14,
+    padding: "14px 16px",
+    background: highlight ? "#111" : "#f8f8f8",
+  }}>
+    <p style={{
+      fontSize: 10, fontWeight: 600,
+      color: highlight ? "rgba(255,255,255,0.55)" : "#888",
+      textTransform: "uppercase", letterSpacing: "0.06em", margin: 0,
+    }}>
+      {label}
+    </p>
+    <p style={{
+      fontSize: 16, fontWeight: 800, marginTop: 6,
+      color: color ?? (highlight ? "#fff" : "#111"),
+    }}>
+      {value}
+    </p>
+  </div>
+);
+
+// ─── Trang Payroll chính ────────────────────────────────────────────────────────
 export const Payroll: React.FC<{ user: any }> = ({ user }) => {
-  const { month, year, payroll, myPayroll, loading, generating, modal, setModal, isHR, totalBudget, fetchPayroll, handleGenerate, prevMonth, nextMonth } = usePayroll(user);
+  const {
+    month, year, payroll, myPayroll, loading, modal, setModal,
+    isHR, totalBudget, fetchPayroll, prevMonth, nextMonth,
+  } = usePayroll(user);
+
+  const [payslipOpen, setPayslipOpen] = useState(false);
+  const [payslipData, setPayslipData] = useState<any>(null);
+
+  const openPayslip = (data: any) => {
+    setPayslipData(data);
+    setPayslipOpen(true);
+  };
 
   const MonthNav = () => (
     <div style={{ display: "flex", alignItems: "center", border: "1.5px solid #e0e0e0", borderRadius: 10, overflow: "hidden" }}>
-      <button onClick={prevMonth} style={{ padding: "6px 10px", border: "none", background: "#fff", cursor: "pointer", color: "#666", display: "flex" }}><ChevronLeft size={16} /></button>
-      <span style={{ padding: "6px 12px", fontSize: 13, fontWeight: 600, minWidth: 116, textAlign: "center", borderLeft: "1.5px solid #e0e0e0", borderRight: "1.5px solid #e0e0e0", background: "#fff" }}>
+      <button onClick={prevMonth} style={{ padding: "6px 10px", border: "none", background: "#fff", cursor: "pointer", color: "#666", display: "flex" }}>
+        <ChevronLeft size={16} />
+      </button>
+      <span style={{
+        padding: "6px 12px", fontSize: 13, fontWeight: 600,
+        minWidth: 116, textAlign: "center",
+        borderLeft: "1.5px solid #e0e0e0", borderRight: "1.5px solid #e0e0e0",
+        background: "#fff",
+      }}>
         {MONTHS[month - 1]} {year}
       </span>
-      <button onClick={nextMonth} style={{ padding: "6px 10px", border: "none", background: "#fff", cursor: "pointer", color: "#666", display: "flex" }}><ChevronRight size={16} /></button>
+      <button onClick={nextMonth} style={{ padding: "6px 10px", border: "none", background: "#fff", cursor: "pointer", color: "#666", display: "flex" }}>
+        <ChevronRight size={16} />
+      </button>
     </div>
   );
 
@@ -88,63 +114,90 @@ export const Payroll: React.FC<{ user: any }> = ({ user }) => {
     <div className="animate-fade-in">
       <SectionHeader
         title="Bảng lương"
-        subtitle={isHR ? `${payroll.length} nhân viên · Tổng: ${formatCurrency(totalBudget)}` : "Phiếu lương cá nhân"}
-        actions={
-          <>
-            <MonthNav />
-            {isHR && <Btn size="sm" loading={generating} icon={<Play size={14} />} variant="success" onClick={handleGenerate}>Chốt lương</Btn>}
-          </>
+        subtitle={
+          isHR
+            ? `${payroll.length} nhân viên · Tổng thực lãnh: ${formatCurrency(totalBudget)}`
+            : "Phiếu lương cá nhân"
         }
+        actions={<MonthNav />}
       />
 
-       {!isHR && (
+      {/* ── Nhân viên: Phiếu lương cá nhân ── */}
+      {!isHR && (
         loading ? (
-          <Card><div style={{ display: "flex", justifyContent: "center", padding: 40 }}><Spinner size={28} /></div></Card>
+          <Card>
+            <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
+              <Spinner size={28} />
+            </div>
+          </Card>
         ) : myPayroll ? (
           <Card>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
               <div>
-                <h3 style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>{MONTHS[month - 1]} {year}</h3>
+                <h3 style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>
+                  {MONTHS[month - 1]} {year}
+                </h3>
                 <p style={{ fontSize: 12, color: "#aaa", marginTop: 2 }}>Phiếu lương cá nhân</p>
               </div>
-              <Badge color="green">Đã chốt</Badge>
+              <Badge color="green">Đã cập nhật</Badge>
             </div>
-             <div className="grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
-              {[
-                { label: "Lương cơ bản", value: formatCurrency(myPayroll.LUONGCOBAN || myPayroll.LuongCoBan) },
-                { label: "Phụ cấp", value: formatCurrency(myPayroll.PHUCAP || myPayroll.PhuCap) },
-                { label: "Ngày công", value: `${myPayroll.SONGAYCONGTHUCTE || myPayroll.SoNgayCongThucTe || 0} ngày` },
-                { label: "Thưởng", value: formatCurrency(myPayroll.THUONG || myPayroll.Thuong || 0) },
-                { label: "Khấu trừ BH", value: formatCurrency(myPayroll.KHAUTRUBH || myPayroll.KhauTruBH || 0) },
-                { label: "Thực nhận", value: formatCurrency(myPayroll.TONGLUONG || myPayroll.TongLuong), highlight: true },
-              ].map(({ label, value, highlight }) => (
-                <div key={label} style={{ borderRadius: 14, padding: "14px 16px", background: highlight ? "#111" : "#f8f8f8" }}>
-                  <p style={{ fontSize: 10, fontWeight: 600, color: highlight ? "rgba(255,255,255,0.6)" : "#888", textTransform: "uppercase", letterSpacing: "0.06em", margin: 0 }}>{label}</p>
-                  <p style={{ fontSize: 16, fontWeight: 800, marginTop: 6, color: highlight ? "#fff" : "#111" }}>{value}</p>
-                </div>
-              ))}
+
+            <div className="grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+              <StatCard label="Giờ làm việc" value={`${myPayroll.GiolamViec ?? 0} giờ`} />
+              <StatCard label="Phụ cấp" value={formatCurrency(myPayroll.PhuCap ?? 0)} />
+              <StatCard label="Thưởng" value={formatCurrency(myPayroll.Thuong ?? 0)} color="#10b981" />
+              <StatCard label="BHXH" value={formatCurrency(myPayroll.BHXH ?? 0)} color="#ef4444" />
+              <StatCard label="Thuế TNCN" value={formatCurrency(myPayroll.ThueTNCN ?? 0)} color="#f59e0b" />
+              <StatCard label="Thực lãnh" value={formatCurrency(myPayroll.ThucLanh ?? 0)} highlight />
+            </div>
+
+            <div style={{ marginTop: 16, textAlign: "right" }}>
+              <Btn size="sm" variant="secondary" onClick={() => openPayslip(myPayroll)}>
+                Xem phiếu lương đầy đủ
+              </Btn>
             </div>
           </Card>
         ) : (
-          <Card><EmptyState icon={<Wallet size={48} />} title={`Chưa có phiếu lương ${MONTHS[month - 1]} ${year}`} description="Lương chưa được chốt cho tháng này" /></Card>
+          <Card>
+            <EmptyState
+              icon={<Wallet size={48} />}
+              title={`Chưa có phiếu lương ${MONTHS[month - 1]} ${year}`}
+              description="Dữ liệu lương tháng này chưa được cập nhật từ hệ thống"
+            />
+          </Card>
         )
       )}
 
+      {/* ── HR / Admin: Bảng lương toàn công ty ── */}
       {isHR && (
         payroll.length === 0 && !loading ? (
-           <Card><EmptyState icon={<Wallet size={48} />} title={`Chưa chốt lương ${MONTHS[month - 1]} ${year}`} description="Nhấn Chốt lương để tính lương tháng này" /></Card>
+          <Card>
+            <EmptyState
+              icon={<Wallet size={48} />}
+              title={`Chưa có dữ liệu lương ${MONTHS[month - 1]} ${year}`}
+              description="Dữ liệu lương sẽ được cập nhật tự động sau khi chấm công được xử lý"
+            />
+          </Card>
         ) : (
           <Card padding={false}>
-            <PayrollTable loading={loading} payroll={payroll} totalBudget={totalBudget} setModal={setModal} />
+            <PayrollTable
+              loading={loading}
+              payroll={payroll}
+              totalBudget={totalBudget}
+              onViewDetail={openPayslip}
+            />
           </Card>
         )
       )}
 
-       <UpdatePayrollModal isOpen={modal.type === "update"} onClose={() => setModal({ type: "", data: null })} record={modal.data} onSuccess={fetchPayroll} />
-      <PayslipModal isOpen={modal.type === "payslip"} onClose={() => setModal({ type: "", data: null })} data={modal.data} />
+      {/* Modal phiếu lương */}
+      <PayslipModal
+        isOpen={payslipOpen}
+        onClose={() => setPayslipOpen(false)}
+        data={payslipData}
+      />
     </div>
   );
 };
 
 export default Payroll;
-

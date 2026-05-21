@@ -58,6 +58,7 @@ export const Employees: React.FC<{ user: any; onNavigate: (page: string) => void
         isOpen={modal.type === "detail"}
         onClose={() => setModal({ type: "", data: null })}
         employeeId={modal.data}
+        onNavigate={onNavigate}
        />
     </div>
   );

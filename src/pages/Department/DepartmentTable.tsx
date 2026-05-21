@@ -7,19 +7,43 @@ interface DepartmentTableProps {
   setModal: (val: any) => void;
 }
 
+const DEPT_COLORS = [
+  { bg: "#FEE2E2", icon: "#DC2626" }, // Red
+  { bg: "#FEF3C7", icon: "#D97706" }, // Amber
+  { bg: "#D1FAE5", icon: "#059669" }, // Emerald
+  { bg: "#DBEAFE", icon: "#2563EB" }, // Blue
+  { bg: "#E0F2FE", icon: "#0284C7" }, // Sky
+  { bg: "#F3E8FF", icon: "#8B5CF6" }, // Purple
+  { bg: "#FCE7F3", icon: "#DB2777" }, // Pink
+  { bg: "#E0E7FF", icon: "#4F46E5" }, // Indigo
+  { bg: "#ECFDF5", icon: "#0D9488" }, // Teal
+];
+
+const stringToDeptColor = (str: string) => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % DEPT_COLORS.length;
+  return DEPT_COLORS[index];
+};
+
 export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, userLevel, setModal }) => {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
-      {departments.map((dept) => (
-        <div key={dept.MAPHG || dept.MaPhg} className="card" style={{ transition: "box-shadow 0.15s", cursor: "pointer", background: "#fff", borderRadius: 16, padding: 16, border: "1px solid #eee" }}
-          onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.1)"}
-          onMouseLeave={(e) => e.currentTarget.style.boxShadow = ""}>
-          <div className="card-body">
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ width: 40, height: 40, background: "#111", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Building2 size={18} color="#fff" />
-                </div>
+      {departments.map((dept) => {
+        const name = dept.TENPB || dept.TenPB || "";
+        const colors = stringToDeptColor(name);
+        return (
+          <div key={dept.MAPHG || dept.MaPhg} className="card" style={{ transition: "box-shadow 0.15s", cursor: "pointer", background: "#fff", borderRadius: 16, padding: 16, border: "1px solid #eee" }}
+            onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.1)"}
+            onMouseLeave={(e) => e.currentTarget.style.boxShadow = ""}>
+            <div className="card-body">
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 40, height: 40, background: colors.bg, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Building2 size={18} color={colors.icon} />
+                  </div>
                 <div>
                   <p style={{ fontWeight: 700, color: "#111", fontSize: 14, margin: 0 }}>{dept.TENPB || dept.TenPB}</p>
                   <p style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>Mã: {dept.MAPHG || dept.MaPhg}</p>
@@ -52,7 +76,8 @@ export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, u
             </button>
           </div>
         </div>
-      ))}
+      )
+    })}
     </div>
   );
 };

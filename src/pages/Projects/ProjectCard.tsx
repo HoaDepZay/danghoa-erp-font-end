@@ -15,15 +15,38 @@ const get = (obj: any, ...keys: string[]) => {
   return null;
 };
 
+const PROJECT_COLORS = [
+  { bg: "#FEE2E2", icon: "#DC2626" }, // Red
+  { bg: "#FEF3C7", icon: "#D97706" }, // Amber
+  { bg: "#D1FAE5", icon: "#059669" }, // Emerald
+  { bg: "#DBEAFE", icon: "#2563EB" }, // Blue
+  { bg: "#E0F2FE", icon: "#0284C7" }, // Sky
+  { bg: "#F3E8FF", icon: "#8B5CF6" }, // Purple
+  { bg: "#FCE7F3", icon: "#DB2777" }, // Pink
+  { bg: "#E0E7FF", icon: "#4F46E5" }, // Indigo
+  { bg: "#ECFDF5", icon: "#0D9488" }, // Teal
+];
+
+const stringToProjectColor = (str: string) => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % PROJECT_COLORS.length;
+  return PROJECT_COLORS[index];
+};
+
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
   const id     = get(project, "MADA", "MaDA");
-  const name   = get(project, "TENDA", "TenDA");
+  const name   = get(project, "TENDA", "TenDA") || "";
   const desc   = get(project, "MOTA", "MoTa");
   const start  = get(project, "NGAYBATDAU", "NgayBatDau");
   const status = get(project, "TRANGTHAI", "TrangThai") || "—";
   const role   = get(project, "VAITRODUAN", "VaiTroDuAn", "vaitroduan");
   const end    = get(project, "NGAYKETTHUC", "NgayKetThuc");
   const isOverdue = checkOverdue(end, status);
+
+  const colors = stringToProjectColor(name);
 
   return (
     <div
@@ -53,14 +76,14 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) =>
             style={{
               width: 40,
               height: 40,
-              background: "#111",
+              background: colors.bg,
               borderRadius: 12,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <FolderKanban size={18} color="#fff" />
+            <FolderKanban size={18} color={colors.icon} />
           </div>
           <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
              {isOverdue && <Badge color="red">Quá hạn</Badge>}

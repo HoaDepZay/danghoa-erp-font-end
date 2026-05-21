@@ -6,7 +6,7 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }) => {
   const close = () => setModal({ isOpen: false, type: "", data: {} });
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 text-slate-900">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 p-4 text-slate-900">
       <div className="w-full max-w-md rounded-[2.5rem] bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-200">
         <div className="mb-6 flex items-center justify-between font-black text-xl">
           {modal.type === "self_edit"

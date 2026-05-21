@@ -73,6 +73,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onForgotPassword,
           onChange={set("email")}
           style={S.input}
           autoComplete="email"
+          autoCapitalize="none"
+          autoCorrect="off"
           onFocus={(e) => { e.target.style.borderColor = "#111"; e.target.style.backgroundColor = "#fff"; }}
           onBlur={(e) => { e.target.style.borderColor = "#f0f0f0"; e.target.style.backgroundColor = "#fafafa"; }}
         />
