@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { api } from "../../../services/api";
 import { toast } from "../../../utils/helpers";
 import { Btn, FormField, Drawer } from "../../../components/UI/index";
-import { Users } from "lucide-react";
+import { Users, User, CreditCard } from "lucide-react";
 
 interface EmployeeModalProps {
   isOpen: boolean;
@@ -12,54 +12,73 @@ interface EmployeeModalProps {
   onSuccess: () => void;
 }
 
+const TABS = [
+  { id: "info",  label: "Thông tin",   icon: <User size={14} /> },
+  { id: "legal", label: "Pháp lý & Ngân hàng", icon: <CreditCard size={14} /> },
+];
+
 export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, editData, departments, onSuccess }) => {
   const isEdit = !!editData;
+  const [activeTab, setActiveTab] = useState("info");
   const [form, setForm] = useState({
-    MaNV: "", HoTen: "", Email: "", SoDienThoai: "", DiaChi: "",
-    GioiTinh: "Nam", NgaySinh: "", MaPhg: "", LuongCoBan: "", chucvu: "Nhân viên", Password: "",
+    manv: "", hoten: "", email: "", sodienthoai: "", diachinhan: "",
+    gioitinh: "Nam", ngaysinh: "", maphg: "", luong: "", chucvu: "Nhân viên", password: "",
   });
-  const [loading, setLoading] = useState(false);
+  const [legalForm, setLegalForm] = useState({
+    maSoThue: "", soTaiKhoan: "", nganHang: "", soNguoiPhuThuoc: "0",
+  });
+  const [loading, setLoading]      = useState(false);
+  const [savingLegal, setSavingLegal] = useState(false);
 
   useEffect(() => {
+    setActiveTab("info");
     if (editData) {
       setForm({
-        MaNV: editData.MANV || editData.MaNV || "",
-        HoTen: editData.HOTEN || editData.HoTen || "",
-        Email: editData.EMAIL || editData.Email || "",
-        SoDienThoai: editData.SODIENTHOA || editData.SoDienThoai || "",
-        DiaChi: editData.DIACHINHAN || editData.DIACHI || editData.DiaChi || "",
-        GioiTinh: editData.GIOITINH || editData.GioiTinh || "Nam",
-        NgaySinh: editData.NGAYSINH ? (editData.NGAYSINH as string).split("T")[0] : "",
-        MaPhg: editData.MAPHG || editData.MaPhg || "",
-        LuongCoBan: editData.LUONG || editData.LUONGCOBAN || editData.LuongCoBan || "",
-        chucvu: editData.CHUCVU || editData.chucvu || "Nhân viên",
-        Password: "",
+        manv: editData.manv || "",
+        hoten: editData.hoten || "",
+        email: editData.email || "",
+        sodienthoai: editData.sodienthoai || editData.sdt || "",
+        diachinhan: editData.diachinhan || "",
+        gioitinh: editData.gioitinh || "Nam",
+        ngaysinh: editData.ngaysinh ? (editData.ngaysinh as string).split("T")[0] : "",
+        maphg: editData.maphg || "",
+        luong: editData.luong || "",
+        chucvu: editData.chucvu || "Nhân viên",
+        password: "",
+      });
+      setLegalForm({
+        maSoThue: editData.maSoThue || "",
+        soTaiKhoan: editData.soTaiKhoan || "",
+        nganHang: editData.nganHang || "",
+        soNguoiPhuThuoc: String(editData.soNguoiPhuThuoc ?? 0),
       });
     } else {
-      setForm({ MaNV: "", HoTen: "", Email: "", SoDienThoai: "", DiaChi: "", GioiTinh: "Nam", NgaySinh: "", MaPhg: "", LuongCoBan: "", chucvu: "Nhân viên", Password: "" });
+      setForm({ manv: "", hoten: "", email: "", sodienthoai: "", diachinhan: "", gioitinh: "Nam", ngaysinh: "", maphg: "", luong: "", chucvu: "Nhân viên", password: "" });
+      setLegalForm({ maSoThue: "", soTaiKhoan: "", nganHang: "", soNguoiPhuThuoc: "0" });
     }
   }, [editData, isOpen]);
 
-  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const set      = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm(f => ({ ...f, [k]: e.target.value }));
+  const setLegal = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) => setLegalForm(f => ({ ...f, [k]: e.target.value }));
 
   const handleSubmit = async () => {
-    if (!form.HoTen) return toast.error("Họ tên không được trống");
+    if (!form.hoten) return toast.error("Họ tên không được trống");
     setLoading(true);
     try {
       const payload: any = {
-        HoTen: form.HoTen, Email: form.Email, SoDienThoai: form.SoDienThoai,
-        DiaChi: form.DiaChi, GioiTinh: form.GioiTinh,
-        NgaySinh: form.NgaySinh || undefined,
-        MaPhg: form.MaPhg ? Number(form.MaPhg) : undefined,
-        LuongCoBan: form.LuongCoBan ? Number(form.LuongCoBan) : undefined,
+        hoten: form.hoten, email: form.email, sodienthoai: form.sodienthoai,
+        diachinhan: form.diachinhan, gioitinh: form.gioitinh,
+        ngaysinh: form.ngaysinh || undefined,
+        maphg: form.maphg ? Number(form.maphg) : undefined,
+        luong: form.luong ? Number(form.luong) : undefined,
         chucvu: form.chucvu,
       };
       if (isEdit) {
-        await api.updateEmployee(form.MaNV, payload);
+        await api.updateEmployee(form.manv, payload);
         toast.success("Cập nhật nhân viên thành công!");
       } else {
-        if (!form.MaNV) return toast.error("Mã NV không được trống");
-        await api.createEmployee({ ...payload, MaNV: form.MaNV, Password: form.Password || "123456" });
+        if (!form.manv) return toast.error("Mã NV không được trống");
+        await api.createEmployee({ ...payload, manv: form.manv, password: form.password || "123456" });
         toast.success("Thêm nhân viên thành công!");
       }
       onSuccess(); onClose();
@@ -70,67 +89,130 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, e
     }
   };
 
+  const handleSaveLegal = async () => {
+    if (!form.manv) return toast.error("Không xác định được mã nhân viên");
+    setSavingLegal(true);
+    try {
+      await api.updateEmployeeLegal({
+        maNv: form.manv,
+        maSoThue: legalForm.maSoThue || undefined,
+        soTaiKhoan: legalForm.soTaiKhoan || undefined,
+        nganHang: legalForm.nganHang || undefined,
+        soNguoiPhuThuoc: legalForm.soNguoiPhuThuoc !== "" ? Number(legalForm.soNguoiPhuThuoc) : undefined,
+      });
+      toast.success("Đã lưu thông tin pháp lý");
+      onSuccess();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Lỗi lưu thông tin");
+    } finally {
+      setSavingLegal(false);
+    }
+  };
+
   return (
     <Drawer
       isOpen={isOpen}
       onClose={onClose}
       title={isEdit ? "Chỉnh sửa nhân viên" : "Thêm nhân viên mới"}
-      subtitle={isEdit ? `Mã NV: ${form.MaNV}` : "Điền thông tin nhân viên mới"}
+      subtitle={isEdit ? `Mã NV: ${form.manv}` : "Điền thông tin nhân viên mới"}
       icon={<Users size={18} />}
       size="md"
-      footer={<><Btn variant="secondary" onClick={onClose}>Hủy</Btn><Btn loading={loading} onClick={handleSubmit}>{isEdit ? "Lưu thay đổi" : "Thêm mới"}</Btn></>}
+      footer={
+        activeTab === "info"
+          ? <><Btn variant="secondary" onClick={onClose}>Hủy</Btn><Btn loading={loading} onClick={handleSubmit}>{isEdit ? "Lưu thay đổi" : "Thêm mới"}</Btn></>
+          : <><Btn variant="secondary" onClick={onClose}>Đóng</Btn><Btn loading={savingLegal} onClick={handleSaveLegal}>Lưu thông tin pháp lý</Btn></>
+      }
     >
-      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-        {!isEdit && (
-          <FormField label="Mã nhân viên *">
-            <input className="form-input" placeholder="VD: NV001" value={form.MaNV} onChange={set("MaNV")} />
+      {/* Tab Navigation */}
+      {isEdit && (
+        <div style={{ display: "flex", gap: 4, borderBottom: "1px solid #f1f5f9", marginBottom: 18 }}>
+          {TABS.map(tab => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
+              display: "flex", alignItems: "center", gap: 6,
+              padding: "10px 14px", fontSize: 13, fontWeight: 600,
+              background: "none", border: "none", cursor: "pointer",
+              color: activeTab === tab.id ? "#1e293b" : "#94a3b8",
+              borderBottom: `2.5px solid ${activeTab === tab.id ? "#0f172a" : "transparent"}`,
+              transition: "all 0.2s",
+            }}>
+              {tab.icon} {tab.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {activeTab === "info" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {!isEdit && (
+            <FormField label="Mã nhân viên *">
+              <input className="form-input" placeholder="VD: NV001" value={form.manv} onChange={set("manv")} />
+            </FormField>
+          )}
+          <FormField label="Họ và tên *">
+            <input className="form-input" placeholder="Nguyễn Văn A" value={form.hoten} onChange={set("hoten")} />
           </FormField>
-        )}
-        <FormField label="Họ và tên *">
-          <input className="form-input" placeholder="Nguyễn Văn A" value={form.HoTen} onChange={set("HoTen")} />
-        </FormField>
-        <FormField label="Email">
-          <input className="form-input" type="email" placeholder="email@huit.edu.vn" value={form.Email} onChange={set("Email")} />
-        </FormField>
-        <FormField label="Số điện thoại">
-          <input className="form-input" placeholder="0901234567" value={form.SoDienThoai} onChange={set("SoDienThoai")} />
-        </FormField>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-          <FormField label="Ngày sinh">
-            <input className="form-input" type="date" value={form.NgaySinh} onChange={set("NgaySinh")} />
+          <FormField label="Email">
+            <input className="form-input" type="email" placeholder="email@huit.edu.vn" value={form.email} onChange={set("email")} />
           </FormField>
-          <FormField label="Giới tính">
-            <select className="form-input" value={form.GioiTinh} onChange={set("GioiTinh")}>
-              <option>Nam</option><option>Nữ</option>
+          <FormField label="Số điện thoại">
+            <input className="form-input" placeholder="0901234567" value={form.sodienthoai} onChange={set("sodienthoai")} />
+          </FormField>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            <FormField label="Ngày sinh">
+              <input className="form-input" type="date" value={form.ngaysinh} onChange={set("ngaysinh")} />
+            </FormField>
+            <FormField label="Giới tính">
+              <select className="form-input" value={form.gioitinh} onChange={set("gioitinh")}>
+                <option>Nam</option><option>Nữ</option>
+              </select>
+            </FormField>
+          </div>
+          <FormField label="Phòng ban">
+            <select className="form-input" value={form.maphg} onChange={set("maphg")}>
+              <option value="">— Chưa chọn —</option>
+              {departments.map((d) => (
+                <option key={d.maphg} value={d.maphg}>{d.tenpb}</option>
+              ))}
             </select>
           </FormField>
-        </div>
-        <FormField label="Phòng ban">
-          <select className="form-input" value={form.MaPhg} onChange={set("MaPhg")}>
-            <option value="">— Chưa chọn —</option>
-            {departments.map((d) => (
-              <option key={d.MAPHG || d.MaPhg} value={d.MAPHG || d.MaPhg}>{d.TENPB || d.TenPB}</option>
-            ))}
-          </select>
-        </FormField>
-        <FormField label="Chức vụ">
-          <select className="form-input" value={form.chucvu} onChange={set("chucvu")}>
-            <option>Cộng tác viên</option><option>Nhân viên</option><option>Quản lý</option>
-          </select>
-        </FormField>
-        <FormField label="Lương cơ bản (VNĐ)">
-          <input className="form-input" type="number" placeholder="5000000" value={form.LuongCoBan} onChange={set("LuongCoBan")} />
-        </FormField>
-        {!isEdit && (
-          <FormField label="Mật khẩu mặc định">
-            <input className="form-input" placeholder="Mặc định: 123456" value={form.Password} onChange={set("Password")} />
+          <FormField label="Chức vụ">
+            <select className="form-input" value={form.chucvu} onChange={set("chucvu")}>
+              <option>Cộng tác viên</option><option>Nhân viên</option><option>Quản lý</option>
+            </select>
           </FormField>
-        )}
-        <FormField label="Địa chỉ">
-          <input className="form-input" placeholder="Số nhà, đường, quận, TP" value={form.DiaChi} onChange={set("DiaChi")} />
-        </FormField>
-      </div>
+          <FormField label="Lương cơ bản (VNĐ)">
+            <input className="form-input" type="number" placeholder="5000000" value={form.luong} onChange={set("luong")} />
+          </FormField>
+          {!isEdit && (
+            <FormField label="Mật khẩu mặc định">
+              <input className="form-input" placeholder="Mặc định: 123456" value={form.password} onChange={set("password")} />
+            </FormField>
+          )}
+          <FormField label="Địa chỉ">
+            <input className="form-input" placeholder="Số nhà, đường, quận, TP" value={form.diachinhan} onChange={set("diachinhan")} />
+          </FormField>
+        </div>
+      )}
+
+      {activeTab === "legal" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ padding: "10px 14px", background: "#f0fdf4", borderRadius: 10, fontSize: 13, color: "#166534", border: "1px solid #dcfce7" }}>
+            ℹ️ Thông tin này dùng cho mục đích tính thuế TNCN và chuyển khoản lương tự động.
+          </div>
+          <FormField label="Mã số thuế cá nhân (MST)">
+            <input className="form-input" placeholder="VD: 1234567890" value={legalForm.maSoThue} onChange={setLegal("maSoThue")} />
+          </FormField>
+          <FormField label="Số tài khoản ngân hàng">
+            <input className="form-input" placeholder="VD: 0123456789012" value={legalForm.soTaiKhoan} onChange={setLegal("soTaiKhoan")} />
+          </FormField>
+          <FormField label="Tên ngân hàng">
+            <input className="form-input" placeholder="VD: Vietcombank, BIDV, MB Bank..." value={legalForm.nganHang} onChange={setLegal("nganHang")} />
+          </FormField>
+          <FormField label="Số người phụ thuộc (giảm trừ gia cảnh)">
+            <input className="form-input" type="number" min="0" max="10" value={legalForm.soNguoiPhuThuoc} onChange={setLegal("soNguoiPhuThuoc")} />
+          </FormField>
+        </div>
+      )}
     </Drawer>
   );
 };
-

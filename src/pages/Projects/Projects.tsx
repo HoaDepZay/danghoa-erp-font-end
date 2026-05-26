@@ -21,6 +21,7 @@ import { Drawer } from "../../components/UI/index";
 import { STATUS_COLOR, STATUS_OPTIONS, useProjects } from "./useProjects";
 import { ProjectCard } from "./ProjectCard";
 import ProjectTasks from "../../components/ProjectTasks";
+import ProjectTimesheet from "../../components/ProjectTimesheet";
 
 // ─── Tạo dự án ──────────────────────────────────────────────────────────────
 const CreateProjectModal: React.FC<any> = ({ isOpen, onClose, onSuccess }) => {
@@ -145,16 +146,11 @@ const EditProjectModal: React.FC<any> = ({
   useEffect(() => {
     if (isOpen && project) {
       setForm({
-        tenda: project.TENDA || project.TenDA || "",
-        mota: project.MOTA || project.MoTa || "",
-        ngaybatdau: (project.NGAYBATDAU || project.NgayBatDau || "")
-          ? (project.NGAYBATDAU || project.NgayBatDau).slice(0, 10)
-          : "",
-        ngayketthuc: (project.NGAYKETTHUC || project.NgayKetThuc || "")
-          ? (project.NGAYKETTHUC || project.NgayKetThuc).slice(0, 10)
-          : "",
-        trangthai:
-          project.TRANGTHAI || project.TrangThai || "Đang thực hiện",
+        tenda: project.tenda || "",
+        mota: project.mota || "",
+        ngaybatdau: project.ngaybatdau ? project.ngaybatdau.slice(0, 10) : "",
+        ngayketthuc: project.ngayketthuc ? project.ngayketthuc.slice(0, 10) : "",
+        trangthai: project.trangthai || "Đang thực hiện",
       });
     }
   }, [isOpen, project]);
@@ -174,7 +170,7 @@ const EditProjectModal: React.FC<any> = ({
     }
     setLoading(true);
     try {
-    const id = project.MADA || project.MaDA;
+      const id = project.mada;
       await api.updateProject(id, payload);
       toast.success("Cập nhật dự án thành công!");
       onSuccess();
@@ -215,7 +211,7 @@ const EditProjectModal: React.FC<any> = ({
           <textarea
             className="form-input"
             rows={3}
-            placeholder="Mô tả dự án..."
+            placeholder="Mô tả..."
             value={form.mota}
             onChange={set("mota")}
             style={{ resize: "none" }}
@@ -272,38 +268,22 @@ const ProjectDetailModal: React.FC<any> = ({
   onEdit,
   onDelete,
   onNavigate,
+  user,
 }) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
-  const [addingMember, setAddingMember] = useState(false);
+
+  // Thành viên để phân công
   const [addMember, setAddMember] = useState({ manv: "", vaitroduan: "Thành viên" });
-
-  const handleProjectChat = async () => {
-    try {
-      const res = await api.getProjectChatRoom(projectId);
-      if (res.data?.success) {
-        onClose();
-        onNavigate("chat");
-      }
-    } catch (err) {
-      toast.error("Không thể mở phòng chat dự án!");
-    }
-  };
-
-  useEffect(() => {
-    if (isOpen) {
-      setActiveTab("overview");
-      fetchDetail();
-    }
-  }, [isOpen]);
+  const [addingMember, setAddingMember] = useState(false);
 
   const fetchDetail = useCallback(async () => {
     if (!projectId) return;
     setLoading(true);
     try {
-      const res = await api.getProject(projectId);
-      setData(res.data?.data ?? res.data);
+      const r = await api.getProject(projectId);
+      setData(r.data?.data ?? r.data);
     } catch {
       toast.error("Không thể tải chi tiết dự án");
     } finally {
@@ -311,15 +291,23 @@ const ProjectDetailModal: React.FC<any> = ({
     }
   }, [projectId]);
 
+  useEffect(() => {
+    if (isOpen) {
+      fetchDetail();
+      setActiveTab("overview");
+    } else {
+      setData(null);
+    }
+  }, [isOpen, fetchDetail]);
+
   const handleAddMember = async () => {
-    if (!addMember.manv) return toast.error("Chọn nhân viên!");
+    if (!addMember.manv) return toast.error("Vui lòng chọn nhân viên!");
     setAddingMember(true);
     try {
       await api.addProjectMember(projectId, addMember);
-      toast.success("Phân công thành công!");
+      toast.success("Phân công nhân sự thành công!");
       setAddMember({ manv: "", vaitroduan: "Thành viên" });
       fetchDetail();
-      onRefresh();
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Lỗi phân công!");
     } finally {
@@ -327,15 +315,34 @@ const ProjectDetailModal: React.FC<any> = ({
     }
   };
 
-  const handleRemoveMember = async (empId: string) => {
-    if (!window.confirm("Xác nhận gỡ nhân viên này?")) return;
+  const handleRemoveMember = async (employeeId: string) => {
+    if (!window.confirm("Xác nhận gỡ nhân sự khỏi dự án?")) return;
     try {
-      await api.removeProjectMember(projectId, empId);
-      toast.success("Đã gỡ nhân viên!");
+      await api.removeProjectMember(projectId, employeeId);
+      toast.success("Đã gỡ nhân sự!");
       fetchDetail();
-      onRefresh();
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Lỗi!");
+      toast.error(err.response?.data?.message || "Lỗi gỡ nhân sự!");
+    }
+  };
+
+  const handleProjectChat = async () => {
+    if (!projectId) return;
+    try {
+      const res = await api.getProjectChatRoom(projectId);
+      const room = res.data?.data || res.data;
+      const roomIdValue = room?.maPhong || room?.maphong || room?.id;
+      if (room && roomIdValue) {
+        localStorage.setItem("pendingChatRoomId", String(roomIdValue));
+        if (onNavigate) {
+          onNavigate("chat");
+          onClose();
+        }
+      } else {
+        toast.error("Không tìm thấy phòng chat cho dự án này!");
+      }
+    } catch (err: any) {
+      toast.error("Dự án này chưa có phòng chat hoặc lỗi kết nối!");
     }
   };
 
@@ -346,8 +353,8 @@ const ProjectDetailModal: React.FC<any> = ({
     <Drawer
       isOpen={isOpen}
       onClose={onClose}
-      title={project ? (project.TENDA || project.TenDA || "Chi tiết dự án") : "Chi tiết dự án"}
-      subtitle={project ? `Mã: ${project.MADA || project.MaDA}` : undefined}
+      title={project ? (project.tenda || "Chi tiết dự án") : "Chi tiết dự án"}
+      subtitle={project ? `Mã: ${project.mada}` : undefined}
       icon={<FolderKanban size={18} />}
       size="lg"
       footer={
@@ -389,6 +396,16 @@ const ProjectDetailModal: React.FC<any> = ({
         >
           Nhiệm vụ
         </button>
+        <button
+          onClick={() => setActiveTab("timesheet")}
+          style={{
+            padding: "8px 4px", fontSize: 13, fontWeight: 700, border: "none", background: "none", cursor: "pointer",
+            color: activeTab === "timesheet" ? "#111" : "#94a3b8",
+            borderBottom: `2.5px solid ${activeTab === "timesheet" ? "#111" : "transparent"}`,
+          }}
+        >
+          Timesheet
+        </button>
       </div>
 
       {loading ? (
@@ -398,18 +415,18 @@ const ProjectDetailModal: React.FC<any> = ({
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <div style={{ background: "#f8f8f8", borderRadius: 14, padding: 16 }}>
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-                <h4 style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>{project.TENDA || project.TenDA}</h4>
+                <h4 style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>{project.tenda}</h4>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {checkOverdue(project.NGAYKETTHUC || project.NgayKetThuc, project.TRANGTHAI || project.TrangThai) && (
+                  {checkOverdue(project.ngayketthuc, project.trangthai) && (
                     <Badge color="red">Quá hạn</Badge>
                   )}
-                  <Badge color={STATUS_COLOR[project.TRANGTHAI || project.TrangThai] || "gray"}>{project.TRANGTHAI || project.TrangThai}</Badge>
+                  <Badge color={STATUS_COLOR[project.trangthai] || "gray"}>{project.trangthai}</Badge>
                 </div>
               </div>
-              {(project.MOTA || project.MoTa) && <p style={{ fontSize: 13, color: "#666", marginTop: 6 }}>{project.MOTA || project.MoTa}</p>}
+              {project.mota && <p style={{ fontSize: 13, color: "#666", marginTop: 6 }}>{project.mota}</p>}
               <div style={{ display: "flex", gap: 16, marginTop: 8, fontSize: 12, color: "#aaa" }}>
-                <span>Bắt đầu: {formatDate(project.NGAYBATDAU || project.NgayBatDau)}</span>
-                <span>Kết thúc: {formatDate(project.NGAYKETTHUC || project.NgayKetThuc)}</span>
+                <span>Bắt đầu: {formatDate(project.ngaybatdau)}</span>
+                <span>Kết thúc: {formatDate(project.ngayketthuc)}</span>
               </div>
             </div>
 
@@ -417,15 +434,15 @@ const ProjectDetailModal: React.FC<any> = ({
               <p style={{ fontSize: 10, fontWeight: 700, color: "#888", textTransform: "uppercase", marginBottom: 10 }}>Thành viên ({members.length})</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {members.map((m: any) => (
-                  <div key={m.MANV || m.MaNV || m.manv} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: "#f8f8f8", borderRadius: 12 }}>
+                  <div key={m.manv} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: "#f8f8f8", borderRadius: 12 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <Avatar name={m.HOTEN || m.HoTen || m.hoten} size="sm" />
+                      <Avatar name={m.hoten} size="sm" />
                       <div>
-                        <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>{m.HOTEN || m.HoTen || m.hoten}</p>
-                        <p style={{ fontSize: 11, color: "#999", margin: 0 }}>{m.VAITRODUAN || m.VaiTroDuAn || m.vaitroduan}</p>
+                        <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>{m.hoten}</p>
+                        <p style={{ fontSize: 11, color: "#999", margin: 0 }}>{m.vaitroduan}</p>
                       </div>
                     </div>
-                    {isAdmin && <button onClick={() => handleRemoveMember(m.MANV || m.MaNV || m.manv)} style={{ color: "#f87171", background: "none", border: "none", cursor: "pointer", padding: 6, borderRadius: 8 }}><Trash2 size={13} /></button>}
+                    {isAdmin && <button onClick={() => handleRemoveMember(m.manv)} style={{ color: "#f87171", background: "none", border: "none", cursor: "pointer", padding: 6, borderRadius: 8 }}><Trash2 size={13} /></button>}
                   </div>
                 ))}
               </div>
@@ -437,7 +454,7 @@ const ProjectDetailModal: React.FC<any> = ({
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   <select className="form-input" value={addMember.manv} onChange={(e) => setAddMember({ ...addMember, manv: e.target.value })}>
                     <option value="">-- Chọn nhân viên --</option>
-                    {employees.map((emp: any) => (<option key={emp.MANV} value={emp.MANV}>{emp.HOTEN}</option>))}
+                    {employees.map((emp: any) => (<option key={emp.manv} value={emp.manv}>{emp.hoten}</option>))}
                   </select>
                   <select className="form-input" value={addMember.vaitroduan} onChange={(e) => setAddMember({ ...addMember, vaitroduan: e.target.value })}>
                     <option>Thành viên</option><option>Trưởng dự án</option><option>Backend Developer</option><option>Frontend Developer</option>
@@ -447,8 +464,10 @@ const ProjectDetailModal: React.FC<any> = ({
               </div>
             )}
           </div>
-        ) : (
+        ) : activeTab === "tasks" ? (
           <ProjectTasks projectId={projectId} members={members} isAdmin={isAdmin} />
+        ) : (
+          <ProjectTimesheet projectId={projectId} user={user} />
         )
       ) : null}
     </Drawer>
@@ -460,7 +479,7 @@ export const Projects: React.FC<{ user: any; onNavigate: (page: string) => void 
   const { displayList, employees, loading, modal, setModal, viewMode, setViewMode, isAdmin, fetchProjects } = useProjects(user);
 
   const handleDelete = async (project: any) => {
-    const id = project.MADA || project.MaDA;
+    const id = project.mada;
     if (!window.confirm("Xác nhận xóa dự án?")) return;
     try {
       await api.deleteProject(id);
@@ -496,13 +515,21 @@ export const Projects: React.FC<{ user: any; onNavigate: (page: string) => void 
         <Card><EmptyState icon={<FolderKanban size={48} />} title="Chưa có dự án" description={isAdmin ? "Tạo dự án đầu tiên" : "Chưa được phân công"} /></Card>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
-          {displayList.map((p) => (<ProjectCard key={p.MADA || p.MaDA} project={p} onClick={() => setModal({ type: "detail", data: p.MADA || p.MaDA })} />))}
+          {displayList.map((project) => (
+            <ProjectCard 
+              key={project.mada} 
+              project={project} 
+              onClick={() => {
+                localStorage.setItem("selectedProjectId", project.mada);
+                onNavigate("project_details");
+              }} 
+            />
+          ))}
         </div>
       )}
 
       <CreateProjectModal isOpen={modal.type === "create"} onClose={() => setModal({ type: "", data: null })} onSuccess={fetchProjects} />
       <EditProjectModal isOpen={modal.type === "edit"} onClose={() => setModal({ type: "", data: null })} project={modal.data} onSuccess={fetchProjects} />
-      <ProjectDetailModal isOpen={modal.type === "detail"} onClose={() => setModal({ type: "", data: null })} projectId={modal.data} employees={employees} isAdmin={isAdmin} onRefresh={fetchProjects} onEdit={(p: any) => setModal({ type: "edit", data: p })} onDelete={handleDelete} onNavigate={onNavigate} />
     </div>
   );
 };

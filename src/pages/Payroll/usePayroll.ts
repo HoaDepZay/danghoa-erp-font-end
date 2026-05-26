@@ -59,8 +59,8 @@ export const usePayroll = (user: any) => {
     else setMonth((m: number) => m + 1);
   };
 
-  // Dùng ThucLanh làm tổng ngân sách theo API mới
-  const totalBudget = payroll.reduce((sum, r) => sum + (r.ThucLanh ?? r.THUCLANH ?? 0), 0);
+  // Dùng thucLanh làm tổng ngân sách theo API mới
+  const totalBudget = payroll.reduce((sum, r) => sum + (r.thucLanh ?? 0), 0);
 
   return {
     month, year, payroll, myPayroll, loading, modal, setModal,

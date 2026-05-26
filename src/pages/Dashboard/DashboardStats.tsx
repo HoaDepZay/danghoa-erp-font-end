@@ -1,7 +1,7 @@
 import React from "react";
 import { Users, Building2, FolderKanban, Wallet, Briefcase, CheckCircle, Activity, Clock } from "lucide-react";
 import { StatCard } from "../../components/UI/index";
-import { formatCurrency } from "../../utils/helpers";
+import { formatCurrency, getProp } from "../../utils/helpers";
 import type { RealtimeData } from "./useDashboard";
 
 interface DashboardStatsProps {
@@ -27,50 +27,52 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
         <div className="grid-4">
           <StatCard
             label="Tổng nhân viên"
-            value={qs.TotalEmployees}
+            value={getProp(qs, 'TotalEmployees') ?? 0}
             icon={<Users size={20} />}
-            trend={`${qs.OfficialEmployees} chính thức`}
+            trend={`${getProp(qs, 'OfficialEmployees') ?? 0} chính thức`}
           />
           <StatCard
             label="Phòng ban"
-            value={qs.TotalDepartments}
+            value={getProp(qs, 'TotalDepartments') ?? 0}
             icon={<Building2 size={20} />}
           />
           <StatCard
             label="Tổng dự án"
-            value={qs.TotalProjects}
+            value={getProp(qs, 'TotalProjects') ?? 0}
             icon={<Briefcase size={20} />}
-            trend={`${qs.ActiveProjects} đang chạy`}
+            trend={`${getProp(qs, 'ActiveProjects') ?? 0} đang chạy`}
           />
           <StatCard
             label="Chấm công hôm nay"
-            value={`${att?.CheckedInToday ?? 0}/${att?.TotalEmployees ?? 0}`}
+            value={`${getProp(att, 'CheckedInToday') ?? 0}/${getProp(att, 'TotalEmployees') ?? 0}`}
             icon={<Activity size={20} />}
-            trend={`${att?.AttendanceRate ?? 0}%`}
+            trend={`${getProp(att, 'AttendanceRate') ?? 0}%`}
           />
         </div>
 
         {/* Hàng 2: lương + dự án hoàn thành */}
         <div className="grid-4" style={{ gap: 14 }}>
           <StatCard
-            label="Lương TB (VNĐ)"
-            value={qs.AvgSalary > 0 ? formatCurrency(qs.AvgSalary) : "Chưa có"}
-            icon={<Wallet size={20} />}
+            label="Đơn nghỉ chờ duyệt"
+            value={getProp(qs, 'PendingLeaves') ?? 0}
+            icon={<Clock size={20} />}
+            trend="Cần xử lý"
           />
           <StatCard
-            label="Tổng quỹ lương"
-            value={qs.TotalSalary > 0 ? formatCurrency(qs.TotalSalary) : "Chưa có"}
+            label="Quỹ lương ước tính"
+            value={formatCurrency(getProp(qs, 'TotalSalary') ?? 0)}
             icon={<Wallet size={20} />}
           />
           <StatCard
             label="Dự án hoàn thành"
-            value={qs.CompletedProjects}
+            value={getProp(qs, 'CompletedProjects') ?? 0}
             icon={<CheckCircle size={20} />}
           />
           <StatCard
-            label={`Lương tháng ${month}`}
-            value={pay("TongLuong") ? formatCurrency(pay("TongLuong")) : "Chưa chốt"}
-            icon={<Clock size={20} />}
+            label="Lượt duyệt phép"
+            value={getProp(qs, 'ApprovedLeaves') ?? 0}
+            icon={<CheckCircle size={20} />}
+            trend="Trong tháng"
           />
         </div>
       </div>

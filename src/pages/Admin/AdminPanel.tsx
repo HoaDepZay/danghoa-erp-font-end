@@ -16,11 +16,11 @@ export const AdminEditEmpModal: React.FC<AdminEditEmpModalProps> = ({ isOpen, on
   useEffect(() => {
     if (editData) {
       setForm({
-        manv:   editData.MANV  || editData.MaNV  || editData.manv  || "",
-        hoten:  editData.HOTEN || editData.HoTen || editData.hoten || "",
-        maphg:  editData.MAPHG || editData.MaPhg || editData.maphg || "",
-        luong:  editData.LUONG || editData.LUONGCOBAN || editData.LuongCoBan || "",
-        chucvu: editData.CHUCVU || editData.chucvu || "Nhân viên",
+        manv:   editData.manv  || "",
+        hoten:  editData.hoten || "",
+        maphg:  editData.maphg || "",
+        luong:  editData.luong || "",
+        chucvu: editData.chucvu || "Nhân viên",
       });
     }
   }, [editData, isOpen]);
@@ -63,7 +63,7 @@ export const AdminEditEmpModal: React.FC<AdminEditEmpModalProps> = ({ isOpen, on
            <select className="form-input" value={form.maphg} onChange={set("maphg")}>
             <option value="">— Chưa chọn —</option>
             {departments.map((d: any) => (
-               <option key={d.MAPHG || d.maphg} value={d.MAPHG || d.maphg}>{d.TENPB || d.tenpb}</option>
+               <option key={d.maphg} value={d.maphg}>{d.tenpb}</option>
             ))}
           </select>
         </FormField>
@@ -88,9 +88,9 @@ export const AdminDeptModal: React.FC<AdminDeptModalProps> = ({ isOpen, onClose,
   useEffect(() => {
     setForm(editData
       ? { 
-          tenpb: editData.TENPB || editData.tenpb || "", 
-          maphg: editData.MAPHG || editData.maphg || "",
-          matruongphg: editData.MATRUONGPHG || editData.matruongphg || editData.MaTruongPhg || ""
+          tenpb: editData.tenpb || "", 
+          maphg: editData.maphg || "",
+          matruongphg: editData.matruongphg || ""
         }
       : { tenpb: "", maphg: "", matruongphg: "" }
     );
@@ -133,8 +133,8 @@ export const AdminDeptModal: React.FC<AdminDeptModalProps> = ({ isOpen, onClose,
           >
             <option value="">— Chưa chọn —</option>
             {employees.map((emp) => (
-              <option key={emp.MANV || emp.MaNV} value={emp.MANV || emp.MaNV}>
-                {emp.HOTEN || emp.HoTen} ({emp.MANV || emp.MaNV})
+              <option key={emp.manv} value={emp.manv}>
+                {emp.hoten} ({emp.manv})
               </option>
             ))}
           </select>
@@ -174,23 +174,23 @@ export const AdminEmployeeTab: React.FC<{ adminData: any }> = ({ adminData }) =>
                  <tr><td colSpan={6}><EmptyState icon={<Users size={40} />} title="Không có nhân viên" /></td></tr>
               ) : (
                 employees.map((emp: any) => (
-                  <tr key={emp.MANV || emp.MaNV}>
+                  <tr key={emp.manv}>
                      <td>
                       <span style={{ fontWeight: 600, fontSize: 11, background: "#f0f0f0", padding: "3px 8px", borderRadius: 5 }}>
-                        {emp.MANV || emp.MaNV}
+                        {emp.manv}
                       </span>
                     </td>
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <Avatar name={emp.HOTEN || emp.HoTen} size="sm" />
-                         <span style={{ fontWeight: 600 }}>{emp.HOTEN || emp.HoTen}</span>
+                        <Avatar name={emp.hoten} size="sm" />
+                         <span style={{ fontWeight: 600 }}>{emp.hoten}</span>
                       </div>
                     </td>
-                    <td><Badge color={ROLE_COLORS[emp.CHUCVU || emp.chucvu] || "gray"}>{emp.CHUCVU || emp.chucvu}</Badge></td>
-                    <td style={{ color: "#666" }}>{emp.TENPB || emp.TenPB || "—"}</td>
+                    <td><Badge color={ROLE_COLORS[emp.chucvu] || "gray"}>{emp.chucvu}</Badge></td>
+                    <td style={{ color: "#666" }}>{emp.tenpb || "—"}</td>
                      <td style={{ fontSize: 12, color: "#555" }}>
-                      {(emp.LUONG || emp.LUONGCOBAN)
-                         ? `${Number(emp.LUONG || emp.LUONGCOBAN).toLocaleString("vi-VN")} đ`
+                      {emp.luong
+                         ? `${Number(emp.luong).toLocaleString("vi-VN")} đ`
                         : "—"}
                     </td>
                     <td>
@@ -198,7 +198,7 @@ export const AdminEmployeeTab: React.FC<{ adminData: any }> = ({ adminData }) =>
                          <button onClick={() => setModal({ type: "editEmp", data: emp })}
                           style={{ fontSize: 12, color: "#666", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
                            <Edit3 size={12} /> Sửa
-                        </button>
+                         </button>
                         <button onClick={() => setModal({ type: "deleteEmp", data: emp })}
                            style={{ fontSize: 12, color: "#f87171", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
                           <Trash2 size={12} /> Xóa
@@ -222,7 +222,7 @@ export const AdminEmployeeTab: React.FC<{ adminData: any }> = ({ adminData }) =>
         onClose={() => setModal({ type: "", data: null })} 
         title="Xác nhận xóa nhân viên"
         footer={<><Btn variant="secondary" onClick={() => setModal({ type: "", data: null })}>Hủy</Btn><Btn variant="danger" onClick={async () => {
-          await handleDeleteEmployee(modal.data.MANV || modal.data.MaNV);
+          await handleDeleteEmployee(modal.data.manv);
           setModal({ type: "", data: null });
         }}>Xác nhận xóa</Btn></>}
       >
@@ -233,7 +233,7 @@ export const AdminEmployeeTab: React.FC<{ adminData: any }> = ({ adminData }) =>
           <div style={{ textAlign: "center" }}>
             <p style={{ margin: "0 0 8px 0", fontWeight: 600, fontSize: 16 }}>Bạn có chắc chắn muốn xóa nhân viên này?</p>
             <p style={{ margin: 0, color: "#666", fontSize: 14 }}>
-              Hành động này sẽ xóa vĩnh viễn nhân viên <strong style={{ color: "#111" }}>{modal.data?.HOTEN || modal.data?.HoTen}</strong> ({modal.data?.MANV || modal.data?.MaNV}) khỏi hệ thống. Thao tác này không thể hoàn tác!
+              Hành động này sẽ xóa vĩnh viễn nhân viên <strong style={{ color: "#111" }}>{modal.data?.hoten}</strong> ({modal.data?.manv}) khỏi hệ thống. Thao tác này không thể hoàn tác!
             </p>
           </div>
         </div>
@@ -267,14 +267,14 @@ export const AdminDepartmentTab: React.FC<{ adminData: any }> = ({ adminData }) 
              <thead><tr><th>Mã PB</th><th>Tên phòng ban</th><th>Trưởng phòng</th><th style={{ width: 140 }}>Thao tác</th></tr></thead>
             <tbody>
               {departments.map((dept: any) => (
-                   <tr key={dept.MAPHG || dept.maphg} 
-                      onClick={() => setModal({ type: "detailDept", data: dept.MAPHG || dept.maphg })}
+                   <tr key={dept.maphg} 
+                      onClick={() => setModal({ type: "detailDept", data: dept.maphg })}
                       style={{ cursor: "pointer" }}
                       className="hover:bg-gray-50 transition-colors"
                   >
                    <td>
                      <span style={{ fontWeight: 600, fontSize: 11, background: "#f0f0f0", padding: "3px 8px", borderRadius: 5 }}>
-                       {dept.MAPHG || dept.maphg}
+                       {dept.maphg}
                      </span>
                    </td>
                    <td>
@@ -282,11 +282,11 @@ export const AdminDepartmentTab: React.FC<{ adminData: any }> = ({ adminData }) 
                         <div style={{ width: 32, height: 32, background: "#111", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
                          <Building2 size={14} color="#fff" />
                        </div>
-                       <span style={{ fontWeight: 600 }}>{dept.TENPB || dept.tenpb}</span>
+                       <span style={{ fontWeight: 600 }}>{dept.tenpb}</span>
                      </div>
                    </td>
                    <td style={{ fontSize: 13, color: "#666" }}>
-                      {dept.TenTruongPhong || dept.TruongPhong || "—"}
+                      {dept.tenTruongPhong || "—"}
                    </td>
                    <td>
                     <div style={{ display: "flex", gap: 8 }}>
@@ -294,7 +294,7 @@ export const AdminDepartmentTab: React.FC<{ adminData: any }> = ({ adminData }) 
                          style={{ fontSize: 12, color: "#666", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
                         <Edit3 size={12} /> Sửa
                       </button>
-                       <button onClick={(e) => { e.stopPropagation(); handleDeleteDepartment(dept.MAPHG || dept.maphg, dept.TENPB || dept.tenpb); }}
+                       <button onClick={(e) => { e.stopPropagation(); handleDeleteDepartment(dept.maphg, dept.tenpb); }}
                         style={{ fontSize: 12, color: "#f87171", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
                         <Trash2 size={12} /> Xóa
                       </button>
@@ -358,8 +358,8 @@ export const AcceptOnboardingModal: React.FC<AcceptOnboardingModalProps> = ({ is
   };
 
   if (!isOpen || !applicant) return null;
-  const name = applicant.HoTen || applicant.HOTEN || applicant.hoten || applicant.Email || applicant.EMAIL || applicant.email || "???";
-  const email = applicant.Email || applicant.EMAIL || applicant.email || "";
+  const name = applicant.hoten || applicant.email || "???";
+  const email = applicant.email || "";
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Duyệt hồ sơ ứng viên"
@@ -385,7 +385,7 @@ export const AcceptOnboardingModal: React.FC<AcceptOnboardingModalProps> = ({ is
           <select className="form-input" value={form.maphg} onChange={set("maphg")}>
             <option value="">— Chọn phòng ban —</option>
             {departments.map((d: any) => (
-              <option key={d.MAPHG || d.maphg} value={d.MAPHG || d.maphg}>{d.TENPB || d.tenpb}</option>
+              <option key={d.maphg} value={d.maphg}>{d.tenpb}</option>
             ))}
           </select>
         </FormField>
@@ -425,7 +425,7 @@ export const RejectOnboardingModal: React.FC<RejectOnboardingModalProps> = ({ is
   };
 
   if (!isOpen || !applicant) return null;
-  const name = applicant.HoTen || applicant.HOTEN || applicant.hoten || applicant.Email || applicant.EMAIL || applicant.email || "???";
+  const name = applicant.hoten || applicant.email || "???";
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Từ chối hồ sơ ứng viên"
@@ -468,7 +468,7 @@ export const AdminOnboardingTab: React.FC<{ adminData: any }> = ({ adminData }) 
   useEffect(() => { fetchPendingOnboarding(); }, [fetchPendingOnboarding]);
 
   const pendingCount = pendingList.filter((a: any) =>
-    (a.RegistrationStatus || a.STATUS || a.status || a.TRANGTHAI || a.trangthai) === "OTP_VERIFIED"
+    a.registrationStatus === "OTP_VERIFIED"
   ).length;
 
   return (
@@ -521,10 +521,10 @@ export const AdminOnboardingTab: React.FC<{ adminData: any }> = ({ adminData }) 
                 </tr>
               ) : (
                 pendingList.map((a: any, idx: number) => {
-                  const status = a.RegistrationStatus || a.STATUS || a.status || a.TRANGTHAI || a.trangthai || "PENDING_OTP";
-                  const name = a.HoTen || a.HOTEN || a.hoten || "—";
-                  const email = a.Email || a.EMAIL || a.email || "—";
-                  const createdAt = a.CreatedAt || a.NGAYDANGKY || a.NgayDangKy || a.createdAt || "";
+                  const status = a.registrationStatus || "PENDING_OTP";
+                  const name = a.hoten || "—";
+                  const email = a.email || "—";
+                  const createdAt = a.createdAt || "";
                   const badgeCfg = STATUS_BADGE[status] || { label: status, color: "gray" };
                   const canAction = status === "OTP_VERIFIED";
 

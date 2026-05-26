@@ -9,12 +9,6 @@ interface ProjectCardProps {
   onClick: () => void;
 }
 
-/** Lấy giá trị từ nhiều casing khác nhau của cùng một field */
-const get = (obj: any, ...keys: string[]) => {
-  for (const k of keys) if (obj?.[k] != null) return obj[k];
-  return null;
-};
-
 const PROJECT_COLORS = [
   { bg: "#FEE2E2", icon: "#DC2626" }, // Red
   { bg: "#FEF3C7", icon: "#D97706" }, // Amber
@@ -37,13 +31,13 @@ const stringToProjectColor = (str: string) => {
 };
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
-  const id     = get(project, "MADA", "MaDA");
-  const name   = get(project, "TENDA", "TenDA") || "";
-  const desc   = get(project, "MOTA", "MoTa");
-  const start  = get(project, "NGAYBATDAU", "NgayBatDau");
-  const status = get(project, "TRANGTHAI", "TrangThai") || "—";
-  const role   = get(project, "VAITRODUAN", "VaiTroDuAn", "vaitroduan");
-  const end    = get(project, "NGAYKETTHUC", "NgayKetThuc");
+  const id     = project.mada;
+  const name   = project.tenda || "";
+  const desc   = project.mota;
+  const start  = project.ngaybatdau;
+  const status = project.trangthai || "—";
+  const role   = project.vaitroduan;
+  const end    = project.ngayketthuc;
   const isOverdue = checkOverdue(end, status);
 
   const colors = stringToProjectColor(name);

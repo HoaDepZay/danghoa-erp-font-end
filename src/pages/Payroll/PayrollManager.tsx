@@ -15,45 +15,36 @@ import { MONTHS } from "./usePayroll";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 interface Employee {
-  MANV?: string; MaNV?: string; manv?: string;
-  HOTEN?: string; HoTen?: string; hoTen?: string;
-  EMAIL?: string; Email?: string; email?: string;
-  CHUCVU?: string; ChucVu?: string; chucVu?: string; chuc_vu?: string;
-  TENPB?: string; TenPB?: string; phongBan?: string;
-  LUONG?: number; Luong?: number; luong?: number;
+  manv: string;
+  hoten: string;
+  email: string;
+  chucvu?: string;
+  tenpb?: string;
+  luong?: number;
   [key: string]: any;
 }
 
 interface AttendanceRecord {
-  checkIn?: string; CHECK_IN?: string;
-  checkOut?: string; CHECK_OUT?: string;
-  date?: string; ngay?: string; Ngay?: string;
-  status?: string; trangThai?: string;
-  soGio?: number;
+  macc?: string;
+  giovao?: string;
+  giora?: string;
+  ngay?: string;
+  trangthai?: string;
   [key: string]: any;
 }
 
 // ─── Field helpers ──────────────────────────────────────────────────────────────
-const getManv = (e: Employee) => e?.MANV || e?.MaNV || e?.manv || "";
-const getHoTen = (e: Employee) => e?.HOTEN || e?.HoTen || e?.hoTen || "";
-const getEmail = (e: Employee) => e?.EMAIL || e?.Email || e?.email || "";
-const getChucVu = (e: Employee) => e?.CHUCVU || e?.ChucVu || e?.chucVu || e?.chuc_vu || "";
-const getPhongBan = (e: Employee) => e?.TENPB || e?.TenPB || e?.phongBan || "";
-const getLuong = (e: Employee) => e?.LUONG || e?.Luong || e?.luong || 0;
+const getManv = (e: Employee) => e?.manv || "";
+const getHoTen = (e: Employee) => e?.hoten || "";
+const getEmail = (e: Employee) => e?.email || "";
+const getChucVu = (e: Employee) => e?.chucvu || "";
+const getPhongBan = (e: Employee) => e?.tenpb || "";
+const getLuong = (e: Employee) => e?.luong || 0;
 
-const getCI = (r: AttendanceRecord) =>
-  r.GioVao || r.gioVao || r.checkIn || r.CHECK_IN || r.checkin || r.CheckIn
-  || r.thoiGianVao || r.timeIn || r.vao || r.VAO;
-
-const getCO = (r: AttendanceRecord) =>
-  r.GioRa || r.gioRa || r.checkOut || r.CHECK_OUT || r.checkout || r.CheckOut
-  || r.thoiGianRa || r.timeOut || r.ra || r.RA;
-
-const getDate = (r: AttendanceRecord) =>
-  r.Ngay || r.ngay || r.date || r.Date || r.ngayLamViec || r.workDate || r.NgayCC || r.NGAY;
-
-const getStatus = (r: AttendanceRecord) =>
-  r.TrangThai || r.trangThai || r.status || r.Status || r.loai || "";
+const getCI = (r: AttendanceRecord) => r?.giovao || "";
+const getCO = (r: AttendanceRecord) => r?.giora || "";
+const getDate = (r: AttendanceRecord) => r?.ngay || "";
+const getStatus = (r: AttendanceRecord) => r?.trangthai || "";
 
 const fmt = (iso?: string, mode: "time" | "date" = "time") => {
   if (!iso) return "—";
@@ -201,15 +192,12 @@ const EmployeePayrollModal: React.FC<{
   month: number;
   year: number;
   onSuccess?: () => void;
-}> = ({ isOpen, onClose, employee, month, year, onSuccess }) => {
+}> = ({ isOpen, onClose, employee, month, year }) => {
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [attLoading, setAttLoading] = useState(false);
-  const [workHours, setWorkHours] = useState<number | null>(null);
-  const [hoursLoading, setHoursLoading] = useState(false);
-  const [thuong, setThuong] = useState("");
-  const [closing, setClosing] = useState(false);
-  const [result, setResult] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<"attendance" | "close">("attendance");
+  const [payslipData, setPayslipData] = useState<any>(null);
+  const [payslipLoading, setPayslipLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<"attendance" | "payslip">("attendance");
 
   const maNV = getManv(employee || {});
 
@@ -218,51 +206,33 @@ const EmployeePayrollModal: React.FC<{
     if (!maNV) return;
     setAttLoading(true);
     try {
-      const res = await api.getAttendanceEmployeeMonth(maNV);
+      const fromDate = `${year}-${String(month).padStart(2, "0")}-01`;
+      const toDate = `${year}-${String(month).padStart(2, "0")}-${new Date(year, month, 0).getDate()}`;
+      const res = await api.getAttendanceEmployee(maNV, { fromDate, toDate });
       setAttendance(normalizeList(res));
     } catch { setAttendance([]); }
     finally { setAttLoading(false); }
-  }, [maNV]);
+  }, [maNV, month, year]);
 
-  // Fetch tổng giờ
-  const fetchHours = useCallback(async () => {
+  // Fetch phiếu lương
+  const fetchPayslip = useCallback(async () => {
     if (!maNV) return;
-    setHoursLoading(true);
+    setPayslipLoading(true);
     try {
-      const res = await (api as any).getWorkingHours(maNV, month, year);
+      const res = await api.getMyPayroll(maNV, year, month);
       const d = res.data?.data || res.data;
-      setWorkHours(d?.totalHours ?? null);
-    } catch { setWorkHours(null); }
-    finally { setHoursLoading(false); }
+      setPayslipData(d || null);
+    } catch { setPayslipData(null); }
+    finally { setPayslipLoading(false); }
   }, [maNV, month, year]);
 
   useEffect(() => {
     if (isOpen && maNV) {
-      setResult(null);
-      setThuong("");
       setActiveTab("attendance");
       fetchAttendance();
-      fetchHours();
+      fetchPayslip();
     }
-  }, [isOpen, maNV, fetchAttendance, fetchHours]);
-
-  const handleClose = async () => {
-    const thuongNum = thuong === "" ? 0 : Number(thuong);
-    if (isNaN(thuongNum) || thuongNum < 0) {
-      toast.error("Thưởng phải là số không âm!");
-      return;
-    }
-    if (!window.confirm(`Xác nhận chốt lương cho ${maNV} – ${MONTHS[month - 1]}/${year}?`)) return;
-    setClosing(true);
-    try {
-      const res = await (api as any).closeEmployeePayroll({ maNV, thuong: thuongNum });
-      toast.success(res.data?.message || "Chốt lương thành công!");
-      setResult(res.data?.data || res.data);
-      onSuccess?.();
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Lỗi chốt lương!");
-    } finally { setClosing(false); }
-  };
+  }, [isOpen, maNV, fetchAttendance, fetchPayslip]);
 
   const fullPresent = attendance.filter(r => getCI(r) && getCO(r)).length;
   const hasCI = attendance.filter(r => !!getCI(r)).length;
@@ -274,18 +244,8 @@ const EmployeePayrollModal: React.FC<{
       title=""
       size="xl"
       footer={
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", width: "100%" }}>
           <Btn variant="secondary" onClick={onClose}>Đóng</Btn>
-          {!result && activeTab === "close" && (
-            <Btn
-              variant="success"
-              loading={closing}
-              icon={<DollarSign size={14} />}
-              onClick={handleClose}
-            >
-              Chốt lương
-            </Btn>
-          )}
         </div>
       }
     >
@@ -321,9 +281,9 @@ const EmployeePayrollModal: React.FC<{
             textAlign: "center", padding: "8px 14px", borderRadius: 12,
             background: "#f0fdf4", border: "1px solid #bbf7d0",
           }}>
-            {hoursLoading ? <Spinner size={16} /> : (
+            {payslipLoading ? <Spinner size={16} /> : (
               <p style={{ margin: 0, fontSize: 20, fontWeight: 800, color: "#10b981" }}>
-                {workHours ?? "—"}
+                {payslipData?.giolamViec ?? "—"}
               </p>
             )}
             <p style={{ margin: "2px 0 0", fontSize: 10, color: "#888" }}>giờ / tháng</p>
@@ -357,7 +317,7 @@ const EmployeePayrollModal: React.FC<{
       }}>
         {[
           { key: "attendance", label: "Bảng chấm công", icon: <Clock size={14} /> },
-          { key: "close", label: "Tính & Chốt lương", icon: <DollarSign size={14} /> },
+          { key: "payslip", label: "Phiếu lương", icon: <DollarSign size={14} /> },
         ].map(tab => (
           <button
             key={tab.key}
@@ -423,58 +383,66 @@ const EmployeePayrollModal: React.FC<{
         </div>
       )}
 
-      {/* ── Tab: Tính & Chốt lương ── */}
-      {activeTab === "close" && (
+      {/* ── Tab: Phiếu lương ── */}
+      {activeTab === "payslip" && (
         <div>
-          {!result ? (
+          {payslipLoading ? (
+            <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
+              <Spinner size={28} />
+            </div>
+          ) : payslipData ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              {/* Thông tin tóm tắt */}
-              <div style={{
-                borderRadius: 12, padding: "14px 18px", background: "#f8f8f8",
-                display: "flex", flexDirection: "column", gap: 8,
-              }}>
-                <div style={{ fontSize: 12, color: "#888", fontWeight: 600, marginBottom: 4 }}>
-                  Tóm tắt chấm công – {MONTHS[month - 1]} {year}
-                </div>
-                {[
-                  { label: "Tổng bản ghi", value: attLoading ? "..." : `${attendance.length} ngày` },
-                  { label: "Ngày làm đầy đủ", value: attLoading ? "..." : `${fullPresent} ngày` },
-                  { label: "Tổng giờ làm", value: hoursLoading ? "..." : workHours != null ? `${workHours} giờ` : "—" },
-                  { label: "Lương cơ bản", value: formatCurrency(getLuong(employee || {})) },
-                ].map(({ label, value }) => (
-                  <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
-                    <span style={{ color: "#888" }}>{label}</span>
-                    <span style={{ fontWeight: 600, color: "#111" }}>{value}</span>
-                  </div>
-                ))}
+              {/* Header tổng quát */}
+              <div style={{ background: "#111", borderRadius: 14, padding: "18px 20px", textAlign: "center" }}>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 6px" }}>
+                  Tổng thực lãnh tạm tính
+                </p>
+                <p style={{ fontSize: 26, fontWeight: 800, color: "#fff", margin: 0 }}>
+                  {formatCurrency(payslipData.thucLanh ?? 0)}
+                </p>
               </div>
 
-              {/* Form thưởng */}
-              <FormField label="Thưởng (VNĐ) — không bắt buộc, mặc định 0">
-                <input
-                  className="form-input"
-                  type="number"
-                  min={0}
-                  placeholder="0"
-                  value={thuong}
-                  onChange={e => setThuong(e.target.value)}
-                />
-              </FormField>
-
+              {/* Chi tiết các khoản */}
               <div style={{
-                display: "flex", alignItems: "flex-start", gap: 8,
-                padding: "10px 14px", borderRadius: 10,
-                background: "#fffbeb", border: "1px solid #fde68a",
+                borderRadius: 14, border: "1.5px solid #f0f0f0", padding: "16px 18px",
+                background: "#fdfdfd", display: "flex", flexDirection: "column", gap: 10,
               }}>
-                <AlertCircle size={14} color="#f59e0b" style={{ flexShrink: 0, marginTop: 2 }} />
-                <p style={{ margin: 0, fontSize: 12, color: "#92400e" }}>
-                  Sau khi chốt, hệ thống sẽ tính lương và tạo phiếu lương cho nhân viên.
-                  Thao tác này không thể hoàn tác tự động.
-                </p>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, borderBottom: "1px solid #f0f0f0", paddingBottom: 8 }}>
+                  <span style={{ color: "#888" }}>Lương cơ bản</span>
+                  <span style={{ fontWeight: 600 }}>{formatCurrency(getLuong(employee || {}))}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, borderBottom: "1px solid #f0f0f0", paddingBottom: 8 }}>
+                  <span style={{ color: "#888" }}>Tổng giờ làm việc</span>
+                  <span style={{ fontWeight: 600 }}>{payslipData.giolamViec ?? 0} giờ</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, borderBottom: "1px solid #f0f0f0", paddingBottom: 8 }}>
+                  <span style={{ color: "#888" }}>Phụ cấp</span>
+                  <span style={{ fontWeight: 600 }}>{formatCurrency(payslipData.phucap ?? 0)}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, borderBottom: "1px solid #f0f0f0", paddingBottom: 8 }}>
+                  <span style={{ color: "#888" }}>Thưởng (OT)</span>
+                  <span style={{ fontWeight: 600, color: "#10b981" }}>{formatCurrency(payslipData.thuong ?? 0)}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, borderBottom: "1px solid #f0f0f0", paddingBottom: 8 }}>
+                  <span style={{ color: "#888" }}>Bảo hiểm xã hội (BHXH)</span>
+                  <span style={{ fontWeight: 600, color: "#ef4444" }}>- {formatCurrency(payslipData.bhxh ?? 0)}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, borderBottom: "1px solid #f0f0f0", paddingBottom: 8 }}>
+                  <span style={{ color: "#888" }}>Thuế TNCN</span>
+                  <span style={{ fontWeight: 600, color: "#f59e0b" }}>- {formatCurrency(payslipData.thueTNCN ?? 0)}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, paddingTop: 6 }}>
+                  <span style={{ fontWeight: 700, color: "#111" }}>Thực lãnh thực tế</span>
+                  <span style={{ fontWeight: 800, color: "#111" }}>{formatCurrency(payslipData.thucLanh ?? 0)}</span>
+                </div>
               </div>
             </div>
           ) : (
-            <PayrollResult data={result} month={month} year={year} />
+            <EmptyState
+              icon={<DollarSign size={40} />}
+              title="Chưa có thông tin lương"
+              description="Không thể tải hoặc tính toán thông tin lương cho nhân viên này"
+            />
           )}
         </div>
       )}
@@ -486,8 +454,8 @@ const EmployeePayrollModal: React.FC<{
 const EmployeeCard: React.FC<{
   employee: Employee;
   onClick: () => void;
-  hasPayroll?: boolean;
-}> = ({ employee, onClick, hasPayroll }) => {
+  isClosed?: boolean;
+}> = ({ employee, onClick, isClosed }) => {
   const name = getHoTen(employee);
   const maNV = getManv(employee);
   const chucVu = getChucVu(employee);
@@ -524,16 +492,16 @@ const EmployeeCard: React.FC<{
         {luong > 0 && (
           <div style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{formatCurrency(luong)}</div>
         )}
-        {hasPayroll ? (
+        {isClosed ? (
           <Badge color="green">Đã chốt</Badge>
         ) : (
-          <Badge color="gray">Chưa chốt</Badge>
+          <Badge color="yellow">Tạm tính</Badge>
         )}
         <div style={{
           marginTop: 6, fontSize: 11, color: "#10b981", fontWeight: 600,
           display: "flex", alignItems: "center", gap: 3, justifyContent: "flex-end",
         }}>
-          <DollarSign size={11} /> Tính lương
+          <DollarSign size={11} /> Phiếu lương
         </div>
       </div>
     </div>
@@ -572,8 +540,8 @@ export const PayrollManager: React.FC<{ user: any }> = ({ user: _user }) => {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Employee | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  // Track which employees đã có phiếu lương tháng này
-  const [closedSet, setClosedSet] = useState<Set<string>>(new Set());
+  const [isClosed, setIsClosed] = useState(false);
+  const [closingMonth, setClosingMonth] = useState(false);
 
   const prevMonth = () => {
     if (month === 1) { setMonth(12); setYear(y => y - 1); }
@@ -599,19 +567,32 @@ export const PayrollManager: React.FC<{ user: any }> = ({ user: _user }) => {
     finally { setLoading(false); }
   }, []);
 
-  // Load các phiếu lương đã chốt tháng này
-  const fetchClosedPayroll = useCallback(async () => {
+  // Kiểm tra trạng thái chốt lương của tháng
+  const fetchClosedStatus = useCallback(async () => {
     try {
-      const res = await api.getPayroll(year, month);
-      const raw = res.data;
-      const list: any[] = Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : [];
-      const ids = new Set(list.map(p => p.MANV || p.MaNV || "").filter(Boolean));
-      setClosedSet(ids);
-    } catch { setClosedSet(new Set()); }
+      const res = await api.checkIfPayrollClosed(year, month);
+      setIsClosed(!!res.data?.isClosed);
+    } catch {
+      setIsClosed(false);
+    }
   }, [year, month]);
 
+  const handleClosePayrollForMonth = async () => {
+    if (!window.confirm(`Xác nhận chốt bảng lương cho toàn bộ công ty tháng ${month}/${year}? Thao tác này sẽ khóa dữ liệu lương của tháng này.`)) return;
+    setClosingMonth(true);
+    try {
+      const res = await api.closePayrollForMonth(year, month);
+      toast.success(res.data?.message || "Chốt lương thành công!");
+      setIsClosed(true);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Lỗi chốt lương tháng!");
+    } finally {
+      setClosingMonth(false);
+    }
+  };
+
   useEffect(() => { fetchEmployees(); }, [fetchEmployees]);
-  useEffect(() => { fetchClosedPayroll(); }, [fetchClosedPayroll]);
+  useEffect(() => { fetchClosedStatus(); }, [fetchClosedStatus]);
 
   const filtered = employees.filter(e => {
     const q = search.toLowerCase();
@@ -623,18 +604,9 @@ export const PayrollManager: React.FC<{ user: any }> = ({ user: _user }) => {
     );
   });
 
-  const closedCount = filtered.filter(e => closedSet.has(getManv(e))).length;
-
   const openModal = (emp: Employee) => {
     setSelected(emp);
     setModalOpen(true);
-  };
-
-  const handlePayrollSuccess = () => {
-    if (selected) {
-      setClosedSet(prev => new Set([...prev, getManv(selected)]));
-    }
-    fetchClosedPayroll();
   };
 
   return (
@@ -650,14 +622,27 @@ export const PayrollManager: React.FC<{ user: any }> = ({ user: _user }) => {
 
       <SectionHeader
         title="Tính lương"
-        subtitle={`${filtered.length} nhân viên · ${closedCount} đã chốt · ${filtered.length - closedCount} chưa chốt`}
+        subtitle={isClosed ? `Kỳ lương Tháng ${month}/${year} đã khóa` : `Kỳ lương Tháng ${month}/${year} tạm tính`}
         actions={
-          <>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
             <MonthNav month={month} year={year} onPrev={prevMonth} onNext={nextMonth} />
-            <Btn size="sm" variant="secondary" icon={<RefreshCw size={14} />} onClick={() => { fetchEmployees(); fetchClosedPayroll(); }}>
+            {!isClosed ? (
+              <Btn
+                size="sm"
+                variant="success"
+                loading={closingMonth}
+                icon={<DollarSign size={14} />}
+                onClick={handleClosePayrollForMonth}
+              >
+                Chốt lương tháng
+              </Btn>
+            ) : (
+              <Badge color="green">Đã chốt lương</Badge>
+            )}
+            <Btn size="sm" variant="secondary" icon={<RefreshCw size={14} />} onClick={() => { fetchEmployees(); fetchClosedStatus(); }}>
               Làm mới
             </Btn>
-          </>
+          </div>
         }
       />
 
@@ -665,8 +650,8 @@ export const PayrollManager: React.FC<{ user: any }> = ({ user: _user }) => {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 16 }}>
         {[
           { label: "Tổng nhân viên", value: employees.length, icon: <Users size={18} />, color: "#111" },
-          { label: "Đã chốt lương", value: closedSet.size, icon: <CheckCircle size={18} />, color: "#10b981" },
-          { label: "Chưa chốt", value: employees.length - closedSet.size, icon: <XCircle size={18} />, color: "#f59e0b" },
+          { label: "Đã chốt lương", value: isClosed ? employees.length : 0, icon: <CheckCircle size={18} />, color: "#10b981" },
+          { label: "Chưa chốt (Tạm tính)", value: isClosed ? 0 : employees.length, icon: <XCircle size={18} />, color: "#f59e0b" },
         ].map(s => (
           <Card key={s.label} style={{ margin: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -724,7 +709,7 @@ export const PayrollManager: React.FC<{ user: any }> = ({ user: _user }) => {
                   <EmployeeCard
                     employee={emp}
                     onClick={() => openModal(emp)}
-                    hasPayroll={closedSet.has(maNV)}
+                    isClosed={isClosed}
                   />
                 </div>
               );
@@ -733,14 +718,13 @@ export const PayrollManager: React.FC<{ user: any }> = ({ user: _user }) => {
         )}
       </Card>
 
-      {/* Modal chi tiết chấm công + chốt lương */}
+      {/* Modal chi tiết chấm công + phiếu lương */}
       <EmployeePayrollModal
         isOpen={modalOpen}
         onClose={() => { setModalOpen(false); setSelected(null); }}
         employee={selected}
         month={month}
         year={year}
-        onSuccess={handlePayrollSuccess}
       />
     </div>
   );

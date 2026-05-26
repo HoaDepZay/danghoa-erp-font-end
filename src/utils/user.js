@@ -35,8 +35,10 @@ export const getPayValue = (payroll, key) => {
 export const ROLE_LEVELS = {
   "Cộng tác viên": 1,
   "Nhân viên": 2,
+  "Nhân viên mới": 1,  // alias
   "Quản lý": 3,
   Admin: 4,
+  admin: 4,  // lowercase từ backend login
 };
 
 const normalizeRole = (value) =>
@@ -49,6 +51,7 @@ const normalizeRole = (value) =>
 const ROLE_LEVELS_NORMALIZED = {
   "cong tac vien": 1,
   "nhan vien": 2,
+  "nhan vien moi": 1,
   "quan ly": 3,
   admin: 4,
 };

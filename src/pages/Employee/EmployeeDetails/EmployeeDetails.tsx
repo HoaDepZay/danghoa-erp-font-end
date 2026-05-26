@@ -29,9 +29,9 @@ export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ isOpen, onClos
     if (!emp) return;
     setChatLoading(true);
     try {
-      const targetMaNv = emp.MANV || emp.MaNV || emp.ma_nv;
+      const targetMaNv = emp.manv;
       const res = await api.createDirectRoom({ targetMaNv });
-      const roomId = res.data?.data?.MaPhong || res.data?.MaPhong;
+      const roomId = res.data?.data?.maPhong || res.data?.maPhong;
       if (roomId) {
         localStorage.setItem("activeRoomId", String(roomId));
       }
@@ -48,23 +48,23 @@ export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ isOpen, onClos
   };
 
   const fields = emp ? [
-    ["Mã NV", emp.MANV || emp.MaNV],
-    ["Email", emp.EMAIL || emp.Email],
-    ["SĐT", emp.SDT || emp.SODIENTHOA || emp.SoDienThoai || "—"],
-    ["Ngày sinh", formatDate(emp.NGAYSINH || emp.NgaySinh)],
-    ["Giới tính", formatGender(emp.GIOITINH ?? emp.GioiTinh)],
-    ["Địa chỉ", emp.DIACHINHAN || emp.DIACHI || emp.DiaChi],
-    ["Phòng ban", emp.TENPB || emp.TenPB],
-    ["Lương cơ bản", (emp.LUONG != null || emp.LUONGCOBAN != null)
-      ? `${Number(emp.LUONG ?? emp.LUONGCOBAN).toLocaleString("vi-VN")} VNĐ` : "—"],
+    ["Mã NV", emp.manv],
+    ["Email", emp.email],
+    ["SĐT", emp.sdt || "—"],
+    ["Ngày sinh", formatDate(emp.ngaysinh)],
+    ["Giới tính", formatGender(emp.gioitinh)],
+    ["Địa chỉ", emp.diachinhan],
+    ["Phòng ban", emp.tenpb],
+    ["Lương cơ bản", (emp.luong != null)
+      ? `${Number(emp.luong).toLocaleString("vi-VN")} VNĐ` : "—"],
   ] : [];
 
   return (
     <Drawer
       isOpen={isOpen}
       onClose={onClose}
-      title={emp ? (emp.HOTEN || emp.HoTen || "Chi tiết nhân viên") : "Chi tiết nhân viên"}
-      subtitle={emp ? `Mã NV: ${emp.MANV || emp.MaNV}` : undefined}
+      title={emp ? (emp.hoten || "Chi tiết nhân viên") : "Chi tiết nhân viên"}
+      subtitle={emp ? `Mã NV: ${emp.manv}` : undefined}
       icon={<User size={18} />}
       size="sm"
       footer={
@@ -84,10 +84,10 @@ export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ isOpen, onClos
         <div>
           {/* Avatar header */}
           <div style={{ display: "flex", alignItems: "center", gap: 16, background: "#f8f8f8", borderRadius: 14, padding: "16px 18px", marginBottom: 20 }}>
-            <Avatar name={emp.HOTEN || emp.HoTen} size="lg" />
+            <Avatar name={emp.hoten} size="lg" />
             <div>
-              <p style={{ fontWeight: 700, fontSize: 16, margin: "0 0 6px" }}>{emp.HOTEN || emp.HoTen}</p>
-              <Badge color={ROLE_COLORS[emp.CHUCVU || emp.chucvu] || "gray"}>{emp.CHUCVU || emp.chucvu}</Badge>
+              <p style={{ fontWeight: 700, fontSize: 16, margin: "0 0 6px" }}>{emp.hoten}</p>
+              <Badge color={ROLE_COLORS[emp.chucvu] || "gray"}>{emp.chucvu}</Badge>
             </div>
           </div>
 

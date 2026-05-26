@@ -29,8 +29,8 @@ export const DeptModal: React.FC<DeptModalProps> = ({
     setForm(
       editData
         ? {
-            tenpb: editData.TENPB || editData.TenPB || "",
-            matruongphg: editData.MATRUONGPHG || editData.MaTruongPhg || "",
+            tenpb: editData.tenpb || "",
+            matruongphg: editData.matruongphg || "",
           }
         : { tenpb: "", matruongphg: "" }
     );
@@ -45,7 +45,7 @@ export const DeptModal: React.FC<DeptModalProps> = ({
         matruongphg: form.matruongphg || undefined,
       };
       if (isEdit) {
-        await api.updateDepartment(editData.MAPHG || editData.MaPhg, payload);
+        await api.updateDepartment(editData.maphg, payload);
         toast.success("Cập nhật phòng ban thành công!");
       } else {
         await api.createDepartment(payload);
@@ -69,7 +69,7 @@ export const DeptModal: React.FC<DeptModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title={isEdit ? "Chỉnh sửa phòng ban" : "Thêm phòng ban mới"}
-      subtitle={isEdit ? `Mã: ${editData?.MAPHG || editData?.MaPhg}` : "Tạo đơn vị tổ chức mới"}
+      subtitle={isEdit ? `Mã: ${editData?.maphg}` : "Tạo đơn vị tổ chức mới"}
       icon={<Building2 size={18} />}
       size="sm"
       footer={
@@ -96,8 +96,8 @@ export const DeptModal: React.FC<DeptModalProps> = ({
           >
             <option value="">— Chưa chọn —</option>
             {employees.map((emp) => (
-              <option key={emp.MANV || emp.MaNV} value={emp.MANV || emp.MaNV}>
-                {emp.HOTEN || emp.HoTen} ({emp.MANV || emp.MaNV})
+              <option key={emp.manv} value={emp.manv}>
+                {emp.hoten} ({emp.manv})
               </option>
             ))}
           </select>
@@ -127,7 +127,7 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
   isAdmin,
   onRefresh,
   onNavigate,
-  user,
+  user: _user,
 }) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -139,7 +139,6 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
 
     setLoading(true);
     try {
-      // Đối với Admin/Quản lý: Sử dụng deptId (mã phòng ban)
       const r = await api.getDepartment(deptId);
       const roomData = r.data?.data ?? r.data;
       console.log(`Loading Department Detail for Room ID: ${deptId}`, roomData);
@@ -159,13 +158,12 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
   const handleChat = async () => {
     if (!deptId) return;
     try {
-      // Gọi API lấy thông tin phòng chat của phòng ban
       const res = await api.getDepartmentChatRoom(deptId);
       const room = res.data?.data || res.data;
       
-      // Lưu lại MaPhong để trang Chat có thể tự động mở (nếu cần triển khai thêm ở Chat.tsx)
-      if (room && (room.MaPhong || room.id)) {
-        localStorage.setItem("pendingChatRoomId", String(room.MaPhong || room.id));
+      const roomIdValue = room?.maPhong || room?.maphong || room?.id;
+      if (room && roomIdValue) {
+        localStorage.setItem("pendingChatRoomId", String(roomIdValue));
         if (onNavigate) {
           onNavigate("chat");
           onClose();
@@ -178,12 +176,10 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
     }
   };
 
-  // ── Thêm thành viên: chuyển NV vào phòng này ─────────────────────────────
   const handleAddMember = async () => {
     if (!addManv) return toast.error("Vui lòng chọn nhân viên!");
     setAddingMember(true);
     try {
-      // PUT /api/employees/:manv  { maphg: deptId }
       await api.updateEmployee(addManv, { maphg: deptId });
       toast.success("Thêm thành viên thành công!");
       setAddManv("");
@@ -196,11 +192,9 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
     }
   };
 
-  // ── Xóa thành viên: bỏ NV khỏi phòng (maphg = null) ─────────────────────
   const handleRemoveMember = async (manv: string) => {
     if (!window.confirm("Xác nhận gỡ nhân viên này khỏi phòng ban?")) return;
     try {
-      // PUT /api/employees/:manv  { maphg: null }
       await api.updateEmployee(manv, { maphg: null });
       toast.success("Đã gỡ nhân viên!");
       fetchDetail();
@@ -210,21 +204,34 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
     }
   };
 
-  const members: any[] = data?.nhanVien || data?.NhanVien || [];
-  const truongPhong = data?.TenTruongPhong || data?.TruongPhong;
+  // Lọc danh sách nhân viên thuộc phòng ban này từ allEmployees dựa trên deptId
+  const members = allEmployees.filter((emp: any) => {
+    const empDeptId = emp.maphg || emp.maphong;
+    return empDeptId && deptId && String(empDeptId).trim().toUpperCase() === String(deptId).trim().toUpperCase();
+  });
+
+  // Tìm trưởng phòng tương ứng trong danh sách nhân viên
+  const truongPhongEmp = allEmployees.find((emp: any) => {
+    const empId = emp.manv;
+    const leaderId = data?.matruongphg;
+    return empId && leaderId && String(empId).trim().toUpperCase() === String(leaderId).trim().toUpperCase();
+  });
+  const truongPhong = truongPhongEmp 
+    ? truongPhongEmp.hoten 
+    : (data?.tenTruongPhong || "");
 
   // Danh sách NV chưa thuộc phòng này (để chọn thêm)
-  const memberIds = new Set(members.map((m: any) => m.MANV || m.MaNV));
+  const memberIds = new Set(members.map((m: any) => m.manv));
   const availableEmployees = allEmployees.filter(
-    (e) => !memberIds.has(e.MANV || e.MaNV)
+    (e) => !memberIds.has(e.manv)
   );
 
   return (
     <Drawer
       isOpen={isOpen}
       onClose={onClose}
-      title={data ? (data.TENPB || data.TenPB || "Chi tiết phòng ban") : "Chi tiết phòng ban"}
-      subtitle={data ? `Mã phòng: ${data.MAPHG || data.MaPhg} · ${members.length} thành viên` : undefined}
+      title={data ? (data.tenpb || "Chi tiết phòng ban") : "Chi tiết phòng ban"}
+      subtitle={data ? `Mã phòng: ${data.maphg} · ${members.length} thành viên` : undefined}
       icon={<Building2 size={18} />}
       size="lg"
       footer={<Btn variant="secondary" onClick={onClose}>Đóng</Btn>}
@@ -243,11 +250,11 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
                 <Building2 size={22} color="#fff" />
               </div>
               <div>
-                <p style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>{data.TENPB || data.TenPB}</p>
-                <p style={{ fontSize: 12, color: "#888", margin: "2px 0 0" }}>Mã: {data.MAPHG || data.MaPhg}</p>
-                {(data.NG_THANHLAP || data.NgThanhLap) && (
+                <p style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>{data.tenpb}</p>
+                <p style={{ fontSize: 12, color: "#888", margin: "2px 0 0" }}>Mã: {data.maphg}</p>
+                {data.ngthanhlap && (
                   <p style={{ fontSize: 11, color: "#aaa", margin: "2px 0 0" }}>
-                    Thành lập: {formatDate(data.NG_THANHLAP || data.NgThanhLap)}
+                    Thành lập: {formatDate(data.ngthanhlap)}
                   </p>
                 )}
               </div>
@@ -267,8 +274,8 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
                 <Avatar name={truongPhong} size="sm" />
                 <div>
                   <span style={{ fontWeight: 600, fontSize: 13 }}>{truongPhong}</span>
-                  {data.MaTruongPhg && (
-                    <p style={{ fontSize: 11, color: "#aaa", margin: 0 }}>{data.MaTruongPhg}</p>
+                  {data.matruongphg && (
+                    <p style={{ fontSize: 11, color: "#aaa", margin: 0 }}>{data.matruongphg}</p>
                   )}
                 </div>
               </div>
@@ -288,9 +295,9 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 220, overflowY: "auto" }}>
                 {members.map((nv: any) => {
-                  const manv = nv.MANV || nv.MaNV;
-                  const hoten = nv.HOTEN || nv.HoTen;
-                  const chucvu = nv.CHUCVU || nv.ChucVu || nv.chucvu;
+                  const manv = nv.manv;
+                  const hoten = nv.hoten;
+                  const chucvu = nv.chucvu;
                   return (
                     <div
                       key={manv}
@@ -314,7 +321,7 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
                       </div>
                       {isAdmin && (
                         <button
-                          onClick={() => handleRemoveMember(manv)}
+                           onClick={() => handleRemoveMember(manv)}
                           title="Gỡ khỏi phòng ban"
                           style={{ color: "#f87171", background: "none", border: "none", cursor: "pointer", padding: 6, borderRadius: 8, transition: "background 0.15s" }}
                           onMouseEnter={(e) => (e.currentTarget.style.background = "#fee2e2")}
@@ -345,8 +352,8 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
                 >
                   <option value="">— Chọn nhân viên —</option>
                   {availableEmployees.map((emp) => {
-                    const id = emp.MANV || emp.MaNV;
-                    const name = emp.HOTEN || emp.HoTen;
+                    const id = emp.manv;
+                    const name = emp.hoten;
                     return (
                       <option key={id} value={id}>
                         {name} ({id})

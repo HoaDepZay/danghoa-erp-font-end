@@ -16,7 +16,7 @@ export const useEmployees = (user: any) => {
   const [modal, setModal] = useState({ type: "", data: null as any });
 
   const ROLE_LEVELS: Record<string, number> = { "Cộng tác viên": 1, "Nhân viên": 2, "Quản lý": 3, "Admin": 4 };
-  const userLevel = ROLE_LEVELS[user?.chuc_vu] || ROLE_LEVELS[user?.CHUCVU] || ROLE_LEVELS[user?.role] || 1;
+  const userLevel = ROLE_LEVELS[user?.chucvu] || ROLE_LEVELS[user?.role] || 1;
 
   const fetchEmployees = useCallback(async () => {
     setLoading(true);
@@ -43,7 +43,7 @@ export const useEmployees = (user: any) => {
 
   const handleExport = () => {
     exportToCsv("nhan_vien", ["Mã NV", "Họ tên", "Email", "SĐT", "Chức vụ", "Phòng ban"],
-      employees.map((e) => [e.MANV || e.MaNV, e.HOTEN || e.HoTen, e.EMAIL || e.Email, e.SODIENTHOA || e.SoDienThoai, e.CHUCVU || e.chucvu, e.TENPB || e.TenPB]));
+      employees.map((e) => [e.manv, e.hoten, e.email, e.sdt || e.sodienthoai, e.chucvu, e.tenpb]));
     toast.success("Xuất CSV thành công!");
   };
 

@@ -5,7 +5,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import { Calendar as CalendarIcon, Info, CalendarDays, User, Clock, ChevronRight, X, Users, CheckCircle2, AlertCircle, MessageSquare } from "lucide-react";
 import { api } from "../../services/api";
 import { toArray, getUserLevel, getManv } from "../../utils/user";
-import { toast, formatDate, checkOverdue } from "../../utils/helpers";
+import { toast, formatDate, checkOverdue, getProp } from "../../utils/helpers";
 import ProjectTasks from "../../components/ProjectTasks";
 
 const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) => void }) => {
@@ -17,7 +17,7 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
   const handleProjectChat = async () => {
     if (!selectedProject) return;
     try {
-      await api.getProjectChatRoom(selectedProject.MADA || selectedProject.MaDA);
+      await api.getProjectChatRoom(getProp(selectedProject, 'mada') ?? getProp(selectedProject, 'id'));
       setShowModal(false);
       onNavigate("chat");
     } catch (err) {
@@ -31,38 +31,56 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
 
   useEffect(() => {
     if (user) {
-      fetchMyProjects();
+      fetchMyProjectsAndShifts();
     }
   }, [user]);
 
-  const fetchMyProjects = async () => {
+  const fetchMyProjectsAndShifts = async () => {
     setLoading(true);
     try {
-      // Sử dụng API lấy toàn bộ dự án mà nhân viên hiện tại tham gia
-      const res = await api.getMyProjectsFull();
-      const projects = toArray(res.data);
-      console.log("My Projects Full Data:", projects);
+      // Lấy dự án
+      const resProj = await api.getMyProjectsFull();
+      const projects = toArray(resProj.data);
       
-      const calendarEvents = projects
-        .filter((p: any) => p.NgayBatDau && p.NgayKetThuc) // Chỉ hiển thị dự án có ngày rõ ràng
+      const projectEvents = projects
+        .filter((p: any) => getProp(p, 'ngaybatdau') && getProp(p, 'ngayketthuc'))
         .map((p: any) => {
-          const isOverdue = checkOverdue(p.NgayKetThuc, p.TrangThai);
+          const mada = getProp(p, 'mada') ?? getProp(p, 'id');
+          const tenda = getProp(p, 'tenda') ?? getProp(p, 'ten');
+          const ngayBatDau = getProp(p, 'ngaybatdau');
+          const ngayKetThuc = getProp(p, 'ngayketthuc');
+          const trangThai = getProp(p, 'trangthai');
+          const isOverdue = checkOverdue(ngayKetThuc, trangThai);
           return {
-            id: String(p.MADA),
-            title: p.TENDA || "Dự án không tên",
-            start: p.NgayBatDau,
-            end: p.NgayKetThuc,
+            id: `proj_${mada}`,
+            title: `[DA] ${tenda || "Dự án không tên"}`,
+            start: ngayBatDau,
+            end: ngayKetThuc,
             backgroundColor: isOverdue ? "#ef4444" : 
-                             (p.TrangThai === "Hoàn thành" ? "#10b981" : getRandomColor(String(p.MADA))),
+                             (trangThai === "Hoàn thành" ? "#10b981" : getRandomColor(String(mada))),
             borderColor: "transparent",
-            extendedProps: { ...p, isOverdue }
+            extendedProps: { ...p, type: "project", isOverdue }
           };
         });
+
+      // Lấy ca làm việc
+      const resShift = await api.getShiftAssignments({ maNv: getManv(user) });
+      const shifts = toArray(resShift.data);
       
-      setEvents(calendarEvents);
+      const shiftEvents = shifts.map((s: any) => ({
+        id: `shift_${getProp(s, 'id')}`,
+        title: `[Ca] ${getProp(s, 'tenca')}`,
+        start: getProp(s, 'ngaylamviec'),
+        allDay: true,
+        backgroundColor: "#f59e0b",
+        borderColor: "transparent",
+        extendedProps: { ...s, type: "shift" }
+      }));
+      
+      setEvents([...projectEvents, ...shiftEvents]);
     } catch (error) {
-      console.error("Fetch projects error:", error);
-      toast.error("Không thể tải danh sách dự án");
+      console.error("Fetch schedule error:", error);
+      toast.error("Không thể tải danh sách lịch trình");
     } finally {
       setLoading(false);
     }
@@ -75,6 +93,10 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
   };
 
   const handleEventClick = (info: any) => {
+    if (info.event.extendedProps.type === "shift") {
+      toast.info(`Ca làm việc: ${info.event.title} - Trạng thái: ${info.event.extendedProps.trangThai || info.event.extendedProps.TrangThai}`);
+      return;
+    }
     setSelectedProject(info.event.extendedProps);
     setShowModal(true);
   };
@@ -100,7 +122,7 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
           <p>Dự án bạn đang tham gia và tiến độ thực hiện</p>
         </div>
         <div className="section-header-actions">
-          <button className="btn btn-secondary" onClick={fetchMyProjects} disabled={loading}>
+          <button className="btn btn-secondary" onClick={fetchMyProjectsAndShifts} disabled={loading}>
             <CalendarDays size={16} />
             Làm mới
           </button>
@@ -277,15 +299,15 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
                             fontSize: "12px",
                             fontWeight: 700
                           }}>
-                            {m.HOTEN?.charAt(0) || "U"}
+                            {m.hoten?.charAt(0) || "U"}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: "13px", fontWeight: 700, color: "#1e293b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                              {m.HOTEN}
+                              {m.hoten}
                             </div>
                             <div style={{ fontSize: "11px", color: "#64748b" }}>{m.VaiTroDuAn || "Thành viên"}</div>
                           </div>
-                          <div className="badge badge-gray" style={{ fontSize: "9px" }}>{m.MaNV}</div>
+                          <div className="badge badge-gray" style={{ fontSize: "9px" }}>{m.manv}</div>
                         </div>
                       ))
                     ) : (
@@ -300,7 +322,7 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
               ) : (
                 <div style={{ minHeight: "350px" }}>
                    <ProjectTasks 
-                    projectId={selectedProject.MADA} 
+                    projectId={getProp(selectedProject, 'mada') ?? getProp(selectedProject, 'id')} 
                     members={selectedProject.thanhVien || []} 
                     isAdmin={getUserLevel(user) >= 2} 
                   />

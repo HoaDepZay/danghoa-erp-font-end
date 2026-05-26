@@ -96,3 +96,13 @@ export const getCurrentMonthYear = () => {
   const now = new Date();
   return { month: now.getMonth() + 1, year: now.getFullYear() };
 };
+
+// --- Helper: case-insensitive property lookup ---
+export const getProp = (obj, key) => {
+  if (!obj) return undefined;
+  const lowerKey = key.toLowerCase();
+  for (const k in obj) {
+    if (k.toLowerCase() === lowerKey) return obj[k];
+  }
+  return undefined;
+};

@@ -10,21 +10,21 @@ const PayslipModal: React.FC<{ isOpen: boolean; onClose: () => void; data: any }
   if (!data) return null;
 
   const rows = [
-    { label: "Giờ làm việc", value: `${data.GiolamViec ?? 0} giờ`, icon: <Clock size={14} /> },
-    { label: "Phụ cấp", value: formatCurrency(data.PhuCap ?? 0), icon: <TrendingUp size={14} /> },
-    { label: "Thưởng", value: formatCurrency(data.Thuong ?? 0), icon: <TrendingUp size={14} />, color: "#10b981" },
-    { label: "Bảo hiểm xã hội (BHXH)", value: `- ${formatCurrency(data.BHXH ?? 0)}`, icon: <ShieldCheck size={14} />, color: "#ef4444" },
-    { label: "Thuế thu nhập cá nhân", value: `- ${formatCurrency(data.ThueTNCN ?? 0)}`, icon: <Receipt size={14} />, color: "#f59e0b" },
+    { label: "Giờ làm việc", value: `${data.giolamViec ?? 0} giờ`, icon: <Clock size={14} /> },
+    { label: "Phụ cấp", value: formatCurrency(data.phucap ?? 0), icon: <TrendingUp size={14} /> },
+    { label: "Thưởng", value: formatCurrency(data.thuong ?? 0), icon: <TrendingUp size={14} />, color: "#10b981" },
+    { label: "Bảo hiểm xã hội (BHXH)", value: `- ${formatCurrency(data.bhxh ?? 0)}`, icon: <ShieldCheck size={14} />, color: "#ef4444" },
+    { label: "Thuế thu nhập cá nhân", value: `- ${formatCurrency(data.thueTNCN ?? 0)}`, icon: <Receipt size={14} />, color: "#f59e0b" },
   ];
 
-  const net = data.ThucLanh ?? 0;
+  const net = data.thucLanh ?? 0;
 
   return (
     <Drawer
       isOpen={isOpen}
       onClose={onClose}
       title="Phiếu lương chi tiết"
-      subtitle={`Mã NV: ${data.MaNV} · ${MONTHS[(data.Thang ?? 1) - 1]} ${data.Nam}`}
+      subtitle={`Mã NV: ${data.manv} · ${MONTHS[(data.thang ?? 1) - 1]} ${data.nam}`}
       icon={<Wallet size={18} />}
       size="sm"
       footer={<Btn variant="secondary" onClick={onClose}>Đóng</Btn>}
@@ -143,12 +143,12 @@ export const Payroll: React.FC<{ user: any }> = ({ user }) => {
             </div>
 
             <div className="grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
-              <StatCard label="Giờ làm việc" value={`${myPayroll.GiolamViec ?? 0} giờ`} />
-              <StatCard label="Phụ cấp" value={formatCurrency(myPayroll.PhuCap ?? 0)} />
-              <StatCard label="Thưởng" value={formatCurrency(myPayroll.Thuong ?? 0)} color="#10b981" />
-              <StatCard label="BHXH" value={formatCurrency(myPayroll.BHXH ?? 0)} color="#ef4444" />
-              <StatCard label="Thuế TNCN" value={formatCurrency(myPayroll.ThueTNCN ?? 0)} color="#f59e0b" />
-              <StatCard label="Thực lãnh" value={formatCurrency(myPayroll.ThucLanh ?? 0)} highlight />
+              <StatCard label="Giờ làm việc" value={`${myPayroll.giolamViec ?? 0} giờ`} />
+              <StatCard label="Phụ cấp" value={formatCurrency(myPayroll.phucap ?? 0)} />
+              <StatCard label="Thưởng" value={formatCurrency(myPayroll.thuong ?? 0)} color="#10b981" />
+              <StatCard label="BHXH" value={formatCurrency(myPayroll.bhxh ?? 0)} color="#ef4444" />
+              <StatCard label="Thuế TNCN" value={formatCurrency(myPayroll.thueTNCN ?? 0)} color="#f59e0b" />
+              <StatCard label="Thực lãnh" value={formatCurrency(myPayroll.thucLanh ?? 0)} highlight />
             </div>
 
             <div style={{ marginTop: 16, textAlign: "right" }}>

@@ -8,7 +8,11 @@ interface LoginProps {
   onForgotPassword: () => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister, onForgotPassword }) => {
+const Login: React.FC<LoginProps> = ({
+  onLogin,
+  onSwitchToRegister,
+  onForgotPassword,
+}) => {
   const S: Record<string, React.CSSProperties> = {
     page: {
       position: "fixed",
@@ -172,17 +176,20 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister, onForgotPass
         <div style={S.divider}>
           <p style={S.footer}>
             Chưa có tài khoản?{" "}
-            <button type="button" onClick={onSwitchToRegister} style={S.footerLink}>
+            <button
+              type="button"
+              onClick={onSwitchToRegister}
+              style={S.footerLink}
+            >
               Đăng ký ngay
             </button>
           </p>
         </div>
       </div>
 
-      <p style={S.copy}>Đại học Công nghiệp TP.HCM · HUIT ERP v2.0</p>
+      <p style={S.copy}>Đại học Công Thương TP.HCM · HUIT ERP v2.0</p>
     </div>
   );
 };
 
 export default Login;
-

@@ -9,31 +9,14 @@ export const useProfile = (user: any) => {
   const manv = getManv(user);
 
   const handleProfileUpdated = (updated: any) => {
-    setProfile((prev: any) => {
-      const next = { ...(prev || {}) };
-      if (updated.hoten) {
-        next.HOTEN = updated.hoten;
-        next.hoten = updated.hoten;
-      }
-      if (updated.ngaysinh) {
-        next.NGAYSINH = updated.ngaysinh;
-        next.ngaysinh = updated.ngaysinh;
-      }
-      if (updated.gioitinh) {
-        next.GIOITINH = updated.gioitinh;
-        next.gioitinh = updated.gioitinh;
-      }
-      if (updated.diachi) {
-        next.DIACHI = updated.diachi;
-        next.diachi = updated.diachi;
-      }
-      if (updated.sdt) {
-        next.SODIENTHOA = updated.sdt;
-        next.SODIENTHOAI = updated.sdt;
-        next.sdt = updated.sdt;
-      }
-      return next;
-    });
+    setProfile((prev: any) => ({
+      ...(prev || {}),
+      hoten: updated.hoten ?? prev?.hoten,
+      ngaysinh: updated.ngaysinh ?? prev?.ngaysinh,
+      gioitinh: updated.gioitinh ?? prev?.gioitinh,
+      diachinhan: updated.diachi ?? prev?.diachinhan,
+      sdt: updated.sdt ?? prev?.sdt,
+    }));
 
     try {
       const rawUser = localStorage.getItem("user");
@@ -41,7 +24,7 @@ export const useProfile = (user: any) => {
       const parsed = JSON.parse(rawUser);
       const merged = {
         ...parsed,
-        ...(updated.hoten ? { hoten: updated.hoten, HOTEN: updated.hoten } : {}),
+        ...(updated.hoten ? { hoten: updated.hoten } : {}),
       };
       localStorage.setItem("user", JSON.stringify(merged));
     } catch {

@@ -32,10 +32,10 @@ export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, u
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
       {departments.map((dept) => {
-        const name = dept.TENPB || dept.TenPB || "";
+        const name = dept.tenpb || "";
         const colors = stringToDeptColor(name);
         return (
-          <div key={dept.MAPHG || dept.MaPhg} className="card" style={{ transition: "box-shadow 0.15s", cursor: "pointer", background: "#fff", borderRadius: 16, padding: 16, border: "1px solid #eee" }}
+          <div key={dept.maphg} className="card" style={{ transition: "box-shadow 0.15s", cursor: "pointer", background: "#fff", borderRadius: 16, padding: 16, border: "1px solid #eee" }}
             onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.1)"}
             onMouseLeave={(e) => e.currentTarget.style.boxShadow = ""}>
             <div className="card-body">
@@ -45,8 +45,8 @@ export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, u
                     <Building2 size={18} color={colors.icon} />
                   </div>
                 <div>
-                  <p style={{ fontWeight: 700, color: "#111", fontSize: 14, margin: 0 }}>{dept.TENPB || dept.TenPB}</p>
-                  <p style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>Mã: {dept.MAPHG || dept.MaPhg}</p>
+                  <p style={{ fontWeight: 700, color: "#111", fontSize: 14, margin: 0 }}>{dept.tenpb}</p>
+                  <p style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>Mã: {dept.maphg}</p>
                 </div>
               </div>
               {userLevel >= 3 && (
@@ -57,16 +57,16 @@ export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, u
               )}
             </div>
 
-            {/* Trưởng phòng — API trả TenTruongPhong */}
-            {(dept.TenTruongPhong || dept.TruongPhong) && (
+            {/* Trưởng phòng — API trả tenTruongPhong */}
+            {dept.tenTruongPhong && (
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 12, fontSize: 12, color: "#666" }}>
                 <Users size={12} />
-                <span>TP: {dept.TenTruongPhong || dept.TruongPhong}</span>
+                <span>TP: {dept.tenTruongPhong}</span>
               </div>
             )}
 
             <button
-               onClick={(e) => { e.stopPropagation(); setModal({ type: "detail", data: dept.MAPHG || dept.MaPhg }); }}
+               onClick={(e) => { e.stopPropagation(); setModal({ type: "detail", data: dept.maphg }); }}
               style={{
                 marginTop: 14, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
                 fontSize: 12, color: "#888", background: "#f8f8f8", border: "none", borderRadius: 10, padding: "8px", cursor: "pointer",

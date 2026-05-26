@@ -80,13 +80,13 @@ export const useAdmin = (user: any) => {
   const handleAcceptOnboarding = async (applicant: any, extra: { maphg: number; luong: number; chucvu: string }) => {
     try {
       await api.acceptOnboarding({
-        email:      applicant.Email || applicant.EMAIL || applicant.email,
+        email:      applicant.email,
         approvedBy: adminEmail,
         maphg:      extra.maphg,
         luong:      extra.luong,
         chucvu:     extra.chucvu,
       });
-      toast.success(`Đã duyệt hồ sơ của ${applicant.HoTen || applicant.HOTEN || applicant.hoten || applicant.Email || applicant.email}!`);
+      toast.success(`Đã duyệt hồ sơ của ${applicant.hoten || applicant.email}!`);
       fetchPendingOnboarding();
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Lỗi khi duyệt hồ sơ!");
@@ -97,11 +97,11 @@ export const useAdmin = (user: any) => {
   const handleRejectOnboarding = async (applicant: any, reason: string) => {
     try {
       await api.rejectOnboarding({
-        email:      applicant.Email || applicant.EMAIL || applicant.email,
+        email:      applicant.email,
         rejectedBy: adminEmail,
         reason,
       });
-      toast.success(`Đã từ chối hồ sơ của ${applicant.HoTen || applicant.HOTEN || applicant.hoten || applicant.Email || applicant.email}.`);
+      toast.success(`Đã từ chối hồ sơ của ${applicant.hoten || applicant.email}.`);
       fetchPendingOnboarding();
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Lỗi khi từ chối hồ sơ!");

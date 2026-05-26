@@ -60,7 +60,9 @@ const Chat = ({ user }: { user: any }) => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchDone, setSearchDone] = useState(false);
-
+  const [attachedFile, setAttachedFile] = useState<{ file: File; url: string; type: string } | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -85,7 +87,7 @@ const Chat = ({ user }: { user: any }) => {
         return [...prev, newMsg];
       });
       // Cập nhật preview tin nhắn mới nhất cho phòng
-      const roomId = newMsg.MaPhong;
+      const roomId = getRoomId(newMsg);
       if (roomId) {
         setLatestMsgMap(prev => ({ ...prev, [roomId]: newMsg }));
       }
@@ -109,18 +111,20 @@ const Chat = ({ user }: { user: any }) => {
   }, [selectedRoom, isMobile]);
 
   useEffect(() => {
-    if (selectedRoom && selectedRoom.MaPhong && selectedRoom.MaPhong !== "undefined") {
-      fetchMessages(selectedRoom.MaPhong);
+    if (selectedRoom) {
+      const roomId = getRoomId(selectedRoom);
+      if (roomId) fetchMessages(roomId);
     }
   }, [selectedRoom]);
 
   useEffect(() => {
-    if (selectedRoom && selectedRoom.MaPhong && selectedRoom.MaPhong !== "undefined" && socketRef.current) {
+    const roomId = selectedRoom ? getRoomId(selectedRoom) : null;
+    if (roomId && socketRef.current) {
       const socket = socketRef.current;
-      socket.emit("chat:join_room", { maPhong: selectedRoom.MaPhong }, (ack: any) => {
+      socket.emit("chat:join_room", { maPhong: roomId }, (ack: any) => {
         if (!ack.success) console.warn("Join room failed:", ack.message);
       });
-      return () => { socket.emit("chat:leave_room", { maPhong: selectedRoom.MaPhong }); };
+      return () => { socket.emit("chat:leave_room", { maPhong: roomId }); };
     }
   }, [selectedRoom, socketRef.current]);
 
@@ -139,6 +143,19 @@ const Chat = ({ user }: { user: any }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Helper properties to handle case sensitivity from backend
+  const getProp = (obj: any, key: string) => {
+    if (!obj) return undefined;
+    const lowerKey = key.toLowerCase();
+    for (const k in obj) {
+      if (k.toLowerCase() === lowerKey) return obj[k];
+    }
+    return undefined;
+  };
+  const getRoomId = (r: any) => getProp(r, 'maphong') ?? getProp(r, 'id');
+  const getRoomName = (r: any) => getProp(r, 'tenphong') ?? "";
+  const getRoomType = (r: any) => getProp(r, 'loaiphong') ?? 1;
+
   // ─── Fetch room + latest message ───────────────────────────────────────────
   const fetchRooms = async () => {
     setLoadingRooms(true);
@@ -149,7 +166,7 @@ const Chat = ({ user }: { user: any }) => {
       
       const activeRoomId = localStorage.getItem("activeRoomId");
       if (activeRoomId) {
-        const found = roomsData.find((r: any) => String(r.MaPhong) === String(activeRoomId));
+        const found = roomsData.find((r: any) => String(getRoomId(r)) === String(activeRoomId));
         if (found) {
           setSelectedRoom(found);
         } else {
@@ -170,28 +187,23 @@ const Chat = ({ user }: { user: any }) => {
   };
 
   const fetchAllLatestMessages = useCallback(async (roomList: any[]) => {
-    const validRooms = roomList.filter(room => room && room.MaPhong && room.MaPhong !== "undefined");
-    const results = await Promise.allSettled(
-      validRooms.map(async (room) => {
+    const map: Record<string, any> = {};
+    await Promise.all(
+      roomList.map(async (r) => {
         try {
-          const res = await (api as any).getLatestMessage(room.MaPhong);
-          const data = res.data?.data ?? null;
-          return { roomId: room.MaPhong, data };
-        } catch {
-          return { roomId: room.MaPhong, data: null };
-        }
+          const roomId = getRoomId(r);
+          if (!roomId) return;
+          const res = await (api as any).getLatestMessage(roomId);
+          if (res.data?.data) {
+            map[roomId] = res.data.data;
+          }
+        } catch {}
       })
     );
-    const map: Record<number, any> = {};
-    results.forEach((r) => {
-      if (r.status === "fulfilled" && r.value.data) {
-        map[r.value.roomId] = r.value.data;
-      }
-    });
     setLatestMsgMap(map);
   }, []);
 
-  const fetchMessages = async (roomId: number) => {
+  const fetchMessages = async (roomId: any) => {
     setLoadingMessages(true);
     try {
       const res = await api.getMessages(roomId);
@@ -205,14 +217,40 @@ const Chat = ({ user }: { user: any }) => {
     }
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setUploading(true);
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await (api as any).uploadFile(formData);
+        if (res.data.success) {
+          setAttachedFile({ file, url: res.data.url, type: res.data.type });
+        }
+      } catch (err) {
+        toast.error("Upload thất bại!");
+      } finally {
+        setUploading(false);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+      }
+    }
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!messageInput.trim() || !selectedRoom || !socketRef.current) return;
+    if ((!messageInput.trim() && !attachedFile) || !selectedRoom || !socketRef.current) return;
     const currentMsg = messageInput;
+    const fileUrl = attachedFile?.url;
+    const fileType = attachedFile?.type;
+    
     setMessageInput("");
+    setAttachedFile(null);
     socketRef.current.emit("chat:send_message", {
-      maPhong: selectedRoom.MaPhong,
+      maPhong: getRoomId(selectedRoom),
       noiDung: currentMsg,
+      fileUrl,
+      fileType
     }, (ack: any) => {
       if (!ack.success) {
         toast.error("Gửi tin nhắn thất bại!");
@@ -224,11 +262,12 @@ const Chat = ({ user }: { user: any }) => {
   // ─── Search messages ────────────────────────────────────────────────────────
   const handleSearch = useCallback(async () => {
     if (!searchKeyword.trim()) { toast.error("Vui lòng nhập từ khoá!"); return; }
-    if (!selectedRoom || !selectedRoom.MaPhong || selectedRoom.MaPhong === "undefined") return;
+    const roomId = selectedRoom ? getRoomId(selectedRoom) : null;
+    if (!roomId) return;
     setSearchLoading(true);
     setSearchDone(false);
     try {
-      const res = await (api as any).searchMessages(selectedRoom.MaPhong, searchKeyword.trim());
+      const res = await (api as any).searchMessages(roomId, searchKeyword.trim());
       const data = res.data?.data ?? [];
       setSearchResults(Array.isArray(data) ? data : []);
       setSearchDone(true);
@@ -252,12 +291,14 @@ const Chat = ({ user }: { user: any }) => {
     setSearchDone(false);
   };
 
-  // ─── Helpers ──────────────────────────────────────────────────────────────
   const getDisplayName = (room: any) => {
-    if (room.LoaiPhong !== 1) return room.TenPhong;
+    if (!room) return "";
+    const type = getRoomType(room);
+    const name = getRoomName(room);
+    if (type !== 1) return name;
     const myName = getUserName(user).trim().toLowerCase().normalize("NFC");
-    let names = room.TenPhong.split(" - ");
-    if (names.length < 2) names = room.TenPhong.split("-");
+    let names = name.split(" - ");
+    if (names.length < 2) names = name.split("-");
     if (names.length >= 2) {
       const name0 = names[0].trim().normalize("NFC");
       const name1 = names[1].trim().normalize("NFC");
@@ -265,7 +306,7 @@ const Chat = ({ user }: { user: any }) => {
       if (name1.toLowerCase() === myName) return name0;
       return name0.toLowerCase().includes(myName) ? name1 : name0;
     }
-    return room.TenPhong;
+    return name;
   };
 
   const getRoomIcon = (type: number) => {
@@ -278,18 +319,16 @@ const Chat = ({ user }: { user: any }) => {
   };
 
   const filteredRooms = rooms
-    .filter(room => room.TenPhong?.toLowerCase().includes(roomSearchQuery.toLowerCase()))
-    // Sắp xếp: phòng có tin nhắn mới nhất lên đầu
+    .filter(room => getRoomName(room).toLowerCase().includes(roomSearchQuery.toLowerCase()))
     .sort((a, b) => {
-      const ta = latestMsgMap[a.MaPhong]?.ThoiGianGui;
-      const tb = latestMsgMap[b.MaPhong]?.ThoiGianGui;
+      const ta = latestMsgMap[getRoomId(a)]?.ThoiGianGui;
+      const tb = latestMsgMap[getRoomId(b)]?.ThoiGianGui;
       if (!ta && !tb) return 0;
       if (!ta) return 1;
       if (!tb) return -1;
       return new Date(tb).getTime() - new Date(ta).getTime();
     });
 
-  // Cắt nội dung preview
   const truncate = (text: string, max = 36) =>
     text?.length > max ? text.slice(0, max) + "…" : text;
 
@@ -303,7 +342,6 @@ const Chat = ({ user }: { user: any }) => {
         position: "relative", width: "100%", minWidth: 0,
       }}
     >
-      {/* ── Sidebar ── */}
       <div
         className="chat-sidebar"
         style={{
@@ -315,13 +353,6 @@ const Chat = ({ user }: { user: any }) => {
         <div style={{ padding: "24px", borderBottom: "1px solid #f1f5f9" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
             <h2 style={{ margin: 0, fontSize: "22px", fontWeight: 800 }}>Tin nhắn</h2>
-            <button style={{
-              width: "36px", height: "36px", borderRadius: "10px", background: "#f1f5f9",
-              border: "none", cursor: "pointer", display: "flex", alignItems: "center",
-              justifyContent: "center", color: "#64748b",
-            }}>
-              <Plus size={20} />
-            </button>
           </div>
           <div style={{ position: "relative" }}>
             <Search size={16} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
@@ -337,7 +368,6 @@ const Chat = ({ user }: { user: any }) => {
           </div>
         </div>
 
-        {/* Room list */}
         <div style={{ flex: 1, overflowY: "auto", padding: "12px" }}>
           {loadingRooms ? (
             <div style={{ padding: "20px", textAlign: "center" }}><Spinner size={24} /></div>
@@ -348,14 +378,15 @@ const Chat = ({ user }: { user: any }) => {
             </div>
           ) : (
             filteredRooms.map((room) => {
-              const latest = latestMsgMap[room.MaPhong];
-              const latestContent = latest?.NoiDung || "";
-              const latestTime = latest?.ThoiGianGui;
-              const isSelected = selectedRoom?.MaPhong === room.MaPhong;
+              const rId = getRoomId(room);
+              const latest = latestMsgMap[rId];
+              const latestContent = getProp(latest, 'noidung') ?? "";
+              const latestTime = getProp(latest, 'thoigiangui') ?? getProp(latest, 'thoigian') ?? "";
+              const isSelected = getRoomId(selectedRoom) === rId;
 
               return (
                 <div
-                  key={room.MaPhong}
+                  key={rId}
                   onClick={() => setSelectedRoom(room)}
                   style={{
                     display: "flex", alignItems: "center", gap: "12px", padding: "12px",
@@ -366,19 +397,21 @@ const Chat = ({ user }: { user: any }) => {
                   className="room-item"
                 >
                   {/* Avatar */}
-                  {room.LoaiPhong === 1 ? (
-                    <Avatar name={getDisplayName(room)} size="lg" />
-                  ) : (
-                    <div style={{
-                      width: "52px", height: "52px", borderRadius: "14px",
-                      background: isSelected ? "#fff" : "#f1f5f9",
-                      display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b",
-                      boxShadow: isSelected ? "0 4px 6px -1px rgb(0 0 0 / 0.1)" : "none",
-                      flexShrink: 0,
-                    }}>
-                      {getRoomIcon(room.LoaiPhong)}
-                    </div>
-                  )}
+                  <div style={{ position: "relative" }}>
+                    {getRoomType(room) === 1 ? (
+                      <Avatar name={getDisplayName(room)} size="md" />
+                    ) : (
+                      <div style={{
+                        width: "52px", height: "52px", borderRadius: "14px",
+                        background: isSelected ? "#fff" : "#f1f5f9",
+                        display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b",
+                        boxShadow: isSelected ? "0 4px 6px -1px rgb(0 0 0 / 0.1)" : "none",
+                        flexShrink: 0,
+                      }}>
+                        {getRoomIcon(getRoomType(room))}
+                      </div>
+                    )}
+                  </div>
 
                   {/* Info */}
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -433,7 +466,7 @@ const Chat = ({ user }: { user: any }) => {
                     <Plus size={20} style={{ transform: "rotate(45deg)" }} />
                   </button>
                 )}
-                {selectedRoom.LoaiPhong === 1 ? (
+                {getRoomType(selectedRoom) === 1 ? (
                   <Avatar name={getDisplayName(selectedRoom)} size="md" />
                 ) : (
                   <div style={{
@@ -441,7 +474,7 @@ const Chat = ({ user }: { user: any }) => {
                     display: "flex", alignItems: "center", justifyContent: "center", color: "#334155",
                     border: "1px solid #f1f5f9", flexShrink: 0,
                   }}>
-                    {getRoomIcon(selectedRoom.LoaiPhong)}
+                    {getRoomIcon(getRoomType(selectedRoom))}
                   </div>
                 )}
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -550,9 +583,10 @@ const Chat = ({ user }: { user: any }) => {
                           {searchResults.length} kết quả
                         </p>
                         {searchResults.map((msg, i) => {
-                          const isMine = (msg.MaNV_Gui || msg.maNvGui) === myMaNv;
-                          const content = msg.NoiDung || msg.noiDung || "";
-                          const time = msg.ThoiGianGui || msg.thoiGianGui;
+                          const maNvGui = getProp(msg, 'manv_gui') ?? getProp(msg, 'manvgui') ?? getProp(msg, 'manv');
+                          const isMine = maNvGui === myMaNv;
+                          const content = getProp(msg, 'noidung') ?? "";
+                          const time = getProp(msg, 'thoigiangui') ?? getProp(msg, 'thoigian');
                           // Highlight từ khoá
                           const idx = content.toLowerCase().indexOf(searchKeyword.toLowerCase());
                           let display: React.ReactNode = content;
@@ -581,12 +615,12 @@ const Chat = ({ user }: { user: any }) => {
                                 display: "flex", alignItems: "center", justifyContent: "center",
                                 fontSize: 10, color: "#fff", fontWeight: 700, flexShrink: 0,
                               }}>
-                                {isMine ? "T" : (msg.MaNV_Gui || "?").charAt(0)}
+                                {isMine ? "T" : (getProp(msg, 'manv_gui') ?? getProp(msg, 'manvgui') ?? "?").charAt(0)}
                               </div>
                               <div style={{ flex: 1, minWidth: 0 }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
                                   <span style={{ fontSize: 11, fontWeight: 700, color: "#475569" }}>
-                                    {isMine ? "Bạn" : (msg.MaNV_Gui || "Người dùng")}
+                                    {isMine ? "Bạn" : (getProp(msg, 'manv_gui') ?? getProp(msg, 'manvgui') ?? "Người dùng")}
                                   </span>
                                   {time && (
                                     <span style={{ fontSize: 10, color: "#94a3b8", display: "flex", alignItems: "center", gap: 3 }}>
@@ -619,14 +653,14 @@ const Chat = ({ user }: { user: any }) => {
                 </div>
               ) : (
                 messages.map((msg, idx) => {
-                  const maNvGui = msg.MaNV_Gui || msg.maNvGui || msg.MaNV || msg.manv;
+                  const maNvGui = getProp(msg, 'manv_gui') ?? getProp(msg, 'manvgui') ?? getProp(msg, 'manv');
                   const isMine = maNvGui === myMaNv;
-                  const noiDung = msg.NoiDung || msg.noiDung;
-                  const thoiGian = msg.ThoiGianGui || msg.thoiGianGui || msg.ThoiGian;
-                  let tenNv = msg.TenNguoiGui || msg.TenNhanVien || msg.tenNhanVien;
+                  const noiDung = getProp(msg, 'noidung') ?? "";
+                  const thoiGian = getProp(msg, 'thoigiangui') ?? getProp(msg, 'thoigian');
+                  let tenNv = getProp(msg, 'tennguoigui') ?? getProp(msg, 'tennhanvien');
                   if (!tenNv) {
                     if (isMine) tenNv = getUserName(user) || "Tôi";
-                    else if (selectedRoom.LoaiPhong === 1) tenNv = getDisplayName(selectedRoom);
+                    else if (getRoomType(selectedRoom) === 1) tenNv = getDisplayName(selectedRoom);
                     else tenNv = "User";
                   }
                   return (
@@ -648,6 +682,17 @@ const Chat = ({ user }: { user: any }) => {
                           boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
                           border: isMine ? "none" : "1px solid #f1f5f9",
                         }}>
+                          {getProp(msg, 'fileurl') ? (
+                            <div style={{ marginBottom: noiDung ? 8 : 0 }}>
+                              {getProp(msg, 'filetype')?.startsWith('image/') ? (
+                                <img src={`http://localhost:5000${getProp(msg, 'fileurl')}`} alt="attachment" style={{ maxWidth: 200, borderRadius: 8 }} />
+                              ) : (
+                                <a href={`http://localhost:5000${getProp(msg, 'fileurl')}`} target="_blank" rel="noreferrer" style={{ color: isMine ? "#fff" : "#2563eb", textDecoration: "underline", display: "flex", alignItems: "center", gap: 4 }}>
+                                  <Paperclip size={14} /> Tệp đính kèm
+                                </a>
+                              )}
+                            </div>
+                          ) : null}
                           {noiDung}
                         </div>
                         <span style={{ fontSize: "10px", color: "#94a3b8", marginTop: "4px", padding: "0 4px" }}>
@@ -663,6 +708,15 @@ const Chat = ({ user }: { user: any }) => {
 
             {/* Input Area */}
             <div style={{ padding: "20px 24px", background: "#fff", borderTop: "1px solid #f1f5f9" }}>
+              {attachedFile && (
+                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: "#f1f5f9", borderRadius: 8, marginBottom: 12, width: "fit-content" }}>
+                  <Paperclip size={14} color="#64748b" />
+                  <span style={{ fontSize: 13, color: "#475569" }}>{attachedFile.file.name}</span>
+                  <button type="button" onClick={() => setAttachedFile(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", display: "flex", padding: 4 }}>
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
               <form
                 onSubmit={handleSendMessage}
                 style={{
@@ -670,8 +724,11 @@ const Chat = ({ user }: { user: any }) => {
                   padding: "8px 16px", borderRadius: "16px", border: "1px solid #e2e8f0",
                 }}
               >
+                <input type="file" ref={fileInputRef} onChange={handleFileChange} style={{ display: 'none' }} />
                 <button type="button" className="input-action-btn" onClick={() => toast.info("Tính năng gửi icon đang được phát triển")}><Smile size={20} /></button>
-                <button type="button" className="input-action-btn" onClick={() => toast.info("Tính năng đính kèm file đang được phát triển")}><Paperclip size={20} /></button>
+                <button type="button" className="input-action-btn" onClick={() => fileInputRef.current?.click()}>
+                  {uploading ? <Spinner size={20} color="#64748b" /> : <Paperclip size={20} />}
+                </button>
                 <input
                   placeholder="Viết tin nhắn..."
                   value={messageInput}
@@ -681,12 +738,12 @@ const Chat = ({ user }: { user: any }) => {
                 <button type="button" className="input-action-btn" onClick={() => toast.info("Tính năng gửi hình ảnh đang được phát triển")}><ImageIcon size={20} /></button>
                 <button
                   type="submit"
-                  disabled={!messageInput.trim()}
+                  disabled={(!messageInput.trim() && !attachedFile) || uploading}
                   style={{
                     width: "40px", height: "40px", borderRadius: "12px", background: "#111",
                     color: "#fff", border: "none", cursor: "pointer", display: "flex",
                     alignItems: "center", justifyContent: "center", transition: "all 0.2s",
-                    opacity: messageInput.trim() ? 1 : 0.5,
+                    opacity: (messageInput.trim() || attachedFile) && !uploading ? 1 : 0.5,
                   }}
                 >
                   <Send size={18} />
@@ -736,12 +793,14 @@ const Chat = ({ user }: { user: any }) => {
               display: "flex", alignItems: "center", justifyContent: "center", color: "#334155",
               border: "1px solid #f1f5f9", margin: "0 auto 16px",
             }}>
-              {getRoomIcon(selectedRoom.LoaiPhong)}
+              {getRoomIcon(getRoomType(selectedRoom))}
             </div>
-            <h3 style={{ margin: "0 0 4px 0", fontSize: "18px", fontWeight: 800 }}>{getDisplayName(selectedRoom)}</h3>
-            <span className="badge badge-gray">
-              {selectedRoom.LoaiPhong === 1 ? "Cá nhân" : selectedRoom.LoaiPhong === 2 ? "Dự án" : "Nhóm"}
-            </span>
+            <h3 style={{ margin: "0 0 4px 0", fontSize: "16px", fontWeight: 600, color: "#1e293b", textAlign: "center" }}>
+              {getDisplayName(selectedRoom)}
+            </h3>
+            <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>
+              {getRoomType(selectedRoom) === 1 ? "Cá nhân" : getRoomType(selectedRoom) === 2 ? "Dự án" : "Nhóm"}
+            </p>
           </div>
           <div style={{ marginBottom: "24px" }}>
             <p style={{ fontSize: "11px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", marginBottom: "12px", letterSpacing: "0.05em" }}>Thông tin</p>

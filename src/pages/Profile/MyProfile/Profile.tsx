@@ -1,6 +1,6 @@
 import React from "react";
 import { UserCircle, Lock, Mail, Phone, MapPin, Calendar, Shield } from "lucide-react";
-import { formatDate } from "../../../utils/helpers";
+import { formatDate, getProp } from "../../../utils/helpers";
 import { Btn, Card, Avatar, Badge, Spinner } from "../../../components/UI/index";
 import { useProfile } from "./useProfile";
 import { ChangePassModal } from "./ChangePassModal";
@@ -28,11 +28,11 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
       const emp = profile;
       // Chỉ kiểm tra 5 trường: Mã NV, Email, SĐT, Ngày sinh, Địa chỉ
       const isMissing =
-        !(emp?.MANV   || emp?.MaNV  || emp?.manv  || emp?.ma_nv) ||
-        !(emp?.EMAIL  || emp?.Email || emp?.email) ||
-        !(emp?.SODIENTHOA || emp?.SODIENTHOAI || emp?.SoDienThoai || emp?.SDT || emp?.sdt) ||
-        !(emp?.NGAYSINH   || emp?.NgaySinh    || emp?.ngaysinh) ||
-        !(emp?.DIACHINHAN || emp?.DiaChiNhan  || emp?.DIACHI || emp?.DiaChi || emp?.diachi);
+        !getProp(emp, 'manv') ||
+        !getProp(emp, 'email') ||
+        !getProp(emp, 'sdt') ||
+        !getProp(emp, 'ngaysinh') ||
+        !getProp(emp, 'diachinhan');
 
       if (isMissing) {
         setShowNotice(true);
@@ -49,16 +49,27 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
   }
 
   const emp = profile || user;
-  const name = emp?.HOTEN || emp?.HoTen || emp?.hoten || "Nhân viên";
-  const chucvu = emp?.CHUCVU || emp?.chucvu || emp?.chuc_vu;
+  const name = getProp(emp, 'hoten') || getProp(emp, 'ten') || "Nhân viên";
+  const chucvu = getProp(emp, 'chucvu') || getProp(emp, 'chucVu') || getProp(emp, 'role');
 
   const infoItems = [
-    { icon: <UserCircle size={15} />, label: "Mã nhân viên", value: emp?.MANV || emp?.MaNV || emp?.ma_nv },
-    { icon: <Mail size={15} />, label: "Email", value: emp?.EMAIL || emp?.Email || emp?.email },
-    { icon: <Phone size={15} />, label: "Số điện thoại", value: emp?.SODIENTHOA || emp?.SODIENTHOAI || emp?.SoDienThoai || emp?.SDT },
-    { icon: <Calendar size={15} />, label: "Ngày sinh", value: formatDate(emp?.NGAYSINH || emp?.NgaySinh) },
-    { icon: <MapPin size={15} />, label: "Địa chỉ", value: emp?.DIACHINHAN || emp?.DiaChiNhan || emp?.DIACHI || emp?.DiaChi },
-    { icon: <Shield size={15} />, label: "Phòng ban", value: emp?.TENPB || emp?.TenPB },
+    { icon: <UserCircle size={15} />, label: "Mã nhân viên", value: getProp(emp, 'manv') },
+    { icon: <Mail size={15} />, label: "Email", value: getProp(emp, 'email') },
+    { icon: <Phone size={15} />, label: "Số điện thoại", value: getProp(emp, 'sdt') },
+    { icon: <Calendar size={15} />, label: "Ngày sinh", value: formatDate(getProp(emp, 'ngaysinh')) },
+    { icon: <MapPin size={15} />, label: "Địa chỉ", value: getProp(emp, 'diachi') || getProp(emp, 'diachinhan') },
+  ];
+
+  const workItems = [
+    { label: "Phòng ban", value: getProp(emp, 'phongban') || getProp(emp, 'tenphongban') || getProp(emp, 'tenpb') || "Chưa cập nhật" },
+    { label: "Vị trí", value: getProp(emp, 'chucvu') || "Chưa cập nhật" },
+    { label: "Trạng thái", value: getProp(emp, 'trangthai') === 1 || getProp(emp, 'trangthai') === "Đang làm việc" ? "Đang làm việc" : "Nghỉ việc" },
+  ];
+
+  const contractItems = [
+    { label: "Phụ cấp", value: getProp(emp, 'phucap') != null ? parseInt(getProp(emp, 'phucap')).toLocaleString() + " VNĐ" : "Chưa cập nhật" },
+    { label: "Phí BHXH (%)", value: getProp(emp, 'phibhxh') != null ? getProp(emp, 'phibhxh') + " %" : "Chưa cập nhật" },
+    { label: "Số người phụ thuộc", value: getProp(emp, 'songuoiphuthuoc') != null ? getProp(emp, 'songuoiphuthuoc') : "0" },
   ];
 
   return (
@@ -71,8 +82,8 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
              <h2 style={{ fontSize: 22, fontWeight: 800, color: "#111", margin: 0 }}>{name}</h2>
             <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                <Badge color={ROLE_COLORS[chucvu] || "gray"}>{chucvu}</Badge>
-              {(emp?.TENPB || emp?.TenPB) && (
-                <span style={{ fontSize: 13, color: "#888" }}>{emp?.TENPB || emp?.TenPB}</span>
+              {getProp(emp, 'tenpb') && (
+                <span style={{ fontSize: 13, color: "#888" }}>{getProp(emp, 'tenpb')}</span>
               )}
             </div>
           </div>
@@ -83,24 +94,66 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
         </div>
       </Card>
 
-      {/* Info grid */}
-      <Card>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-          <UserCircle size={16} color="#aaa" />
-          <h3 style={{ fontWeight: 700, fontSize: 15, margin: 0 }}>Thông tin cá nhân</h3>
-        </div>
-        <div className="grid-2">
-          {infoItems.map(({ icon, label, value }) => (
-            <div key={label} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "10px 12px", borderRadius: 10, background: "#fafafa", minWidth: 0 }}>
-              <span style={{ color: "#bbb", marginTop: 1, flexShrink: 0 }}>{icon}</span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 10, color: "#aaa", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", margin: 0 }}>{label}</p>
-                <p style={{ fontSize: 13, fontWeight: 600, color: "#111", marginTop: 3, wordBreak: "break-word" }}>{value || "—"}</p>
+      <div className="grid-2">
+        {/* Info grid */}
+        <Card>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+            <UserCircle size={16} color="#aaa" />
+            <h3 style={{ fontWeight: 700, fontSize: 15, margin: 0 }}>Thông tin cá nhân</h3>
+          </div>
+          <div className="grid-1" style={{ gap: 10 }}>
+            {infoItems.map(({ icon, label, value }) => (
+              <div key={label} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "10px 12px", borderRadius: 10, background: "#fafafa", minWidth: 0 }}>
+                <span style={{ color: "#bbb", marginTop: 1, flexShrink: 0 }}>{icon}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ margin: 0, fontSize: 11, color: "#888", fontWeight: 600 }}>{label}</p>
+                  <p style={{ margin: "2px 0 0", fontSize: 13, color: value ? "#111" : "#bbb", fontWeight: 500, wordBreak: "break-word" }}>
+                    {value || "Chưa cập nhật"}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </Card>
+            ))}
+          </div>
+        </Card>
+
+        {/* Work grid */}
+        <Card>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+            <Shield size={16} color="#aaa" />
+            <h3 style={{ fontWeight: 700, fontSize: 15, margin: 0 }}>Thông tin công việc</h3>
+          </div>
+          <div className="grid-1" style={{ gap: 10 }}>
+            {workItems.map(({ label, value }) => (
+              <div key={label} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "10px 12px", borderRadius: 10, background: "#fafafa", minWidth: 0 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ margin: 0, fontSize: 11, color: "#888", fontWeight: 600 }}>{label}</p>
+                  <p style={{ margin: "2px 0 0", fontSize: 13, color: value ? "#111" : "#bbb", fontWeight: 500, wordBreak: "break-word" }}>
+                    {value || "Chưa cập nhật"}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div style={{ borderTop: "1px solid #eee", margin: "16px 0" }} />
+          
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+            <h3 style={{ fontWeight: 700, fontSize: 15, margin: 0 }}>Lương & Hợp đồng</h3>
+          </div>
+          <div className="grid-1" style={{ gap: 10 }}>
+            {contractItems.map(({ label, value }) => (
+              <div key={label} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "10px 12px", borderRadius: 10, background: "#fafafa", minWidth: 0 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ margin: 0, fontSize: 11, color: "#888", fontWeight: 600 }}>{label}</p>
+                  <p style={{ margin: "2px 0 0", fontSize: 13, color: value ? "#111" : "#bbb", fontWeight: 500, wordBreak: "break-word" }}>
+                    {value || "Chưa cập nhật"}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
 
       {/* Security */}
       <Card>

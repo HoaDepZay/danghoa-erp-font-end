@@ -33,7 +33,7 @@ export const Admin: React.FC<{ user: any }> = ({ user }) => {
 
   // Đếm hồ sơ chờ duyệt để hiển thị badge
   const pendingCount = (pendingList || []).filter((a: any) =>
-    (a.STATUS || a.status || a.TRANGTHAI || a.trangthai) === "OTP_VERIFIED"
+    a.registrationStatus === "OTP_VERIFIED"
   ).length;
 
   return (

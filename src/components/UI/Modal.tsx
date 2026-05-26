@@ -1,17 +1,26 @@
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 const Modal = ({ isOpen, onClose, title, children, footer, size = "md" }: any) => {
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const sizeClass = { sm: "modal-sm", md: "modal-md", lg: "modal-lg", xl: "modal-xl" }[size as "sm" | "md" | "lg" | "xl"] || "modal-md";
+  const sizeClass =
+    {
+      sm: "modal-sm",
+      md: "modal-md",
+      lg: "modal-lg",
+      xl: "modal-xl",
+    }[size as "sm" | "md" | "lg" | "xl"] || "modal-md";
 
-  return (
+  return createPortal(
     <div
       className="modal-overlay"
       onClick={(e) => e.target === e.currentTarget && onClose()}
@@ -26,7 +35,8 @@ const Modal = ({ isOpen, onClose, title, children, footer, size = "md" }: any) =
         <div className="modal-body">{children}</div>
         {footer && <div className="modal-footer">{footer}</div>}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

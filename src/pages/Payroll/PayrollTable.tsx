@@ -31,20 +31,20 @@ export const PayrollTable: React.FC<PayrollTableProps> = ({ loading, payroll, to
             <SkeletonRows cols={9} rows={8} />
           ) : (
             payroll.map((r, idx) => (
-              <tr key={r.MaNV ?? idx}>
-                <td style={{ fontWeight: 600, fontSize: 12 }}>{r.MaNV}</td>
+              <tr key={r.manv ?? idx}>
+                <td style={{ fontWeight: 600, fontSize: 12 }}>{r.manv}</td>
                 <td style={{ color: "#888" }}>
-                  {r.Thang}/{r.Nam}
+                  {r.thang}/{r.nam}
                 </td>
                 <td>
-                  <span style={{ fontWeight: 600 }}>{r.GiolamViec ?? 0}</span>
+                  <span style={{ fontWeight: 600 }}>{r.giolamViec ?? 0}</span>
                   <span style={{ fontSize: 11, color: "#aaa", marginLeft: 4 }}>giờ</span>
                 </td>
-                <td style={{ color: "#555" }}>{formatCurrency(r.PhuCap ?? 0)}</td>
-                <td style={{ color: "#10b981" }}>{formatCurrency(r.Thuong ?? 0)}</td>
-                <td style={{ color: "#ef4444" }}>{formatCurrency(r.BHXH ?? 0)}</td>
-                <td style={{ color: "#f59e0b" }}>{formatCurrency(r.ThueTNCN ?? 0)}</td>
-                <td style={{ textAlign: "right", fontWeight: 700 }}>{formatCurrency(r.ThucLanh ?? 0)}</td>
+                <td style={{ color: "#555" }}>{formatCurrency(r.phucap ?? 0)}</td>
+                <td style={{ color: "#10b981" }}>{formatCurrency(r.thuong ?? 0)}</td>
+                <td style={{ color: "#ef4444" }}>{formatCurrency(r.bhxh ?? 0)}</td>
+                <td style={{ color: "#f59e0b" }}>{formatCurrency(r.thueTNCN ?? 0)}</td>
+                <td style={{ textAlign: "right", fontWeight: 700 }}>{formatCurrency(r.thucLanh ?? 0)}</td>
                 <td>
                   <button
                     onClick={() => onViewDetail(r)}

@@ -1,7 +1,7 @@
 import React from "react";
 import { FolderKanban, Clock, Wallet, Building2, BarChart3, RefreshCw } from "lucide-react";
 import { Card } from "../../components/UI/index";
-import { formatCurrency } from "../../utils/helpers";
+import { formatCurrency, getProp } from "../../utils/helpers";
 import type { RealtimeData } from "./useDashboard";
 
 interface DashboardChartProps {
@@ -90,7 +90,7 @@ export const DashboardChart: React.FC<DashboardChartProps> = ({
 }) => {
   const deptData = realtimeData?.departmentHeadcount ?? [];
   const projStatus = realtimeData?.projectStatus ?? [];
-  const maxEmp = Math.max(...deptData.map((d) => d.EmployeeCount), 1);
+  const maxEmp = Math.max(...deptData.map((d) => getProp(d, 'EmployeeCount') ?? 0), 1);
 
   // Màu cho các trạng thái dự án
   const STATUS_COLORS: Record<string, string> = {
@@ -117,7 +117,7 @@ export const DashboardChart: React.FC<DashboardChartProps> = ({
             </div>
             {deptData.length === 0
               ? <p style={{ textAlign: "center", color: "#bbb", fontSize: 13, padding: "20px 0" }}>Không có dữ liệu</p>
-              : <BarChart data={deptData.map((d) => ({ label: d.TENPB, value: d.EmployeeCount, max: maxEmp, color: "#111" }))} />
+              : <BarChart data={deptData.map((d) => ({ label: getProp(d, 'TENPB'), value: getProp(d, 'EmployeeCount') ?? 0, max: maxEmp, color: "#111" }))} />
             }
           </Card>
 
@@ -128,11 +128,14 @@ export const DashboardChart: React.FC<DashboardChartProps> = ({
               <h3 style={{ fontWeight: 700, fontSize: 14, margin: 0 }}>Trạng thái dự án</h3>
             </div>
             <DonutSlice
-              data={projStatus.map((p) => ({
-                label: p.TrangThai,
-                value: p.SoLuong,
-                color: STATUS_COLORS[p.TrangThai] ?? "#a3a3a3",
-              }))}
+              data={projStatus.map((p) => {
+                const status = getProp(p, 'TrangThai');
+                return {
+                  label: status,
+                  value: getProp(p, 'SoLuong') ?? 0,
+                  color: STATUS_COLORS[status] ?? "#a3a3a3",
+                };
+              })}
             />
           </Card>
         </div>
@@ -148,22 +151,27 @@ export const DashboardChart: React.FC<DashboardChartProps> = ({
           <p style={{ textAlign: "center", color: "#bbb", fontSize: 13, padding: "24px 0" }}>Chưa tham gia dự án nào</p>
         ) : (
           <div>
-            {myProjects.slice(0, 5).map((p, i) => (
-              <div key={p.MADA || p.MaDA || i} style={{
+            {myProjects.slice(0, 5).map((p, i) => {
+              const mada = getProp(p, 'mada') ?? getProp(p, 'id') ?? i;
+              const tenda = getProp(p, 'tenda') ?? getProp(p, 'ten') ?? "Dự án";
+              const vaiTro = getProp(p, 'vaitroduan') ?? getProp(p, 'vaitro') ?? "Thành viên";
+              const thoiGian = getProp(p, 'thoigian') ?? 0;
+              return (
+              <div key={mada} style={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
                 padding: "11px 0",
                 borderBottom: i < Math.min(myProjects.length, 5) - 1 ? "1px solid #f5f5f5" : "none",
               }}>
                 <div>
-                  <p style={{ fontWeight: 600, fontSize: 13, margin: 0 }}>{p.TENDA || p.TenDA || "Dự án"}</p>
-                  <p style={{ fontSize: 11, color: "#999", margin: "2px 0 0" }}>{p.VaiTroDuAn || "Thành viên"}</p>
+                  <p style={{ fontWeight: 600, fontSize: 13, margin: 0 }}>{tenda}</p>
+                  <p style={{ fontSize: 11, color: "#999", margin: "2px 0 0" }}>{vaiTro}</p>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#aaa", fontSize: 12 }}>
                   <Clock size={12} />
-                  <span>{p.THOIGIAN || p.ThoiGian || 0}h</span>
+                  <span>{thoiGian}h</span>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
       </Card>

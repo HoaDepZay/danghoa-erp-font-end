@@ -9,33 +9,30 @@ export const useDepartments = (user: any) => {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState({ type: "", data: null as any });
 
-  // Dùng getUserLevel từ utils/user để xử lý đúng case:
-  // "admin" / "Admin" / "ADMIN" đều → level 4
   const userLevel = getUserLevel(user);
   const isAdmin = userLevel >= 4;
 
   const fetchDepts = useCallback(async () => {
     setLoading(true);
     try {
-      // Đối với Admin/Quản lý: Lấy toàn bộ danh sách phòng ban
-      const res = await api.getDepartments();
-      const d = res.data?.data ?? res.data;
-      console.log("Admin/Manager - Loading all departments:", d);
+      const [deptRes, empRes] = await Promise.all([
+        api.getDepartments(),
+        api.getEmployees({ pageSize: 200 })
+      ]);
+      const d = deptRes.data?.data ?? deptRes.data;
       setDepartments(Array.isArray(d) ? d : []);
+      setEmployees(toArray(empRes.data?.data || empRes.data?.employees || empRes.data));
     } catch {
-      toast.error("Không thể tải danh sách phòng ban!");
+      toast.error("Không thể tải danh sách phòng ban hoặc nhân viên!");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { fetchDepts(); }, [fetchDepts]);
-
   useEffect(() => {
-    api.getEmployees({ pageSize: 200 })
-      .then((r: any) => setEmployees(toArray(r.data?.data || r.data?.employees || r.data)))
-      .catch(() => {});
-  }, []);
+    fetchDepts();
+  }, [fetchDepts]);
 
   return { departments, employees, loading, modal, setModal, userLevel, isAdmin, fetchDepts };
 };
+

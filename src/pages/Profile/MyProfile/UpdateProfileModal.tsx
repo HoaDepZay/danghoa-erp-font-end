@@ -49,17 +49,17 @@ export const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({ isOpen, 
   useEffect(() => {
     if (!isOpen) return;
     const source = profile || user || {};
-    const currentAddress = pickProfileValue(source, ["DIACHINHAN", "DiaChiNhan", "DIACHI", "DiaChi", "diachi"]);
+    const currentAddress = source.diachinhan;
     
     setForm({
       email: getUserEmail(source) || getUserEmail(user),
-      hoten: pickProfileValue(source, ["HOTEN", "HoTen", "hoten"]),
-      ngaysinh: normalizeDateInput(pickProfileValue(source, ["NGAYSINH", "NgaySinh", "ngaysinh"])),
-      gioitinh: pickProfileValue(source, ["GIOITINH", "GioiTinh", "gioitinh"]),
+      hoten: source.hoten || "",
+      ngaysinh: normalizeDateInput(source.ngaysinh),
+      gioitinh: source.gioitinh || "",
       tinh: "", quan: "", phuong: "",
       tinhCode: "", quanCode: "", phuongCode: "",
-      sdt: pickProfileValue(source, ["SODIENTHOA", "SODIENTHOAI", "SoDienThoai", "SDT", "sdt"]),
-      fullAddress: currentAddress,
+      sdt: source.sdt || "",
+      fullAddress: currentAddress || "",
       detail: "",
     });
 

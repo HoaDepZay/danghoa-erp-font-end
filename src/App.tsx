@@ -16,6 +16,11 @@ import Admin from "./pages/Admin/Admin";
 import Schedule from "./pages/Schedule/Schedule";
 import Chat from "./pages/Chat/Chat";
 import Attendance from "./pages/Attendance/Attendance";
+import LeaveManagement from "./pages/Leave/LeaveManagement";
+import LeaveRequest from "./pages/Leave/LeaveRequest";
+import ContractManager from "./pages/Contract/ContractManager";
+import Analytics from "./pages/Analytics/Analytics";
+import ProjectDetails from "./pages/Projects/ProjectDetails";
 
 import { getUserLevel } from "./utils/user";
 import { api } from "./services/api";
@@ -73,6 +78,11 @@ const PAGES: Record<string, React.FC<any>> = {
   schedule: Schedule,
   chat: Chat,
   attendance: Attendance,
+  leave: LeaveManagement,      // Manager/Admin: xem tất cả đơn
+  myLeave: LeaveRequest,        // Nhân viên: nộp đơn của mình
+  contracts: ContractManager,
+  analytics: Analytics,
+  project_details: ProjectDetails,
 };
 
 const PAGE_MIN_LEVEL: Record<string, number> = {
@@ -86,6 +96,11 @@ const PAGE_MIN_LEVEL: Record<string, number> = {
   schedule: 1,
   chat: 1,
   attendance: 1,
+  leave: 3,        // Manager/Admin mới xem tất cả đơn
+  myLeave: 1,      // Mọi nhân viên đều có thể nộp đơn
+  contracts: 3,
+  analytics: 3, // HR Analytics - Manager level
+  project_details: 1,
 };
 
 function App() {
@@ -249,6 +264,7 @@ function App() {
             activePage={activePage}
             user={user}
             onToggleMenu={() => setSidebarCollapsed((v) => !v)}
+            onNavigate={handleNavigate}
           />
           <main className="app-content">
             <ErrorBoundary key={activePage}>

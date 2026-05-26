@@ -303,6 +303,12 @@ export const api = {
   // POST /api/payroll/check-out  { maNV }
   checkOut: (data) => axiosInstance.post("/payroll/check-out", data),
 
+  // POST /api/payroll/close/:year/:month
+  closePayrollForMonth: (year, month) => axiosInstance.post(`/payroll/close/${year}/${month}`),
+
+  // GET /api/payroll/status/:year/:month
+  checkIfPayrollClosed: (year, month) => axiosInstance.get(`/payroll/status/${year}/${month}`),
+
   // ───── ATTENDANCE (CHẤM CÔNG) ────────────────────────────────────────────────
   // GET  /api/payroll/attendance/:date  — tất cả NV theo ngày (YYYY-MM-DD)
   getAttendanceByDate: (date) => axiosInstance.get(`/payroll/attendance/${date}`),
@@ -359,6 +365,41 @@ export const api = {
 
   // GET  /api/departments/employee/:id/detail (chi tiết theo phòng)
   getEmployeeDepartmentDetail: (id) => axiosInstance.get(`/departments/employee/${id}/detail`),
+
+  // ───── CA LÀM VIỆC (SHIFTS) ──────────────────────────────────────────────────
+  getShifts: () => axiosInstance.get("/shifts"),
+  getShiftAssignments: (params) => axiosInstance.get("/shifts/assignments", { params }),
+  createShiftAssignment: (data) => axiosInstance.post("/shifts/assignments", data),
+  deleteShiftAssignment: (id) => axiosInstance.delete(`/shifts/assignments/${id}`),
+
+  // ───── ĐƠN TỪ NGHỈ PHÉP (LEAVES) ─────────────────────────────────────────────
+  getLeaves: (params) => axiosInstance.get("/leaves", { params }),
+  getLeaveTypes: () => axiosInstance.get("/leaves/types"),
+  getMyLeaves: () => axiosInstance.get("/leaves/my"),
+  submitLeave: (data) => axiosInstance.post("/leaves", data),
+  approveLeave: (data) => axiosInstance.post("/leaves/approve", data),
+
+  // ───── HỢP ĐỒNG LAO ĐỘNG (CONTRACTS) ──────────────────────────────────────────
+  getContracts: (params) => axiosInstance.get("/contracts", { params }),
+  getExpiringContracts: (soNgay = 30) => axiosInstance.get(`/contracts/expiring?soNgay=${soNgay}`),
+  createContract: (data) => axiosInstance.post("/contracts", data),
+  updateEmployeeLegal: (data) => axiosInstance.put("/contracts/legal", data),
+
+  // ───── HR ANALYTICS (PHASE 3) ────────────────────────────────────────────────
+  getDashboardSummary: () => axiosInstance.get("/dashboard/summary"),
+  getDashboardAnalytics: () => axiosInstance.get("/dashboard/analytics"),
+  getAnalyticsSalaryCost: (year) => axiosInstance.get("/dashboard/analytics/salary-cost", { params: { year } }),
+  getAnalyticsAttendance: (year, month) => axiosInstance.get("/dashboard/analytics/attendance", { params: { year, month } }),
+
+  // ───── THÔNG BÁO (NOTIFICATIONS) ─────────────────────────────────────────────
+  getNotifications: () => axiosInstance.get("/notifications"),
+  markAsRead: (id) => axiosInstance.put(`/notifications/${id}/read`),
+
+  // --- TIMESHEET (PHASE 4) ---
+  getProjectTimesheets: (maDa) => axiosInstance.get(`/timesheet/${maDa}`),
+  logTimesheet: (data) => axiosInstance.post("/timesheet", data),
+  approveTimesheet: (id, data) => axiosInstance.patch(`/timesheet/${id}/approve`, data),
+  uploadFile: (formData) => axiosInstance.post("/chat/upload", formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
 };
 
 export default axiosInstance;

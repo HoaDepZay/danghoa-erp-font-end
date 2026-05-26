@@ -89,16 +89,16 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }) => {
         {modal.type === "admin_edit" && (
           <div className="space-y-4">
             <p className="text-[10px] font-black text-red-400 uppercase">
-              Sửa NV: {modal.data.HOTEN}
+              Sửa NV: {modal.data.hoten}
             </p>
             <input
               type="text"
               placeholder="Họ tên"
-              value={modal.data.HOTEN}
+              value={modal.data.hoten}
               onChange={(e) =>
                 setModal({
                   ...modal,
-                  data: { ...modal.data, HOTEN: e.target.value },
+                  data: { ...modal.data, hoten: e.target.value },
                 })
               }
               className="w-full rounded-2xl border-2 border-slate-100 p-4 outline-none focus:border-red-500 font-bold"
@@ -209,8 +209,8 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }) => {
             >
               <option value="">Chọn phòng ban</option>
               {departments.map((dept) => (
-                <option key={dept.MAPHG} value={dept.MAPHG}>
-                  {dept.TENPB}
+                <option key={dept.maphg} value={dept.maphg}>
+                  {dept.tenpb}
                 </option>
               ))}
             </select>

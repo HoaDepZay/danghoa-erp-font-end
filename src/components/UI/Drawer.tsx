@@ -1,4 +1,5 @@
 import { useEffect, ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 interface DrawerProps {
@@ -27,22 +28,29 @@ const Drawer = ({
   // Lock scroll khi mở
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   // Đóng bằng Escape
   useEffect(() => {
     if (!isOpen) return;
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [isOpen, onClose]);
 
   const sizeVar: Record<string, string> = {
-    sm: "400px", md: "520px", lg: "680px", xl: "820px",
+    sm: "400px",
+    md: "520px",
+    lg: "680px",
+    xl: "820px",
   };
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       <div
@@ -79,7 +87,8 @@ const Drawer = ({
         {/* Footer */}
         {footer && <div className="drawer-footer">{footer}</div>}
       </aside>
-    </>
+    </>,
+    document.body
   );
 };
 

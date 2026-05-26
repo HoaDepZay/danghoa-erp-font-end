@@ -52,7 +52,7 @@ export const useEmployeeProfile = (user: any) => {
       await api.updateEmployeeInfo({ manv: getManv(user), email: modal.data.email });
       const updatedUser = { ...user, email: modal.data.email };
       localStorage.setItem("user", JSON.stringify(updatedUser));
-      setProfile({ ...profile, EMAIL: modal.data.email });
+      setProfile({ ...profile, email: modal.data.email });
       alert("Thành công!");
       setModal({ isOpen: false, type: "", data: {} });
     } catch {
@@ -79,9 +79,9 @@ export const useEmployeeProfile = (user: any) => {
   const handleAdminEditNV = async () => {
     try {
       const payload = {
-        manv: modal.data.MANV?.trim(),
-        hoten: modal.data.HOTEN,
-        maphg: modal.data.MAPHG === null ? null : Number(modal.data.MAPHG),
+        manv: modal.data.manv?.trim(),
+        hoten: modal.data.hoten,
+        maphg: modal.data.maphg === null ? null : Number(modal.data.maphg),
         luong: Number(modal.data.luong || 0),
         chucvu: modal.data.chucvu || "Nhân viên",
       };
@@ -116,7 +116,7 @@ export const useEmployeeProfile = (user: any) => {
     setLoading(true);
     try {
       // PUT /api/departments/:id  body: { tenpb, matruongphg? }
-      await api.updateDepartment(modal.data.MAPHG, {
+      await api.updateDepartment(modal.data.maphg, {
         tenpb: modal.data.tenpb,
         matruongphg: modal.data.matruongphg || undefined,
       });
@@ -168,7 +168,7 @@ export const useEmployeeProfile = (user: any) => {
    const exportCoworkersToCsv = () => {
     if (coworkers.length === 0) return alert("Không có dữ liệu để xuất!");
     const headers = ["MANV", "HOTEN", "CHUCVU", "MAPHG"];
-    const rows = coworkers.map(m => [m.MANV, m.HOTEN, m.CHUCVU, m.MAPHG]);
+    const rows = coworkers.map(m => [m.manv, m.hoten, m.chucvu, m.maphg]);
     const csvContent = [headers.join(","), ...rows.map(r => r.map(c => String(c).includes(",") ? `"${c}"` : c).join(","))].join("\n");
     const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
@@ -180,7 +180,7 @@ export const useEmployeeProfile = (user: any) => {
   const exportDepartmentsToCsv = () => {
     if (departments.length === 0) return alert("Không có dữ liệu để xuất!");
     const headers = ["MAPHG", "TENPB"];
-    const rows = departments.map(d => [d.MAPHG, d.TENPB]);
+    const rows = departments.map(d => [d.maphg, d.tenpb]);
     const csvContent = [headers.join(","), ...rows.map(r => r.map(c => String(c).includes(",") ? `"${c}"` : c).join(","))].join("\n");
     const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
