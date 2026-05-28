@@ -3,7 +3,7 @@ import { Bell, Search, Menu, Check } from "lucide-react";
 import { Avatar } from "../UI/index";
 import { getDisplayRole, getUserName } from "../../utils/user";
 import { toast, formatDate } from "../../utils/helpers";
-import { api } from "../../services/api";
+import { api, API_URL } from "../../services/api";
 import io from "socket.io-client";
 
 const PAGE_TITLES: Record<string, string> = {
@@ -42,7 +42,7 @@ const Header = ({ activePage, user, onToggleMenu, onNavigate }: any) => {
     };
     if (user) {
       fetchNotifs();
-      const socket = io("http://localhost:5000"); // Replace with config URL if available
+      const socket = io(API_URL);
       const maNv = user?.userInfo?.manv;
       socket.emit("join_notification", maNv);
       socket.on("new_notification", (notif: any) => {

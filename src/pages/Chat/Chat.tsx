@@ -21,7 +21,7 @@ import {
   ChevronDown
 } from "lucide-react";
 import { io, Socket } from "socket.io-client";
-import { api, tokenStorage } from "../../services/api";
+import { api, tokenStorage, API_URL } from "../../services/api";
 import { toast, formatDate } from "../../utils/helpers";
 import { Spinner, Avatar } from "../../components/UI";
 import { getManv, toArray, getUserName } from "../../utils/user";
@@ -72,9 +72,7 @@ const Chat = ({ user }: { user: any }) => {
   useEffect(() => {
     const token = tokenStorage.getAccessToken();
     if (!token) return;
-    const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-    const socketBase = isLocalhost ? "http://localhost:5000" : `http://${window.location.hostname}:5000`;
-    const socket = io(socketBase, { transports: ["websocket"], auth: { token } });
+    const socket = io(API_URL, { transports: ["websocket"], auth: { token } });
     socketRef.current = socket;
     socket.on("connect", () => console.log("Socket connected:", socket.id));
     socket.on("connect_error", (err) => console.error("Socket error:", err.message));
@@ -685,9 +683,9 @@ const Chat = ({ user }: { user: any }) => {
                           {getProp(msg, 'fileurl') ? (
                             <div style={{ marginBottom: noiDung ? 8 : 0 }}>
                               {getProp(msg, 'filetype')?.startsWith('image/') ? (
-                                <img src={`http://localhost:5000${getProp(msg, 'fileurl')}`} alt="attachment" style={{ maxWidth: 200, borderRadius: 8 }} />
+                                <img src={`${API_URL}${getProp(msg, 'fileurl')}`} alt="attachment" style={{ maxWidth: 200, borderRadius: 8 }} />
                               ) : (
-                                <a href={`http://localhost:5000${getProp(msg, 'fileurl')}`} target="_blank" rel="noreferrer" style={{ color: isMine ? "#fff" : "#2563eb", textDecoration: "underline", display: "flex", alignItems: "center", gap: 4 }}>
+                                <a href={`${API_URL}${getProp(msg, 'fileurl')}`} target="_blank" rel="noreferrer" style={{ color: isMine ? "#fff" : "#2563eb", textDecoration: "underline", display: "flex", alignItems: "center", gap: 4 }}>
                                   <Paperclip size={14} /> Tệp đính kèm
                                 </a>
                               )}

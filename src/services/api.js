@@ -1,9 +1,11 @@
 import axios from "axios";
 
-const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-const BASE_URL = isLocalhost 
-  ? "http://localhost:5000/api" 
-  : `http://${window.location.hostname}:5000/api`;
+export const API_URL = import.meta.env.VITE_API_URL || (
+  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+    ? "http://localhost:5000"
+    : `http://${window.location.hostname}:5000`
+);
+const BASE_URL = `${API_URL}/api`;
 
 // ── Token helpers ────────────────────────────────────────────────────────────
 export const tokenStorage = {
