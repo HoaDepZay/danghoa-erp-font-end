@@ -3,7 +3,7 @@ import axios from "axios";
 export const API_URL = import.meta.env.VITE_API_URL || (
   (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
     ? "http://localhost:5000"
-    : window.location.origin
+    : "https://quantrinhansu-backend-bvckgwevgmfrbpdy.eastasia-01.azurewebsites.net"
 );
 const BASE_URL = `${API_URL}/api`;
 
