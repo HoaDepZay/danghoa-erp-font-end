@@ -1,3 +1,5 @@
+import { getProp } from "./helpers";
+
 // ─── Lấy MANV từ user object bất kể backend trả về key nào ──────────────────
 // Backend login trả: { MA_NV, HO_TEN, EMAIL, role }  (lowercase)
 // Backend employees trả: { MANV, HOTEN, EMAIL, CHUCVU }  (UPPERCASE)
@@ -8,14 +10,33 @@ export const getManv = (user) =>
 export const toArray = (val) => {
   if (!val) return [];
   if (Array.isArray(val)) return val;
-  if (Array.isArray(val.data)) return val.data;
-  if (Array.isArray(val.employees)) return val.employees;
-  if (Array.isArray(val.projects)) return val.projects;
-  if (Array.isArray(val.departments)) return val.departments;
-  if (Array.isArray(val.messages)) return val.messages;
-  if (Array.isArray(val.rooms)) return val.rooms;
-  if (val.data && Array.isArray(val.data.messages)) return val.data.messages;
-  if (val.data && Array.isArray(val.data.rooms)) return val.data.rooms;
+
+  const data = getProp(val, "data");
+  if (Array.isArray(data)) return data;
+
+  const employees = getProp(val, "employees");
+  if (Array.isArray(employees)) return employees;
+
+  const projects = getProp(val, "projects");
+  if (Array.isArray(projects)) return projects;
+
+  const departments = getProp(val, "departments");
+  if (Array.isArray(departments)) return departments;
+
+  const messages = getProp(val, "messages");
+  if (Array.isArray(messages)) return messages;
+
+  const rooms = getProp(val, "rooms");
+  if (Array.isArray(rooms)) return rooms;
+
+  if (data) {
+    const dataMessages = getProp(data, "messages");
+    if (Array.isArray(dataMessages)) return dataMessages;
+
+    const dataRooms = getProp(data, "rooms");
+    if (Array.isArray(dataRooms)) return dataRooms;
+  }
+
   return [];
 };
 

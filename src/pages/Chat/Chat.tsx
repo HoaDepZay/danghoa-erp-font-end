@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 import { api, tokenStorage, API_URL } from "../../services/api";
-import { toast, formatDate } from "../../utils/helpers";
+import { toast, formatDate, getProp } from "../../utils/helpers";
 import { Spinner, Avatar } from "../../components/UI";
 import { getManv, toArray, getUserName } from "../../utils/user";
 
@@ -80,8 +80,8 @@ const Chat = ({ user }: { user: any }) => {
     // Lắng nghe tin nhắn mới + cập nhật latest preview
     socket.on("chat:new_message", (newMsg) => {
       setMessages((prev) => {
-        const maTN = newMsg.MaTN || newMsg.MaTinNhan || newMsg.maTN;
-        if (prev.some(m => (m.MaTN || m.MaTinNhan || m.maTN) === maTN)) return prev;
+        const maTN = getProp(newMsg, 'MaTN') || getProp(newMsg, 'MaTinNhan');
+        if (prev.some(m => (getProp(m, 'MaTN') || getProp(m, 'MaTinNhan')) === maTN)) return prev;
         return [...prev, newMsg];
       });
       // Cập nhật preview tin nhắn mới nhất cho phòng
@@ -141,15 +141,6 @@ const Chat = ({ user }: { user: any }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Helper properties to handle case sensitivity from backend
-  const getProp = (obj: any, key: string) => {
-    if (!obj) return undefined;
-    const lowerKey = key.toLowerCase();
-    for (const k in obj) {
-      if (k.toLowerCase() === lowerKey) return obj[k];
-    }
-    return undefined;
-  };
   const getRoomId = (r: any) => getProp(r, 'maphong') ?? getProp(r, 'id');
   const getRoomName = (r: any) => getProp(r, 'tenphong') ?? "";
   const getRoomType = (r: any) => getProp(r, 'LOAI_PHONG') ?? 1;
@@ -162,7 +153,7 @@ const Chat = ({ user }: { user: any }) => {
       const roomsData = toArray(res.data);
       setRooms(roomsData);
       
-      const activeRoomId = localStorage.getItem("activeRoomId");
+      const activeRoomId = localStorage.getItem("activeRoomId") || localStorage.getItem("pendingChatRoomId");
       if (activeRoomId) {
         const found = roomsData.find((r: any) => String(getRoomId(r)) === String(activeRoomId));
         if (found) {
@@ -171,6 +162,7 @@ const Chat = ({ user }: { user: any }) => {
           if (roomsData.length > 0 && !selectedRoom) setSelectedRoom(roomsData[0]);
         }
         localStorage.removeItem("activeRoomId");
+        localStorage.removeItem("pendingChatRoomId");
       } else {
         if (roomsData.length > 0 && !selectedRoom) setSelectedRoom(roomsData[0]);
       }
@@ -192,8 +184,9 @@ const Chat = ({ user }: { user: any }) => {
           const roomId = getRoomId(r);
           if (!roomId) return;
           const res = await (api as any).getLatestMessage(roomId);
-          if (res.data?.data) {
-            map[roomId] = res.data.data;
+          const msgData = getProp(res?.data, 'data');
+          if (msgData) {
+            map[roomId] = msgData;
           }
         } catch {}
       })
@@ -223,8 +216,13 @@ const Chat = ({ user }: { user: any }) => {
         const formData = new FormData();
         formData.append("file", file);
         const res = await (api as any).uploadFile(formData);
-        if (res.data.success) {
-          setAttachedFile({ file, url: res.data.url, type: res.data.type });
+        const isSuccess = getProp(res?.data, 'success');
+        if (isSuccess) {
+          setAttachedFile({
+            file,
+            url: getProp(res.data, 'url'),
+            type: getProp(res.data, 'type')
+          });
         }
       } catch (err) {
         toast.error("Upload thất bại!");
@@ -266,7 +264,7 @@ const Chat = ({ user }: { user: any }) => {
     setSearchDone(false);
     try {
       const res = await (api as any).searchMessages(roomId, searchKeyword.trim());
-      const data = res.data?.data ?? [];
+      const data = getProp(res?.data, 'data') ?? [];
       setSearchResults(Array.isArray(data) ? data : []);
       setSearchDone(true);
     } catch (err: any) {
@@ -319,8 +317,8 @@ const Chat = ({ user }: { user: any }) => {
   const filteredRooms = rooms
     .filter(room => getRoomName(room).toLowerCase().includes(roomSearchQuery.toLowerCase()))
     .sort((a, b) => {
-      const ta = latestMsgMap[getRoomId(a)]?.ThoiGianGui;
-      const tb = latestMsgMap[getRoomId(b)]?.ThoiGianGui;
+      const ta = getProp(latestMsgMap[getRoomId(a)], 'ThoiGianGui');
+      const tb = getProp(latestMsgMap[getRoomId(b)], 'ThoiGianGui');
       if (!ta && !tb) return 0;
       if (!ta) return 1;
       if (!tb) return -1;
@@ -436,7 +434,7 @@ const Chat = ({ user }: { user: any }) => {
                     }}>
                       {latestContent
                         ? truncate(latestContent)
-                        : room.MoTa || "Bắt đầu trò chuyện..."}
+                        : getProp(room, 'MoTa') || "Bắt đầu trò chuyện..."}
                     </p>
                   </div>
                 </div>
@@ -601,7 +599,7 @@ const Chat = ({ user }: { user: any }) => {
                           }
                           return (
                             <div
-                              key={msg.MaTN ?? i}
+                              key={getProp(msg, 'MaTN') ?? i}
                               style={{
                                 padding: "8px 12px", borderRadius: 10, background: "#fff",
                                 border: "1px solid #f1f5f9", display: "flex", gap: 10, alignItems: "flex-start",
@@ -663,7 +661,7 @@ const Chat = ({ user }: { user: any }) => {
                   }
                   return (
                     <div
-                      key={msg.MaTN || msg.MaTinNhan || idx}
+                      key={getProp(msg, 'MaTN') || getProp(msg, 'MaTinNhan') || idx}
                       style={{ display: "flex", flexDirection: isMine ? "row-reverse" : "row", marginBottom: "16px", gap: "12px" }}
                     >
                       {!isMine && (
@@ -803,7 +801,7 @@ const Chat = ({ user }: { user: any }) => {
           <div style={{ marginBottom: "24px" }}>
             <p style={{ fontSize: "11px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", marginBottom: "12px", letterSpacing: "0.05em" }}>Thông tin</p>
             <div style={{ fontSize: "13px", color: "#475569", lineHeight: "1.6" }}>
-              {selectedRoom.MoTa || "Không có mô tả chi tiết."}
+              {getProp(selectedRoom, 'MoTa') || "Không có mô tả chi tiết."}
             </div>
           </div>
           <div>
