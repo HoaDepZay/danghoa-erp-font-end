@@ -6,16 +6,16 @@ export const useProfile = (user: any) => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState<string>("");
-  const manv = getManv(user);
+  const MA_NV = getManv(user);
 
   const handleProfileUpdated = (updated: any) => {
     setProfile((prev: any) => ({
       ...(prev || {}),
-      hoten: updated.hoten ?? prev?.hoten,
-      ngaysinh: updated.ngaysinh ?? prev?.ngaysinh,
-      gioitinh: updated.gioitinh ?? prev?.gioitinh,
-      diachinhan: updated.diachi ?? prev?.diachinhan,
-      sdt: updated.sdt ?? prev?.sdt,
+      HO_TEN: updated.HO_TEN ?? prev?.HO_TEN,
+      NGAY_SINH: updated.NGAY_SINH ?? prev?.NGAY_SINH,
+      GIOI_TINH: updated.GIOI_TINH ?? prev?.GIOI_TINH,
+      DIA_CHI: updated.DIA_CHI ?? prev?.DIA_CHI,
+      SDT: updated.SDT ?? prev?.SDT,
     }));
 
     try {
@@ -24,7 +24,7 @@ export const useProfile = (user: any) => {
       const parsed = JSON.parse(rawUser);
       const merged = {
         ...parsed,
-        ...(updated.hoten ? { hoten: updated.hoten } : {}),
+        ...(updated.HO_TEN ? { HO_TEN: updated.HO_TEN } : {}),
       };
       localStorage.setItem("user", JSON.stringify(merged));
     } catch {
@@ -33,23 +33,23 @@ export const useProfile = (user: any) => {
   };
 
   useEffect(() => {
-    if (!manv) {
+    if (!MA_NV) {
       setProfile(user);
       setLoading(false);
       return;
     }
     api
-      .getProfile(manv)
+      .getProfile(MA_NV)
       .then((r: any) => setProfile(r.data?.employee || r.data?.data || r.data))
       .catch(() =>
         api
-          .getEmployee(manv)
+          .getEmployee(MA_NV)
           .then((r: any) => setProfile(r.data?.employee || r.data?.data || r.data))
           .catch(() => setProfile(user)),
       )
       .finally(() => setLoading(false));
-  }, [manv, user]);
+  }, [MA_NV, user]);
 
-  return { profile, loading, modal, setModal, handleProfileUpdated, manv };
+  return { profile, loading, modal, setModal, handleProfileUpdated, MA_NV };
 };
 

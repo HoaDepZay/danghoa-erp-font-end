@@ -33,7 +33,7 @@ export const useDashboard = (user: any) => {
 
   const userLevel = getUserLevel(user);
   const { month, year } = getCurrentMonthYear();
-  const manv = getManv(user);
+  const MA_NV = getManv(user);
 
   // Fetch realtime stats (chỉ admin/quản lý)
   const fetchRealtime = useCallback(async () => {
@@ -56,14 +56,14 @@ export const useDashboard = (user: any) => {
       try {
         // Dự án cá nhân
         try {
-          const projRes = await api.getMyProjects(manv);
+          const projRes = await api.getMyProjects(MA_NV);
           setMyProjects(toArray(projRes.data));
         } catch { setMyProjects([]); }
 
         // Lương cá nhân
-        if (manv) {
+        if (MA_NV) {
           try {
-            const payRes = await api.getMyPayroll(manv, year, month);
+            const payRes = await api.getMyPayroll(MA_NV, year, month);
             setMyPayroll(payRes.data || null);
           } catch { setMyPayroll(null); }
         }
@@ -77,7 +77,7 @@ export const useDashboard = (user: any) => {
       }
     };
     fetchAll();
-  }, [user, userLevel, month, year, manv, fetchRealtime]);
+  }, [user, userLevel, month, year, MA_NV, fetchRealtime]);
 
   // Auto-refresh realtime mỗi 60 giây
   useEffect(() => {

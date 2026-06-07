@@ -15,7 +15,7 @@ interface EmployeeTableProps {
 export const EmployeeTable: React.FC<EmployeeTableProps> = ({ loading, employees, userLevel, setModal, onNavigate }) => {
   const handleChat = async (emp: any) => {
     try {
-      await api.createDirectRoom({ targetMaNv: emp.manv });
+      await api.createDirectRoom({ targetMaNv: emp.MA_NV });
       onNavigate("chat");
     } catch (err) {
       toast.error("Lỗi tạo phòng chat!");
@@ -40,16 +40,16 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ loading, employees
               const statusText = emp.trangthailamviec || "—";
               const isOnline = statusText === "Đang làm việc";
               return (
-                 <tr key={emp.manv}>
-                  <td><span style={{ fontWeight: 600, fontSize: 11, background: "#f0f0f0", padding: "3px 8px", borderRadius: 5 }}>{emp.manv}</span></td>
+                 <tr key={emp.MA_NV}>
+                  <td><span style={{ fontWeight: 600, fontSize: 11, background: "#f0f0f0", padding: "3px 8px", borderRadius: 5 }}>{emp.MA_NV}</span></td>
                   <td>
                     <div 
                       style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} 
                       onClick={() => handleChat(emp)}
-                      title={`Nhắn tin với ${emp.hoten}`}
+                      title={`Nhắn tin với ${emp.HO_TEN}`}
                     >
                       <div style={{ position: "relative", display: "inline-block" }}>
-                        <Avatar name={emp.hoten} size="sm" />
+                        <Avatar name={emp.HO_TEN} size="sm" />
                         {isOnline && (
                            <span 
                             style={{
@@ -67,11 +67,11 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ loading, employees
                           />
                         )}
                       </div>
-                      <span style={{ fontWeight: 600 }}>{emp.hoten}</span>
+                      <span style={{ fontWeight: 600 }}>{emp.HO_TEN}</span>
                     </div>
                   </td>
-                  <td style={{ color: "#666" }}>{emp.email || "—"}</td>
-                  <td><Badge color={ROLE_COLORS[emp.chucvu] || "gray"}>{emp.chucvu}</Badge></td>
+                  <td style={{ color: "#666" }}>{emp.EMAIL || "—"}</td>
+                  <td><Badge color={ROLE_COLORS[emp.CHUC_VU] || "gray"}>{emp.CHUC_VU}</Badge></td>
                   <td style={{ color: "#666" }}>{emp.tenpb || "—"}</td>
                   <td>
                     <Badge 
@@ -86,7 +86,7 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ loading, employees
                   </td>
                   <td>
                     <div style={{ display: "flex", gap: 8 }}>
-                      <button onClick={() => setModal({ type: "detail", data: emp.manv })} style={{ fontSize: 12, color: "#888", background: "none", border: "none", cursor: "pointer", fontWeight: 500 }}>Chi tiết</button>
+                      <button onClick={() => setModal({ type: "detail", data: emp.MA_NV })} style={{ fontSize: 12, color: "#888", background: "none", border: "none", cursor: "pointer", fontWeight: 500 }}>Chi tiết</button>
                       <button onClick={() => handleChat(emp)} style={{ fontSize: 12, color: "#888", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}><MessageSquare size={12} /> Nhắn tin</button>
                       {userLevel >= 3 && (
                         <button onClick={() => setModal({ type: "edit", data: emp })} style={{ fontSize: 12, color: "#888", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}><Edit3 size={12} /> Sửa</button>

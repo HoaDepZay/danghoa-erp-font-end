@@ -33,7 +33,7 @@ export const Employees: React.FC<{ user: any; onNavigate: (page: string) => void
           <input
             className="form-input"
             style={{ paddingLeft: 36 }}
-            placeholder="Tìm theo tên, mã NV, email..."
+            placeholder="Tìm theo tên, mã NV, EMAIL..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />

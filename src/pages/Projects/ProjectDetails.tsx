@@ -17,12 +17,14 @@ const normalizeRole = (role: string) =>
     .trim();
 
 const ProjectDetails = ({ user, onNavigate }: any) => {
+  // Helper: lấy field hỗ trợ cả UPPERCASE, lowercase, và camelCase (bỏ qua case và underscore)
+  
   const id = localStorage.getItem("selectedProjectId");
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"overview" | "tasks" | "calendar" | "timesheet">("overview");
   const [addingMember, setAddingMember] = useState(false);
-  const [addMember, setAddMember] = useState({ manv: "", vaitroduan: "Thành viên" });
+  const [addMember, setAddMember] = useState({ MA_NV: "", VAI_TRO_DU_AN: "Thành viên" });
   const [employees, setEmployees] = useState<any[]>([]);
 
   const role = getDisplayRole(user);
@@ -50,12 +52,12 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
   }, [fetchDetail, isAdmin]);
 
   const handleAddMember = async () => {
-    if (!addMember.manv) return toast.error("Vui lòng chọn nhân viên!");
+    if (!addMember.MA_NV) return toast.error("Vui lòng chọn nhân viên!");
     setAddingMember(true);
     try {
       await api.addProjectMember(id, addMember);
       toast.success("Phân công nhân sự thành công!");
-      setAddMember({ manv: "", vaitroduan: "Thành viên" });
+      setAddMember({ MA_NV: "", VAI_TRO_DU_AN: "Thành viên" });
       fetchDetail();
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Lỗi phân công!");
@@ -96,7 +98,7 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
   if (!data) return <div style={{ padding: 40, textAlign: "center" }}>Dự án không tồn tại</div>;
 
   const project = data;
-  const members = data?.thanhVien || data?.ThanhVien || data?.members || [];
+  const members = data?.thanhVien || data?.ThanhVien || data?.members || data?.THANH_VIEN || [];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -108,11 +110,11 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
           </button>
           <div>
             <h2 style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              {project.tenda}
-              {checkOverdue(project.ngayketthuc, project.trangthai) && <Badge color="red">Quá hạn</Badge>}
-              <Badge color={STATUS_COLOR[project.trangthai] || "gray"}>{project.trangthai}</Badge>
+              {project.TEN_DA}
+              {checkOverdue(project.NGAY_KET_THUC, project.TRANG_THAI) && <Badge color="red">Quá hạn</Badge>}
+              <Badge color={STATUS_COLOR[project.TRANG_THAI] || "gray"}>{project.TRANG_THAI}</Badge>
             </h2>
-            <p>Mã dự án: {project.mada}</p>
+            <p>Mã dự án: {project.MA_DA}</p>
           </div>
         </div>
         <div className="section-header-actions">
@@ -143,15 +145,15 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             <Card>
               <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Thông tin chung</h3>
-              <p style={{ color: "#475569", fontSize: 14, lineHeight: 1.6 }}>{project.mota || "Không có mô tả."}</p>
+              <p style={{ color: "#475569", fontSize: 14, lineHeight: 1.6 }}>{project.MO_TA || "Không có mô tả."}</p>
               <div style={{ display: "flex", gap: 32, marginTop: 16, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
                 <div>
                   <p style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4, fontWeight: 600 }}>NGÀY BẮT ĐẦU</p>
-                  <p style={{ fontWeight: 600 }}>{formatDate(project.ngaybatdau)}</p>
+                  <p style={{ fontWeight: 600 }}>{formatDate(project.NGAY_BAT_DAU)}</p>
                 </div>
                 <div>
                   <p style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4, fontWeight: 600 }}>NGÀY KẾT THÚC</p>
-                  <p style={{ fontWeight: 600 }}>{formatDate(project.ngayketthuc)}</p>
+                  <p style={{ fontWeight: 600 }}>{formatDate(project.NGAY_KET_THUC)}</p>
                 </div>
               </div>
             </Card>
@@ -164,16 +166,16 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {members.map((m: any) => (
-                  <div key={m.manv} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px", background: "#f8fafc", borderRadius: 12 }}>
+                  <div key={m.MA_NV} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px", background: "#f8fafc", borderRadius: 12 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <Avatar name={m.hoten} size="md" />
+                      <Avatar name={m.HO_TEN} size="md" />
                       <div>
-                        <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: "#1e293b" }}>{m.hoten}</p>
-                        <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>{m.vaitroduan}</p>
+                        <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: "#1e293b" }}>{m.HO_TEN}</p>
+                        <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>{m.VAI_TRO}</p>
                       </div>
                     </div>
                     {isAdmin && (
-                      <button onClick={() => handleRemoveMember(m.manv)} style={{ color: "#ef4444", background: "#fee2e2", border: "none", cursor: "pointer", padding: 8, borderRadius: 8 }}>
+                      <button onClick={() => handleRemoveMember(m.MA_NV)} style={{ color: "#ef4444", background: "#fee2e2", border: "none", cursor: "pointer", padding: 8, borderRadius: 8 }}>
                         <Trash2 size={14} />
                       </button>
                     )}
@@ -185,11 +187,11 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
                 <div style={{ marginTop: 20, paddingTop: 20, borderTop: "1px solid #f1f5f9" }}>
                   <h4 style={{ fontSize: 13, fontWeight: 700, marginBottom: 12, color: "#64748b" }}>Thêm thành viên</h4>
                   <div style={{ display: "flex", gap: 8 }}>
-                    <select className="form-input" style={{ flex: 1 }} value={addMember.manv} onChange={e => setAddMember(p => ({ ...p, manv: e.target.value }))}>
+                    <select className="form-input" style={{ flex: 1 }} value={addMember.MA_NV} onChange={e => setAddMember(p => ({ ...p, MA_NV: e.target.value }))}>
                       <option value="">-- Chọn NV --</option>
-                      {employees.map(e => <option key={e.MANV || e.maNv || e.manv} value={e.MANV || e.maNv || e.manv}>{e.HOTEN || e.hoTen || e.hoten}</option>)}
+                      {employees.map(e => <option key={e.MANV || e.MA_NV || e.MA_NV} value={e.MANV || e.MA_NV || e.MA_NV}>{e.HOTEN || e.HO_TEN || e.HO_TEN}</option>)}
                     </select>
-                    <select className="form-input" style={{ width: 120 }} value={addMember.vaitroduan} onChange={e => setAddMember(p => ({ ...p, vaitroduan: e.target.value }))}>
+                    <select className="form-input" style={{ width: 120 }} value={addMember.VAI_TRO_DU_AN} onChange={e => setAddMember(p => ({ ...p, VAI_TRO_DU_AN: e.target.value }))}>
                       <option>Quản lý</option>
                       <option>Thành viên</option>
                     </select>
@@ -204,15 +206,15 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
         </div>
       ) : activeTab === "tasks" ? (
         <Card>
-          <ProjectTasks projectId={project.mada} members={members} isAdmin={isAdmin} currentUser={user} />
+          <ProjectTasks projectId={project.MA_DA} members={members} isAdmin={isAdmin} currentUser={user} />
         </Card>
       ) : activeTab === "calendar" ? (
         <Card>
-          <ProjectTasks projectId={project.mada} members={members} isAdmin={isAdmin} defaultView="calendar" currentUser={user} />
+          <ProjectTasks projectId={project.MA_DA} members={members} isAdmin={isAdmin} defaultView="calendar" currentUser={user} />
         </Card>
       ) : (
         <Card>
-          <ProjectTimesheet projectId={project.mada} />
+          <ProjectTimesheet projectId={project.MA_DA} />
         </Card>
       )}
     </div>

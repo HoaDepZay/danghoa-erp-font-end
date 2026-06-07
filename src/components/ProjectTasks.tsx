@@ -21,16 +21,16 @@ import { Spinner, Btn, Badge, FormField } from "./UI";
 
 interface Task {
   maNvDa: number;
-  mada: number;
-  manv: string;
+  MA_DA: number;
+  MA_NV: string;
   tenNhanVien: string;
-  tennhiemvu: string;
-  mota: string;
-  ngaybatdau: string;
-  ngayketthuc: string;
-  douutien: string;
-  trangthai: string;
-  phantramhoanthanh: number;
+  TEN_NHIEM_VU: string;
+  MO_TA: string;
+  NGAY_BAT_DAU: string;
+  NGAY_KET_THUC: string;
+  DO_UU_TIEN: string;
+  TRANG_THAI: string;
+  PHAN_TRAM_HOAN_THANH: number;
 }
 
 interface ProjectTasksProps {
@@ -42,21 +42,21 @@ interface ProjectTasksProps {
 }
 
 const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin, defaultView = "list", currentUser }) => {
-  const myId = currentUser?.userInfo?.manv || currentUser?.userInfo?.MANV;
+  const myId = currentUser?.userInfo?.MA_NV || currentUser?.userInfo?.MANV;
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<Task | null>(null);
   const [form, setForm] = useState({
-    manv: "",
-    tennhiemvu: "",
-    mota: "",
-    ngaybatdau: "",
-    ngayketthuc: "",
-    douutien: "Trung bình",
-    trangthai: "Mới",
-    phantramhoanthanh: 0,
+    MA_NV: "",
+    TEN_NHIEM_VU: "",
+    MO_TA: "",
+    NGAY_BAT_DAU: "",
+    NGAY_KET_THUC: "",
+    DO_UU_TIEN: "Trung bình",
+    TRANG_THAI: "Mới",
+    PHAN_TRAM_HOAN_THANH: 0,
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -78,7 +78,7 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
   };
 
   const handleCreateTask = async () => {
-    if (!form.manv || !form.tennhiemvu) return toast.error("Vui lòng điền đủ thông tin bắt buộc!");
+    if (!form.MA_NV || !form.TEN_NHIEM_VU) return toast.error("Vui lòng điền đủ thông tin bắt buộc!");
     setSubmitting(true);
     try {
       await api.createProjectTask(projectId, form);
@@ -96,9 +96,9 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
   const handleUpdateTask = async (taskId: number, taskData: any) => {
     try {
       const payload = {
-        trangthai: taskData.trangthai,
-        phantramhoanthanh: taskData.phantramhoanthanh,
-        mota: taskData.mota,
+        TRANG_THAI: taskData.TRANG_THAI,
+        PHAN_TRAM_HOAN_THANH: taskData.PHAN_TRAM_HOAN_THANH,
+        MO_TA: taskData.MO_TA,
       };
       await api.updateProjectTask(projectId, taskId, payload);
       toast.success("Cập nhật nhiệm vụ thành công!");
@@ -112,9 +112,9 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
   const handleQuickUpdate = async (task: Task, status: string, progress: number) => {
     try {
       await api.updateProjectTask(projectId, task.maNvDa, {
-        trangthai: status,
-        phantramhoanthanh: progress,
-        mota: task.mota
+        TRANG_THAI: status,
+        PHAN_TRAM_HOAN_THANH: progress,
+        MO_TA: task.MO_TA
       });
       toast.success("Đã cập nhật trạng thái!");
       fetchTasks();
@@ -125,14 +125,14 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
 
   const resetForm = () => {
     setForm({
-      manv: "",
-      tennhiemvu: "",
-      mota: "",
-      ngaybatdau: "",
-      ngayketthuc: "",
-      douutien: "Trung bình",
-      trangthai: "Mới",
-      phantramhoanthanh: 0,
+      MA_NV: "",
+      TEN_NHIEM_VU: "",
+      MO_TA: "",
+      NGAY_BAT_DAU: "",
+      NGAY_KET_THUC: "",
+      DO_UU_TIEN: "Trung bình",
+      TRANG_THAI: "Mới",
+      PHAN_TRAM_HOAN_THANH: 0,
     });
   };
 
@@ -155,10 +155,10 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
   };
 
   const calendarEvents = tasks.map((t) => ({
-    title: t.tennhiemvu,
-    start: t.ngaybatdau,
-    end: t.ngayketthuc,
-    backgroundColor: getPriorityColor(t.douutien) === "red" ? "#ef4444" : getPriorityColor(t.douutien) === "yellow" ? "#f59e0b" : "#64748b",
+    title: t.TEN_NHIEM_VU,
+    start: t.NGAY_BAT_DAU,
+    end: t.NGAY_KET_THUC,
+    backgroundColor: getPriorityColor(t.DO_UU_TIEN) === "red" ? "#ef4444" : getPriorityColor(t.DO_UU_TIEN) === "yellow" ? "#f59e0b" : "#64748b",
     extendedProps: t
   }));
 
@@ -200,14 +200,14 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
             <div className="modal-box" onClick={e => e.stopPropagation()} style={{ width: 400, maxWidth: "90%" }}>
               <div className="modal-header">
                 <h3 style={{ margin: 0, fontSize: 16, display: "flex", alignItems: "center", gap: 8 }}>
-                  {getStatusIcon(selectedEvent.trangthai)} {selectedEvent.tennhiemvu}
+                  {getStatusIcon(selectedEvent.TRANG_THAI)} {selectedEvent.TEN_NHIEM_VU}
                 </h3>
                 <button className="modal-close" onClick={() => setSelectedEvent(null)}><X size={20} /></button>
               </div>
               <div className="modal-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8" }}>MÔ TẢ</label>
-                  <p style={{ margin: "4px 0 0", fontSize: 14 }}>{selectedEvent.mota || "Không có mô tả"}</p>
+                  <p style={{ margin: "4px 0 0", fontSize: 14 }}>{selectedEvent.MO_TA || "Không có mô tả"}</p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <div>
@@ -216,17 +216,17 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
                   </div>
                   <div>
                     <label style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8" }}>TIẾN ĐỘ</label>
-                    <p style={{ margin: "4px 0 0", fontSize: 14, fontWeight: 700, color: "#3b82f6" }}>{selectedEvent.phantramhoanthanh}%</p>
+                    <p style={{ margin: "4px 0 0", fontSize: 14, fontWeight: 700, color: "#3b82f6" }}>{selectedEvent.PHAN_TRAM_HOAN_THANH}%</p>
                   </div>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <div>
                     <label style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8" }}>BẮT ĐẦU</label>
-                    <p style={{ margin: "4px 0 0", fontSize: 14 }}>{formatDate(selectedEvent.ngaybatdau)}</p>
+                    <p style={{ margin: "4px 0 0", fontSize: 14 }}>{formatDate(selectedEvent.NGAY_BAT_DAU)}</p>
                   </div>
                   <div>
                     <label style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8" }}>KẾT THÚC</label>
-                    <p style={{ margin: "4px 0 0", fontSize: 14 }}>{formatDate(selectedEvent.ngayketthuc)}</p>
+                    <p style={{ margin: "4px 0 0", fontSize: 14 }}>{formatDate(selectedEvent.NGAY_KET_THUC)}</p>
                   </div>
                 </div>
               </div>
@@ -255,36 +255,36 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
           <h6 style={{ margin: "0 0 16px 0", fontSize: 14, fontWeight: 700 }}>Giao nhiệm vụ mới</h6>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <FormField label="Nhân viên phụ trách *">
-              <select className="form-input" value={form.manv} onChange={(e) => setForm({...form, manv: e.target.value})}>
+              <select className="form-input" value={form.MA_NV} onChange={(e) => setForm({...form, MA_NV: e.target.value})}>
                 <option value="">-- Chọn nhân viên --</option>
                 {members.map((m: any) => (
-                  <option key={m.manv} value={m.manv}>{m.hoten}</option>
+                  <option key={m.MA_NV} value={m.MA_NV}>{m.HO_TEN}</option>
                 ))}
               </select>
             </FormField>
             <FormField label="Tên nhiệm vụ *">
-              <input className="form-input" placeholder="Tên nhiệm vụ..." value={form.tennhiemvu} onChange={(e) => setForm({...form, tennhiemvu: e.target.value})} />
+              <input className="form-input" placeholder="Tên nhiệm vụ..." value={form.TEN_NHIEM_VU} onChange={(e) => setForm({...form, TEN_NHIEM_VU: e.target.value})} />
             </FormField>
             <div style={{ gridColumn: "span 2" }}>
               <FormField label="Mô tả">
-                <textarea className="form-input" rows={2} placeholder="Chi tiết công việc..." value={form.mota} onChange={(e) => setForm({...form, mota: e.target.value})} style={{ resize: "none" }} />
+                <textarea className="form-input" rows={2} placeholder="Chi tiết công việc..." value={form.MO_TA} onChange={(e) => setForm({...form, MO_TA: e.target.value})} style={{ resize: "none" }} />
               </FormField>
             </div>
             <FormField label="Ngày bắt đầu">
-              <input type="date" className="form-input" value={form.ngaybatdau} onChange={(e) => setForm({...form, ngaybatdau: e.target.value})} />
+              <input type="date" className="form-input" value={form.NGAY_BAT_DAU} onChange={(e) => setForm({...form, NGAY_BAT_DAU: e.target.value})} />
             </FormField>
             <FormField label="Ngày kết thúc">
-              <input type="date" className="form-input" value={form.ngayketthuc} onChange={(e) => setForm({...form, ngayketthuc: e.target.value})} />
+              <input type="date" className="form-input" value={form.NGAY_KET_THUC} onChange={(e) => setForm({...form, NGAY_KET_THUC: e.target.value})} />
             </FormField>
             <FormField label="Độ ưu tiên">
-              <select className="form-input" value={form.douutien} onChange={(e) => setForm({...form, douutien: e.target.value})}>
+              <select className="form-input" value={form.DO_UU_TIEN} onChange={(e) => setForm({...form, DO_UU_TIEN: e.target.value})}>
                 <option>Thấp</option>
                 <option>Trung bình</option>
                 <option>Cao</option>
               </select>
             </FormField>
             <FormField label="Trạng thái">
-              <select className="form-input" value={form.trangthai} onChange={(e) => setForm({...form, trangthai: e.target.value})}>
+              <select className="form-input" value={form.TRANG_THAI} onChange={(e) => setForm({...form, TRANG_THAI: e.target.value})}>
                 <option>Mới</option>
                 <option>Đang làm</option>
                 <option>Hoàn thành</option>
@@ -308,7 +308,7 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {tasks.map((task) => {
-            const isOverdue = checkOverdue(task.ngayketthuc, task.trangthai);
+            const isOverdue = checkOverdue(task.NGAY_KET_THUC, task.TRANG_THAI);
             return (
             <div key={task.maNvDa} className="card" style={{ 
               padding: 14, 
@@ -319,36 +319,36 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                    {getStatusIcon(task.trangthai)}
-                    <span style={{ fontWeight: 700, fontSize: 14, color: isOverdue ? "#9f1239" : "#1e293b" }}>{task.tennhiemvu}</span>
+                    {getStatusIcon(task.TRANG_THAI)}
+                    <span style={{ fontWeight: 700, fontSize: 14, color: isOverdue ? "#9f1239" : "#1e293b" }}>{task.TEN_NHIEM_VU}</span>
                     {isOverdue && <Badge color="red">Quá hạn</Badge>}
-                    <Badge color={getPriorityColor(task.douutien)}>{task.douutien}</Badge>
+                    <Badge color={getPriorityColor(task.DO_UU_TIEN)}>{task.DO_UU_TIEN}</Badge>
                   </div>
-                  <p style={{ margin: "0 0 10px 0", fontSize: 12, color: "#64748b" }}>{task.mota || "Không có mô tả"}</p>
+                  <p style={{ margin: "0 0 10px 0", fontSize: 12, color: "#64748b" }}>{task.MO_TA || "Không có mô tả"}</p>
                   
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "#94a3b8" }}>
                       <User size={12} /> <span style={{ fontWeight: 600, color: "#475569" }}>{task.tenNhanVien}</span>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "#94a3b8" }}>
-                      <Calendar size={12} /> {formatDate(task.ngaybatdau)} - {formatDate(task.ngayketthuc)}
+                      <Calendar size={12} /> {formatDate(task.NGAY_BAT_DAU)} - {formatDate(task.NGAY_KET_THUC)}
                     </div>
                   </div>
                 </div>
 
                 <div style={{ textAlign: "right", paddingLeft: 16 }}>
                   <div style={{ marginBottom: 8 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "#3b82f6" }}>{task.phantramhoanthanh}%</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#3b82f6" }}>{task.PHAN_TRAM_HOAN_THANH}%</div>
                     <div style={{ width: 60, height: 6, background: "#f1f5f9", borderRadius: 3, overflow: "hidden", marginTop: 4, display: "inline-block" }}>
-                      <div style={{ width: `${task.phantramhoanthanh}%`, height: "100%", background: "#3b82f6" }} />
+                      <div style={{ width: `${task.PHAN_TRAM_HOAN_THANH}%`, height: "100%", background: "#3b82f6" }} />
                     </div>
                   </div>
-                  {(isAdmin || task.manv?.toLowerCase() === myId?.toLowerCase()) && (
+                  {(isAdmin || task.MA_NV?.toLowerCase() === myId?.toLowerCase()) && (
                     <>
-                      {task.trangthai === "Mới" && (
+                      {task.TRANG_THAI === "Mới" && (
                         <Btn size="sm" variant="secondary" onClick={() => handleQuickUpdate(task, "Đang làm", 10)} style={{ marginBottom: 4, fontSize: 11, padding: "2px 8px" }}>Bắt đầu làm</Btn>
                       )}
-                      {task.trangthai === "Đang làm" && (
+                      {task.TRANG_THAI === "Đang làm" && (
                         <Btn size="sm" variant="primary" onClick={() => handleQuickUpdate(task, "Hoàn thành", 100)} style={{ marginBottom: 4, fontSize: 11, padding: "2px 8px" }}>Hoàn tất</Btn>
                       )}
                       {editingTask?.maNvDa === task.maNvDa ? (
@@ -370,7 +370,7 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
                 <div style={{ marginTop: 12, borderTop: "1px solid #f1f5f9", paddingTop: 12 }}>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                     <FormField label="Trạng thái">
-                      <select className="form-input" value={editingTask.trangthai} onChange={(e) => setEditingTask({...editingTask, trangthai: e.target.value})}>
+                      <select className="form-input" value={editingTask.TRANG_THAI} onChange={(e) => setEditingTask({...editingTask, TRANG_THAI: e.target.value})}>
                         <option>Mới</option>
                         <option>Đang làm</option>
                         <option>Hoàn thành</option>
@@ -378,15 +378,15 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
                       </select>
                     </FormField>
                     <FormField label="Hoàn thành (%)">
-                      <input type="number" className="form-input" min="0" max="100" value={editingTask.phantramhoanthanh} onChange={(e) => setEditingTask({...editingTask, phantramhoanthanh: parseInt(e.target.value)})} />
+                      <input type="number" className="form-input" min="0" max="100" value={editingTask.PHAN_TRAM_HOAN_THANH} onChange={(e) => setEditingTask({...editingTask, PHAN_TRAM_HOAN_THANH: parseInt(e.target.value)})} />
                     </FormField>
                     <div style={{ gridColumn: "span 2" }}>
                       <FormField label="Ghi chú/Mô tả tiến độ mới">
                         <textarea 
                           className="form-input" 
                           rows={2} 
-                          value={editingTask.mota} 
-                          onChange={(e) => setEditingTask({...editingTask, mota: e.target.value})} 
+                          value={editingTask.MO_TA} 
+                          onChange={(e) => setEditingTask({...editingTask, MO_TA: e.target.value})} 
                           style={{ resize: "none" }} 
                         />
                       </FormField>

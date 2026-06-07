@@ -12,7 +12,7 @@ const ContractManager = ({ user }: { user: any }) => {
   const [showForm, setShowForm] = useState(false);
   const [selectedMaNv, setSelectedMaNv] = useState("");
   const [form, setForm] = useState({
-    maNv: "", loaiHopDong: "Thử việc", tuNgay: "", denNgay: "",
+    MA_NV: "", loaiHopDong: "Thử việc", tuNgay: "", denNgay: "",
     luongCoBan: "", ngayKy: "", ghiChu: "",
   });
   const [saving, setSaving] = useState(false);
@@ -31,22 +31,22 @@ const ContractManager = ({ user }: { user: any }) => {
     }
   };
 
-  const openForm = (maNv = "") => {
-    setSelectedMaNv(maNv);
-    setForm({ maNv, loaiHopDong: "1 năm", tuNgay: "", denNgay: "", luongCoBan: "", ngayKy: "", ghiChu: "" });
+  const openForm = (MA_NV = "") => {
+    setSelectedMaNv(MA_NV);
+    setForm({ MA_NV, loaiHopDong: "1 năm", tuNgay: "", denNgay: "", luongCoBan: "", ngayKy: "", ghiChu: "" });
     setShowForm(true);
   };
 
   const set = (k: string) => (e: any) => setForm(f => ({ ...f, [k]: e.target.value }));
 
   const handleSave = async () => {
-    if (!form.maNv || !form.tuNgay || !form.luongCoBan) {
+    if (!form.MA_NV || !form.tuNgay || !form.luongCoBan) {
       return toast.error("Vui lòng điền đầy đủ: Mã NV, Từ ngày, Lương cơ bản");
     }
     setSaving(true);
     try {
       await api.createContract({
-        maNv: form.maNv, loaiHopDong: form.loaiHopDong,
+        MA_NV: form.MA_NV, loaiHopDong: form.loaiHopDong,
         tuNgay: form.tuNgay, denNgay: form.denNgay || undefined,
         luongCoBan: Number(form.luongCoBan),
         ngayKy: form.ngayKy || undefined, ghiChu: form.ghiChu || undefined,
@@ -111,7 +111,7 @@ const ContractManager = ({ user }: { user: any }) => {
                     <tr key={c.MAHD || c.maHd || c.mahd}>
                       <td>
                         <div style={{ fontWeight: 600 }}>{c.TenNhanVien || c.tenNhanVien || c.tennhanvien}</div>
-                        <small style={{ color: "#64748b" }}>{c.MANV || c.maNv || c.manv}</small>
+                        <small style={{ color: "#64748b" }}>{c.MANV || c.MA_NV || c.MA_NV}</small>
                       </td>
                       <td>{c.TENPB || c.tenPb || c.tenpb || "—"}</td>
                       <td>
@@ -142,7 +142,7 @@ const ContractManager = ({ user }: { user: any }) => {
                         </span>
                       </td>
                       <td>
-                        <Btn variant="primary" onClick={() => openForm(c.MANV || c.maNv || c.manv)} icon={<FilePlus size={14} />}>
+                        <Btn variant="primary" onClick={() => openForm(c.MANV || c.MA_NV || c.MA_NV)} icon={<FilePlus size={14} />}>
                           Gia hạn / Ký mới
                         </Btn>
                       </td>
@@ -165,7 +165,7 @@ const ContractManager = ({ user }: { user: any }) => {
             </div>
             <div className="modal-body" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               <FormField label="Mã nhân viên *">
-                <input className="form-input" value={form.maNv} onChange={set("maNv")} placeholder="VD: NV001" />
+                <input className="form-input" value={form.MA_NV} onChange={set("MA_NV")} placeholder="VD: NV001" />
               </FormField>
               <FormField label="Loại hợp đồng *">
                 <select className="form-input" value={form.loaiHopDong} onChange={set("loaiHopDong")}>

@@ -67,8 +67,8 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
   const handlers = {
     handleUpdateProfile: async () => {
       try {
-        await api.updateProfile({ manv: getManv(user), email: modal.data.email });
-        setProfile({ ...profile, EMAIL: modal.data.email });
+        await api.updateProfile({ MA_NV: getManv(user), EMAIL: modal.data.EMAIL });
+        setProfile({ ...profile, EMAIL: modal.data.EMAIL });
         alert("Thành công!");
         setModal({ isOpen: false, type: "", data: {} });
       } catch {
@@ -80,7 +80,7 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
         return alert("Mật khẩu không khớp!");
       try {
         await api.changePassword({
-          manv: getManv(user),
+          MA_NV: getManv(user),
           oldPassword: modal.data.oldPass,
           newPassword: modal.data.newPass,
         });
@@ -93,11 +93,11 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
     handleAdminEditNV: async () => {
       try {
         await api.adminUpdateEmployee({
-          manv: modal.data.MANV,
-          hoten: modal.data.HOTEN,
-          maphg: modal.data.MAPHG,
-          luong: modal.data.luong,
-          chucvu: modal.data.chucvu,
+          MA_NV: modal.data.MANV,
+          HO_TEN: modal.data.HOTEN,
+          MA_PHG: modal.data.MAPHG,
+          LUONG: modal.data.LUONG,
+          CHUC_VU: modal.data.CHUC_VU,
         });
         alert("Đã cập nhật!");
         window.location.reload();
@@ -118,10 +118,10 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
       setLoading(false);
     },
     handleCreateEmployee: async () => {
-      const { username, password, maphg, email } = modal.data;
+      const { username, password, MA_PHG, EMAIL } = modal.data;
       setLoading(true);
       try {
-        await api.register({ username, password, maphg, email });
+        await api.register({ username, password, MA_PHG, EMAIL });
         alert("Đã tạo nhân viên thành công!");
         fetchData();
         setModal({ isOpen: false, type: "", data: {} });
@@ -202,7 +202,7 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
                       setModal({
                         isOpen: true,
                         type: "self_edit",
-                        data: { email: profile.EMAIL },
+                        data: { EMAIL: profile.EMAIL },
                       })
                     }
                     className="flex-1 rounded-xl bg-slate-900 py-3 text-[10px] font-black text-white"

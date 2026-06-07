@@ -65,9 +65,9 @@ export const StepInfo: React.FC<{ form: any; setForm: any; onNext: () => void; l
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.hoten || !form.email || !form.password) return toast.error("Vui lòng điền đầy đủ!");
+    if (!form.HO_TEN || !form.EMAIL || !form.password) return toast.error("Vui lòng điền đầy đủ!");
     if (form.password.length < 6) return toast.error("Mật khẩu phải ít nhất 6 ký tự!");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return toast.error("Email không hợp lệ!");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.EMAIL)) return toast.error("Email không hợp lệ!");
     onNext();
   };
 
@@ -75,11 +75,11 @@ export const StepInfo: React.FC<{ form: any; setForm: any; onNext: () => void; l
     <form onSubmit={handleSubmit}>
       <div style={S.inputWrap}>
         <span style={S.iconL}><User size={16} /></span>
-        <input style={S.input} placeholder="Họ và tên đầy đủ" value={form.hoten} onChange={set("hoten")} onFocus={inputFocus} onBlur={inputBlur} />
+        <input style={S.input} placeholder="Họ và tên đầy đủ" value={form.HO_TEN} onChange={set("HO_TEN")} onFocus={inputFocus} onBlur={inputBlur} />
       </div>
       <div style={S.inputWrap}>
         <span style={S.iconL}><Mail size={16} /></span>
-        <input type="email" style={S.input} placeholder="Email (nhận OTP)" value={form.email} onChange={set("email")} onFocus={inputFocus} onBlur={inputBlur} />
+        <input type="EMAIL" style={S.input} placeholder="Email (nhận OTP)" value={form.EMAIL} onChange={set("EMAIL")} onFocus={inputFocus} onBlur={inputBlur} />
       </div>
       <div style={{ ...S.inputWrap, marginBottom: 0 }}>
         <span style={S.iconL}><Lock size={16} /></span>
@@ -96,7 +96,7 @@ export const StepInfo: React.FC<{ form: any; setForm: any; onNext: () => void; l
   );
 };
 
-export const StepOtp: React.FC<{ email: string; onVerify: (otp: string) => void; onResend: () => void; loading: boolean }> = ({ email, onVerify, onResend, loading }) => {
+export const StepOtp: React.FC<{ EMAIL: string; onVerify: (otp: string) => void; onResend: () => void; loading: boolean }> = ({ EMAIL, onVerify, onResend, loading }) => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const refs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -126,7 +126,7 @@ export const StepOtp: React.FC<{ email: string; onVerify: (otp: string) => void;
     <div>
       <div style={S.infoBanner}>
         <p style={{ margin: 0, fontSize: 13, color: "#999" }}>Mã OTP đã gửi đến</p>
-        <p style={{ margin: "4px 0 0", fontWeight: 700, color: "#111" }}>{email}</p>
+        <p style={{ margin: "4px 0 0", fontWeight: 700, color: "#111" }}>{EMAIL}</p>
       </div>
       <div style={S.otpWrap}>
         {otp.map((digit, i) => (
@@ -156,7 +156,7 @@ export const StepOtp: React.FC<{ email: string; onVerify: (otp: string) => void;
 };
 
 // Màn hình chờ admin duyệt — hiển thị sau khi verify OTP thành công
-export const StepPending: React.FC<{ email: string; onGoLogin: () => void }> = ({ email, onGoLogin }) => (
+export const StepPending: React.FC<{ EMAIL: string; onGoLogin: () => void }> = ({ EMAIL, onGoLogin }) => (
   <div style={{ textAlign: "center" }}>
     {/* Icon đồng hồ */}
     <div style={{
@@ -172,7 +172,7 @@ export const StepPending: React.FC<{ email: string; onGoLogin: () => void }> = (
       Hồ sơ đang chờ duyệt
     </p>
     <p style={{ fontSize: 13, color: "#888", marginBottom: 20, lineHeight: 1.6 }}>
-      OTP đã xác thực thành công cho <strong style={{ color: "#111" }}>{email}</strong>.<br />
+      OTP đã xác thực thành công cho <strong style={{ color: "#111" }}>{EMAIL}</strong>.<br />
       Hồ sơ của bạn đang chờ <strong style={{ color: "#111" }}>Admin</strong> xem xét và phê duyệt.
     </p>
 
@@ -214,7 +214,7 @@ export const StepPending: React.FC<{ email: string; onGoLogin: () => void }> = (
     </div>
 
     <p style={{ fontSize: 12, color: "#aaa", marginBottom: 20 }}>
-      Bạn sẽ nhận email thông báo khi được phê duyệt.
+      Bạn sẽ nhận EMAIL thông báo khi được phê duyệt.
     </p>
 
     <button onClick={onGoLogin} style={{ ...S.btn, background: "#f0f0f0", color: "#555" }}>

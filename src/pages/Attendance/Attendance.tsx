@@ -23,7 +23,7 @@ interface CheckRecord {
 
 interface AttendanceRecord {
   maNV?: string;
-  hoTen?: string;
+  HO_TEN?: string;
   MANV?: string;
   HOTEN?: string;
   checkIn?: string;
@@ -34,16 +34,16 @@ interface AttendanceRecord {
   ngay?: string;
   soGio?: number;
   status?: string;
-  trangThai?: string;
+  TRANG_THAI?: string;
   [key: string]: any;
 }
 
 interface EmployeeInfo {
   maNV: string;
-  hoTen: string;
+  HO_TEN: string;
   phongBan: string;
   chucVu: string;
-  email: string;
+  EMAIL: string;
   avatar?: string;
 }
 
@@ -154,21 +154,21 @@ const getDate = (r: AttendanceRecord) =>
   || getCheckIn(r); // fallback to checkIn timestamp
 
 const getManvField = (r: AttendanceRecord) =>
-  r.maNV || r.MaNV || r.MANV || r.manv || r.ma_nv
+  r.maNV || r.MaNV || r.MANV || r.MA_NV || r.ma_nv
   || r.maNhanVien || r.MaNhanVien || r.MANHANVIEN
   || r.employeeId || r.EmployeeId || r.employee_id || r.EMPLOYEE_ID
   || r.NhanVien_ID || r.nhanVienId
   || r.id || r.ID;
 
 const getHoTen = (r: AttendanceRecord) =>
-  r.hoTen || r.HoTen || r.HOTEN || r.hoten || r.ho_ten
+  r.HO_TEN || r.HoTen || r.HOTEN || r.HO_TEN || r.ho_ten
   || r.tenNhanVien || r.TenNhanVien || r.TENNHANVIEN
   || r.fullName || r.full_name || r.FullName || r.FULLNAME
   || r.name || r.Name || r.NAME;
 
 const getStatus = (r: AttendanceRecord) =>
   r.status || r.Status || r.STATUS
-  || r.trangThai || r.TrangThai || r.TRANGTHAI || r.trang_thai
+  || r.TRANG_THAI || r.TrangThai || r.TRANGTHAI || r.trang_thai
   || r.loai || r.Loai || r.LOAI;
 
 
@@ -176,8 +176,8 @@ const getStatus = (r: AttendanceRecord) =>
 const normalizeEmployee = (d: any): EmployeeInfo => {
   console.log("👤 [Employee] Raw data:", JSON.stringify(d, null, 2));
   return {
-    maNV: d?.MANV || d?.MaNV || d?.manv || d?.maNV || d?.maNhanVien || "",
-    hoTen: d?.HOTEN || d?.HoTen || d?.hoten || d?.tenNhanVien || d?.TenNhanVien || d?.fullName || d?.name || "",
+    maNV: d?.MANV || d?.MaNV || d?.MA_NV || d?.maNV || d?.maNhanVien || "",
+    HO_TEN: d?.HOTEN || d?.HoTen || d?.HO_TEN || d?.tenNhanVien || d?.TenNhanVien || d?.fullName || d?.name || "",
     // Phèng ban: thường phải join từ bảng phòng ban, thử tất cả keys có thể
     phongBan: d?.TENPB || d?.TenPB || d?.tenpb || d?.tenPB
       || d?.phongBan || d?.PhongBan || d?.PHONGBAN
@@ -190,7 +190,7 @@ const normalizeEmployee = (d: any): EmployeeInfo => {
       || d?.chucVu || d?.position || d?.Position
       || d?.role || d?.Role
       || "",
-    email: d?.EMAIL || d?.Email || d?.email || "",
+    EMAIL: d?.EMAIL || d?.Email || d?.EMAIL || "",
   };
 };
 
@@ -352,7 +352,7 @@ const AttendanceTable: React.FC<{ data: AttendanceRecord[]; loading: boolean; sh
                 <td style={{ color: "#aaa", fontSize: 12 }}>{i + 1}</td>
                 {showEmployee && (
                   <>
-                    <td><span className="at-manv">{getManvField(r)}</span></td>
+                    <td><span className="at-MA_NV">{getManvField(r)}</span></td>
                     <td className="at-name">{getHoTen(r) || "—"}</td>
                   </>
                 )}
@@ -408,7 +408,7 @@ const SummaryStats: React.FC<{ data: AttendanceRecord[] }> = ({ data }) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // Module 1 – Employee History (Nhân viên xem lịch sử của chính họ)
 // ─────────────────────────────────────────────────────────────────────────────
-const EmployeeHistoryModule: React.FC<{ manv: string }> = ({ manv }) => {
+const EmployeeHistoryModule: React.FC<{ MA_NV: string }> = ({ MA_NV }) => {
   const [period, setPeriod] = useState<FilterPeriod>("today");
   const [data, setData] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(false);
@@ -416,31 +416,31 @@ const EmployeeHistoryModule: React.FC<{ manv: string }> = ({ manv }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const fetchData = useCallback(async () => {
-    if (!manv) return;
+    if (!MA_NV) return;
     setLoading(true);
     try {
       const params = period !== "all" ? getDateRange(period) : undefined;
-      const res = await api.getAttendanceEmployee(manv, params);
+      const res = await api.getAttendanceEmployee(MA_NV, params);
       setData(normalizeAttendanceList(res));
     } catch {
       setData([]);
     } finally {
       setLoading(false);
     }
-  }, [manv, period]);
+  }, [MA_NV, period]);
 
   const fetchCustomDate = useCallback(async () => {
-    if (!manv || !customDate) return;
+    if (!MA_NV || !customDate) return;
     setLoading(true);
     try {
-      const res = await api.getAttendanceEmployee(manv, { fromDate: customDate, toDate: customDate });
+      const res = await api.getAttendanceEmployee(MA_NV, { fromDate: customDate, toDate: customDate });
       setData(normalizeAttendanceList(res));
     } catch {
       setData([]);
     } finally {
       setLoading(false);
     }
-  }, [manv, customDate]);
+  }, [MA_NV, customDate]);
 
   useEffect(() => { if (!showDatePicker) fetchData(); }, [fetchData, showDatePicker]);
 
@@ -532,21 +532,21 @@ const AdminAttendanceTable: React.FC<{
             const d = getDate(r);
             const maNV = getManvField(r) || "";
             const emp = empMap[maNV];
-            const hoTen = emp?.hoTen || getHoTen(r) || "—";
+            const HO_TEN = emp?.HO_TEN || getHoTen(r) || "—";
             const phongBan = emp?.phongBan || "—";
             const chucVu = emp?.chucVu || "—";
             return (
               <tr key={i}>
                 <td style={{ color: "#aaa", fontSize: 12 }}>{i + 1}</td>
-                <td><span className="at-manv">{maNV || "—"}</span></td>
+                <td><span className="at-MA_NV">{maNV || "—"}</span></td>
                 <td>
                   <div className="at-emp-cell">
                     <div className="at-emp-avatar">
-                      {hoTen !== "—" ? hoTen.split(" ").pop()?.charAt(0).toUpperCase() : "?"}
+                      {HO_TEN !== "—" ? HO_TEN.split(" ").pop()?.charAt(0).toUpperCase() : "?"}
                     </div>
                     <div>
-                      <div className="at-emp-name">{hoTen}</div>
-                      {emp?.email && <div className="at-emp-email">{emp.email}</div>}
+                      <div className="at-emp-name">{HO_TEN}</div>
+                      {emp?.EMAIL && <div className="at-emp-EMAIL">{emp.EMAIL}</div>}
                     </div>
                   </div>
                 </td>
@@ -614,7 +614,7 @@ const AdminHistoryModule: React.FC = () => {
           const res = await api.getEmployee(maNV);
           const raw = res?.data?.data || res?.data || res;
           const info = normalizeEmployee(raw);
-          if (info.maNV || info.hoTen) _empCache[maNV] = { ...info, maNV };
+          if (info.maNV || info.HO_TEN) _empCache[maNV] = { ...info, maNV };
         } catch { /* bỏ qua */ }
       })
     );
@@ -644,7 +644,7 @@ const AdminHistoryModule: React.FC = () => {
     ? data.filter(r => {
         const maNV = getManvField(r) || "";
         const emp = empMap[maNV];
-        const name = emp?.hoTen || getHoTen(r) || "";
+        const name = emp?.HO_TEN || getHoTen(r) || "";
         const dept = emp?.phongBan || "";
         const q = search.toLowerCase();
         return maNV.toLowerCase().includes(q) || name.toLowerCase().includes(q) || dept.toLowerCase().includes(q);
@@ -702,7 +702,7 @@ const AdminHistoryModule: React.FC = () => {
 // Main Attendance Page
 // ─────────────────────────────────────────────────────────────────────────────
 export const Attendance: React.FC<{ user: any }> = ({ user }) => {
-  const manv = getManv(user);
+  const MA_NV = getManv(user);
   const userName = getUserName(user);
   const userLevel = getUserLevel(user);
   const isManager = userLevel >= 3;
@@ -715,7 +715,7 @@ export const Attendance: React.FC<{ user: any }> = ({ user }) => {
   const handleCheckIn = useCallback(async () => {
     setCheckInStatus("loading");
     try {
-      const res = await api.checkIn({ maNV: manv });
+      const res = await api.checkIn({ maNV: MA_NV });
       const data = res.data;
       const rec: CheckRecord = {
         type: "in",
@@ -731,12 +731,12 @@ export const Attendance: React.FC<{ user: any }> = ({ user }) => {
     } finally {
       setTimeout(() => setCheckInStatus("idle"), 1500);
     }
-  }, [manv]);
+  }, [MA_NV]);
 
   const handleCheckOut = useCallback(async () => {
     setCheckOutStatus("loading");
     try {
-      const res = await api.checkOut({ maNV: manv });
+      const res = await api.checkOut({ maNV: MA_NV });
       const data = res.data;
       const rec: CheckRecord = {
         type: "out",
@@ -752,13 +752,13 @@ export const Attendance: React.FC<{ user: any }> = ({ user }) => {
     } finally {
       setTimeout(() => setCheckOutStatus("idle"), 1500);
     }
-  }, [manv]);
+  }, [MA_NV]);
 
   return (
     <div className="animate-fade-in attendance-page">
       <SectionHeader
         title="Chấm công"
-        subtitle={`Mã nhân viên: ${manv || "—"}`}
+        subtitle={`Mã nhân viên: ${MA_NV || "—"}`}
       />
 
       <ResultBanner record={lastResult} onDismiss={() => setLastResult(null)} />
@@ -771,7 +771,7 @@ export const Attendance: React.FC<{ user: any }> = ({ user }) => {
               <div className="emp-avatar"><User size={24} /></div>
               <div>
                 <div className="emp-name">{userName}</div>
-                <div className="emp-id">{manv}</div>
+                <div className="emp-id">{MA_NV}</div>
               </div>
             </div>
 
@@ -809,7 +809,7 @@ export const Attendance: React.FC<{ user: any }> = ({ user }) => {
           )}
 
           <Card>
-            {(!isManager || activeTab === "mine") && <EmployeeHistoryModule manv={manv} />}
+            {(!isManager || activeTab === "mine") && <EmployeeHistoryModule MA_NV={MA_NV} />}
             {isManager && activeTab === "all" && <AdminHistoryModule />}
           </Card>
         </div>

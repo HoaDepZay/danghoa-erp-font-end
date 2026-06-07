@@ -13,7 +13,7 @@ export const ProjectTimesheet = ({ projectId, user }: { projectId: number; user:
   const [logLoading, setLogLoading] = useState(false);
 
   const isAdmin = getUserLevel(user) >= 2;
-  const manv = getManv(user);
+  const MA_NV = getManv(user);
 
   useEffect(() => {
     fetchTimesheets();
@@ -35,7 +35,7 @@ export const ProjectTimesheet = ({ projectId, user }: { projectId: number; user:
     if (!form.ngay || !form.soGioLam) return toast.error("Vui lòng nhập ngày và số giờ");
     setLogLoading(true);
     try {
-      await api.logTimesheet({ maNv: manv, maDa: projectId, ...form });
+      await api.logTimesheet({ MA_NV: MA_NV, MA_DA: projectId, ...form });
       toast.success("Đã log giờ thành công");
       setShowLogForm(false);
       setForm({ ngay: "", soGioLam: "", noiDungCongViec: "" });
@@ -49,7 +49,7 @@ export const ProjectTimesheet = ({ projectId, user }: { projectId: number; user:
 
   const handleApprove = async (id: number, status: string) => {
     try {
-      await api.approveTimesheet(id, { trangThai: status, nguoiDuyet: manv });
+      await api.approveTimesheet(id, { TRANG_THAI: status, nguoiDuyet: MA_NV });
       toast.success("Đã cập nhật trạng thái");
       fetchTimesheets();
     } catch {
@@ -101,11 +101,11 @@ export const ProjectTimesheet = ({ projectId, user }: { projectId: number; user:
           <tbody>
             {timesheets.map((t: any) => {
               const id = getProp(t, 'id');
-              const ten = getProp(t, 'hoten');
+              const ten = getProp(t, 'HO_TEN');
               const ngay = getProp(t, 'ngay');
               const soGio = getProp(t, 'sogiolam');
               const noiDung = getProp(t, 'noidungcongviec');
-              const trangThai = getProp(t, 'trangthai');
+              const TRANG_THAI = getProp(t, 'TRANG_THAI');
               
               return (
                 <tr key={id}>
@@ -114,13 +114,13 @@ export const ProjectTimesheet = ({ projectId, user }: { projectId: number; user:
                   <td>{soGio}h</td>
                   <td>{noiDung}</td>
                   <td>
-                    <Badge color={trangThai === "Đã duyệt" ? "green" : trangThai === "Từ chối" ? "red" : "yellow"}>
-                      {trangThai}
+                    <Badge color={TRANG_THAI === "Đã duyệt" ? "green" : TRANG_THAI === "Từ chối" ? "red" : "yellow"}>
+                      {TRANG_THAI}
                     </Badge>
                   </td>
                   {isAdmin && (
                     <td>
-                      {trangThai === "Chờ duyệt" && (
+                      {TRANG_THAI === "Chờ duyệt" && (
                         <div style={{ display: "flex", gap: 6 }}>
                           <Btn size="sm" variant="primary" onClick={() => handleApprove(id, "Đã duyệt")}>Duyệt</Btn>
                           <Btn size="sm" variant="danger" onClick={() => handleApprove(id, "Từ chối")}>Từ chối</Btn>

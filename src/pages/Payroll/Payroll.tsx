@@ -24,7 +24,7 @@ const PayslipModal: React.FC<{ isOpen: boolean; onClose: () => void; data: any }
       isOpen={isOpen}
       onClose={onClose}
       title="Phiếu lương chi tiết"
-      subtitle={`Mã NV: ${data.manv} · ${MONTHS[(data.thang ?? 1) - 1]} ${data.nam}`}
+      subtitle={`Mã NV: ${data.MA_NV} · ${MONTHS[(data.thang ?? 1) - 1]} ${data.nam}`}
       icon={<Wallet size={18} />}
       size="sm"
       footer={<Btn variant="secondary" onClick={onClose}>Đóng</Btn>}

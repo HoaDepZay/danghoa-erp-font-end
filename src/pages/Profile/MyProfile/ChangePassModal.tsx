@@ -25,8 +25,8 @@ export const ChangePassModal: React.FC<ChangePassModalProps> = ({ isOpen, onClos
     if (form.newPassword.length < 6) return toast.error("Mật khẩu phải ít nhất 6 ký tự!");
     setLoading(true);
     try {
-      const email = user?.email;
-      await api.changePassword({ email, oldPassword: form.oldPassword, newPassword: form.newPassword });
+      const EMAIL = user?.EMAIL;
+      await api.changePassword({ EMAIL, oldPassword: form.oldPassword, newPassword: form.newPassword });
       toast.success("Đổi mật khẩu thành công!");
       setForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
       onClose();

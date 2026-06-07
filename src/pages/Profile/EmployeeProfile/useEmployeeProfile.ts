@@ -49,10 +49,10 @@ export const useEmployeeProfile = (user: any) => {
   const handleUpdateProfile = async () => {
     setLoading(true);
     try {
-      await api.updateEmployeeInfo({ manv: getManv(user), email: modal.data.email });
-      const updatedUser = { ...user, email: modal.data.email };
+      await api.updateEmployeeInfo({ MA_NV: getManv(user), EMAIL: modal.data.EMAIL });
+      const updatedUser = { ...user, EMAIL: modal.data.EMAIL };
       localStorage.setItem("user", JSON.stringify(updatedUser));
-      setProfile({ ...profile, email: modal.data.email });
+      setProfile({ ...profile, EMAIL: modal.data.EMAIL });
       alert("Thành công!");
       setModal({ isOpen: false, type: "", data: {} });
     } catch {
@@ -65,7 +65,7 @@ export const useEmployeeProfile = (user: any) => {
     if (modal.data.newPass !== modal.data.confirmPass) return alert("Mật khẩu không khớp!");
     try {
       await api.changePassword({
-        manv: getManv(user),
+        MA_NV: getManv(user),
         oldPassword: modal.data.oldPass,
         newPassword: modal.data.newPass,
       });
@@ -79,11 +79,11 @@ export const useEmployeeProfile = (user: any) => {
   const handleAdminEditNV = async () => {
     try {
       const payload = {
-        manv: modal.data.manv?.trim(),
-        hoten: modal.data.hoten,
-        maphg: modal.data.maphg === null ? null : Number(modal.data.maphg),
-        luong: Number(modal.data.luong || 0),
-        chucvu: modal.data.chucvu || "Nhân viên",
+        MA_NV: modal.data.MA_NV?.trim(),
+        HO_TEN: modal.data.HO_TEN,
+        MA_PHG: modal.data.MA_PHG === null ? null : Number(modal.data.MA_PHG),
+        LUONG: Number(modal.data.LUONG || 0),
+        CHUC_VU: modal.data.CHUC_VU || "Nhân viên",
       };
       await api.adminUpdateEmployee(payload);
       alert("✅ Thành công!");
@@ -116,7 +116,7 @@ export const useEmployeeProfile = (user: any) => {
     setLoading(true);
     try {
       // PUT /api/departments/:id  body: { tenpb, matruongphg? }
-      await api.updateDepartment(modal.data.maphg, {
+      await api.updateDepartment(modal.data.MA_PHG, {
         tenpb: modal.data.tenpb,
         matruongphg: modal.data.matruongphg || undefined,
       });
@@ -130,11 +130,11 @@ export const useEmployeeProfile = (user: any) => {
     setLoading(false);
   };
 
-  const handleDeleteDepartment = async (maphg: string | number) => {
+  const handleDeleteDepartment = async (MA_PHG: string | number) => {
     if (!window.confirm("Xác nhận xóa?")) return;
     try {
       // DELETE /api/departments/:id
-      await api.deleteDepartment(maphg);
+      await api.deleteDepartment(MA_PHG);
       const depts = await api.getDepartments();
       const d = depts.data;
       setDepartments(Array.isArray(d) ? d : Array.isArray(d?.data) ? d.data : []);
@@ -144,15 +144,15 @@ export const useEmployeeProfile = (user: any) => {
   };
 
   const handleCreateEmployee = async () => {
-    const { manv, hoten, maphg, luong, chucvu } = modal.data;
+    const { MA_NV, HO_TEN, MA_PHG, LUONG, CHUC_VU } = modal.data;
     setLoading(true);
     try {
       await api.createEmployee({
-        manv,
-        hoten,
-        maphg: parseInt(maphg),
-        luong: parseInt(luong || 0),
-        chucvu,
+        MA_NV,
+        HO_TEN,
+        MA_PHG: parseInt(MA_PHG),
+        LUONG: parseInt(LUONG || 0),
+        CHUC_VU,
       });
       if (userLevel >= 2) {
         const team = await api.getCoworkers(getMaPhg(user));
@@ -168,7 +168,7 @@ export const useEmployeeProfile = (user: any) => {
    const exportCoworkersToCsv = () => {
     if (coworkers.length === 0) return alert("Không có dữ liệu để xuất!");
     const headers = ["MANV", "HOTEN", "CHUCVU", "MAPHG"];
-    const rows = coworkers.map(m => [m.manv, m.hoten, m.chucvu, m.maphg]);
+    const rows = coworkers.map(m => [m.MA_NV, m.HO_TEN, m.CHUC_VU, m.MA_PHG]);
     const csvContent = [headers.join(","), ...rows.map(r => r.map(c => String(c).includes(",") ? `"${c}"` : c).join(","))].join("\n");
     const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
@@ -180,7 +180,7 @@ export const useEmployeeProfile = (user: any) => {
   const exportDepartmentsToCsv = () => {
     if (departments.length === 0) return alert("Không có dữ liệu để xuất!");
     const headers = ["MAPHG", "TENPB"];
-    const rows = departments.map(d => [d.maphg, d.tenpb]);
+    const rows = departments.map(d => [d.MA_PHG, d.tenpb]);
     const csvContent = [headers.join(","), ...rows.map(r => r.map(c => String(c).includes(",") ? `"${c}"` : c).join(","))].join("\n");
     const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
@@ -208,8 +208,8 @@ export const useEmployeeProfile = (user: any) => {
           if (!vals[mIdx] || !vals[hIdx]) continue;
           try {
             await api.createEmployee({
-              manv: vals[mIdx], hoten: vals[hIdx], maphg: parseInt(vals[pIdx]) || Number(getMaPhg(user)),
-              luong: 0, chucvu: vals[cIdx] || "Nhân viên"
+              MA_NV: vals[mIdx], HO_TEN: vals[hIdx], MA_PHG: parseInt(vals[pIdx]) || Number(getMaPhg(user)),
+              LUONG: 0, CHUC_VU: vals[cIdx] || "Nhân viên"
             });
             success++;
           } catch (err) {}

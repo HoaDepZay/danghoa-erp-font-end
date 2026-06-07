@@ -34,10 +34,10 @@ interface UpdateProfileModalProps {
 
 export const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({ isOpen, onClose, user, profile, onUpdated }) => {
   const [form, setForm] = useState({
-    email: "", hoten: "", ngaysinh: "", gioitinh: "", 
+    EMAIL: "", HO_TEN: "", NGAY_SINH: "", GIOI_TINH: "", 
     tinh: "", quan: "", phuong: "", 
     tinhCode: "", quanCode: "", phuongCode: "",
-    sdt: "", fullAddress: "", detail: "",
+    SDT: "", fullAddress: "", detail: "",
   });
   
   const [provinces, setProvinces] = useState<any[]>([]);
@@ -49,16 +49,16 @@ export const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({ isOpen, 
   useEffect(() => {
     if (!isOpen) return;
     const source = profile || user || {};
-    const currentAddress = source.diachinhan;
+    const currentAddress = source.DIA_CHI;
     
     setForm({
-      email: getUserEmail(source) || getUserEmail(user),
-      hoten: source.hoten || "",
-      ngaysinh: normalizeDateInput(source.ngaysinh),
-      gioitinh: source.gioitinh || "",
+      EMAIL: getUserEmail(source) || getUserEmail(user),
+      HO_TEN: source.HO_TEN || "",
+      NGAY_SINH: normalizeDateInput(source.NGAY_SINH),
+      GIOI_TINH: source.GIOI_TINH || "",
       tinh: "", quan: "", phuong: "",
       tinhCode: "", quanCode: "", phuongCode: "",
-      sdt: source.sdt || "",
+      SDT: source.SDT || "",
       fullAddress: currentAddress || "",
       detail: "",
     });
@@ -107,31 +107,31 @@ export const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({ isOpen, 
   };
 
   const handleSubmit = async () => {
-    if (!form.email) return toast.error("Không tìm thấy email của tài khoản hiện tại!");
+    if (!form.EMAIL) return toast.error("Không tìm thấy EMAIL của tài khoản hiện tại!");
 
-    const payload: any = { email: form.email };
-    if (form.hoten.trim()) payload.hoten = form.hoten.trim();
-    if (form.ngaysinh) payload.ngaysinh = form.ngaysinh;
-    if (form.gioitinh) payload.gioitinh = form.gioitinh;
+    const payload: any = { EMAIL: form.EMAIL };
+    if (form.HO_TEN.trim()) payload.HO_TEN = form.HO_TEN.trim();
+    if (form.NGAY_SINH) payload.NGAY_SINH = form.NGAY_SINH;
+    if (form.GIOI_TINH) payload.GIOI_TINH = form.GIOI_TINH;
     
     let finalAddress = form.fullAddress;
     if (form.tinh) {
       const selectedPart = formatFullAddress(form.tinh, form.quan, form.phuong);
       finalAddress = form.detail.trim() ? `${form.detail.trim()}, ${selectedPart}` : selectedPart;
     }
-    if (finalAddress) payload.diachi = finalAddress;
-    if (form.sdt.trim()) payload.sdt = form.sdt.trim();
+    if (finalAddress) payload.DIA_CHI = finalAddress;
+    if (form.SDT.trim()) payload.SDT = form.SDT.trim();
 
     setLoading(true);
     try {
       const res = await api.updateProfile(payload);
       toast.success(res.data?.message || "Cập nhật profile thành công");
       onUpdated({
-        hoten: payload.hoten,
-        ngaysinh: payload.ngaysinh,
-        gioitinh: payload.gioitinh,
-        diachi: payload.diachi,
-        sdt: payload.sdt,
+        HO_TEN: payload.HO_TEN,
+        NGAY_SINH: payload.NGAY_SINH,
+        GIOI_TINH: payload.GIOI_TINH,
+        DIA_CHI: payload.DIA_CHI,
+        SDT: payload.SDT,
       });
       onClose();
     } catch (err: any) {
@@ -156,19 +156,19 @@ export const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({ isOpen, 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         <div style={{ gridColumn: "1 / -1" }}>
           <FormField label="Email (không thể chỉnh sửa)">
-            <input className="form-input" value={form.email} readOnly />
+            <input className="form-input" value={form.EMAIL} readOnly />
           </FormField>
         </div>
          <div style={{ gridColumn: "1 / -1" }}>
           <FormField label="Họ tên">
-            <input className="form-input" placeholder="Nhập họ tên" value={form.hoten} onChange={set("hoten")} />
+            <input className="form-input" placeholder="Nhập họ tên" value={form.HO_TEN} onChange={set("HO_TEN")} />
           </FormField>
         </div>
         <FormField label="Ngày sinh">
-          <input className="form-input" type="date" value={form.ngaysinh} onChange={set("ngaysinh")} />
+          <input className="form-input" type="date" value={form.NGAY_SINH} onChange={set("NGAY_SINH")} />
         </FormField>
         <FormField label="Giới tính">
-          <select className="form-input" value={form.gioitinh} onChange={set("gioitinh")}>
+          <select className="form-input" value={form.GIOI_TINH} onChange={set("GIOI_TINH")}>
             <option value="">-- Chọn giới tính --</option>
             <option value="Nam">Nam</option>
             <option value="Nữ">Nữ</option>
@@ -177,7 +177,7 @@ export const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({ isOpen, 
         </FormField>
         <div style={{ gridColumn: "1 / -1" }}>
           <FormField label="Số điện thoại">
-             <input className="form-input" placeholder="Nhập số điện thoại" value={form.sdt} onChange={set("sdt")} />
+             <input className="form-input" placeholder="Nhập số điện thoại" value={form.SDT} onChange={set("SDT")} />
           </FormField>
         </div>
 

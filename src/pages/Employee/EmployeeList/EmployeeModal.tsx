@@ -21,8 +21,8 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, e
   const isEdit = !!editData;
   const [activeTab, setActiveTab] = useState("info");
   const [form, setForm] = useState({
-    manv: "", hoten: "", email: "", sodienthoai: "", diachinhan: "",
-    gioitinh: "Nam", ngaysinh: "", maphg: "", luong: "", chucvu: "Nhân viên", password: "",
+    MA_NV: "", HO_TEN: "", EMAIL: "", SDT: "", DIA_CHI: "",
+    GIOI_TINH: "Nam", NGAY_SINH: "", MA_PHG: "", LUONG: "", CHUC_VU: "Nhân viên", password: "",
   });
   const [legalForm, setLegalForm] = useState({
     maSoThue: "", soTaiKhoan: "", nganHang: "", soNguoiPhuThuoc: "0",
@@ -34,16 +34,16 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, e
     setActiveTab("info");
     if (editData) {
       setForm({
-        manv: editData.manv || "",
-        hoten: editData.hoten || "",
-        email: editData.email || "",
-        sodienthoai: editData.sodienthoai || editData.sdt || "",
-        diachinhan: editData.diachinhan || "",
-        gioitinh: editData.gioitinh || "Nam",
-        ngaysinh: editData.ngaysinh ? (editData.ngaysinh as string).split("T")[0] : "",
-        maphg: editData.maphg || "",
-        luong: editData.luong || "",
-        chucvu: editData.chucvu || "Nhân viên",
+        MA_NV: editData.MA_NV || "",
+        HO_TEN: editData.HO_TEN || "",
+        EMAIL: editData.EMAIL || "",
+        SDT: editData.SDT || editData.SDT || "",
+        DIA_CHI: editData.DIA_CHI || "",
+        GIOI_TINH: editData.GIOI_TINH || "Nam",
+        NGAY_SINH: editData.NGAY_SINH ? (editData.NGAY_SINH as string).split("T")[0] : "",
+        MA_PHG: editData.MA_PHG || "",
+        LUONG: editData.LUONG || "",
+        CHUC_VU: editData.CHUC_VU || "Nhân viên",
         password: "",
       });
       setLegalForm({
@@ -53,7 +53,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, e
         soNguoiPhuThuoc: String(editData.soNguoiPhuThuoc ?? 0),
       });
     } else {
-      setForm({ manv: "", hoten: "", email: "", sodienthoai: "", diachinhan: "", gioitinh: "Nam", ngaysinh: "", maphg: "", luong: "", chucvu: "Nhân viên", password: "" });
+      setForm({ MA_NV: "", HO_TEN: "", EMAIL: "", SDT: "", DIA_CHI: "", GIOI_TINH: "Nam", NGAY_SINH: "", MA_PHG: "", LUONG: "", CHUC_VU: "Nhân viên", password: "" });
       setLegalForm({ maSoThue: "", soTaiKhoan: "", nganHang: "", soNguoiPhuThuoc: "0" });
     }
   }, [editData, isOpen]);
@@ -62,23 +62,23 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, e
   const setLegal = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) => setLegalForm(f => ({ ...f, [k]: e.target.value }));
 
   const handleSubmit = async () => {
-    if (!form.hoten) return toast.error("Họ tên không được trống");
+    if (!form.HO_TEN) return toast.error("Họ tên không được trống");
     setLoading(true);
     try {
       const payload: any = {
-        hoten: form.hoten, email: form.email, sodienthoai: form.sodienthoai,
-        diachinhan: form.diachinhan, gioitinh: form.gioitinh,
-        ngaysinh: form.ngaysinh || undefined,
-        maphg: form.maphg ? Number(form.maphg) : undefined,
-        luong: form.luong ? Number(form.luong) : undefined,
-        chucvu: form.chucvu,
+        HO_TEN: form.HO_TEN, EMAIL: form.EMAIL, SDT: form.SDT,
+        DIA_CHI: form.DIA_CHI, GIOI_TINH: form.GIOI_TINH,
+        NGAY_SINH: form.NGAY_SINH || undefined,
+        MA_PHG: form.MA_PHG ? Number(form.MA_PHG) : undefined,
+        LUONG: form.LUONG ? Number(form.LUONG) : undefined,
+        CHUC_VU: form.CHUC_VU,
       };
       if (isEdit) {
-        await api.updateEmployee(form.manv, payload);
+        await api.updateEmployee(form.MA_NV, payload);
         toast.success("Cập nhật nhân viên thành công!");
       } else {
-        if (!form.manv) return toast.error("Mã NV không được trống");
-        await api.createEmployee({ ...payload, manv: form.manv, password: form.password || "123456" });
+        if (!form.MA_NV) return toast.error("Mã NV không được trống");
+        await api.createEmployee({ ...payload, MA_NV: form.MA_NV, password: form.password || "123456" });
         toast.success("Thêm nhân viên thành công!");
       }
       onSuccess(); onClose();
@@ -90,11 +90,11 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, e
   };
 
   const handleSaveLegal = async () => {
-    if (!form.manv) return toast.error("Không xác định được mã nhân viên");
+    if (!form.MA_NV) return toast.error("Không xác định được mã nhân viên");
     setSavingLegal(true);
     try {
       await api.updateEmployeeLegal({
-        maNv: form.manv,
+        MA_NV: form.MA_NV,
         maSoThue: legalForm.maSoThue || undefined,
         soTaiKhoan: legalForm.soTaiKhoan || undefined,
         nganHang: legalForm.nganHang || undefined,
@@ -114,7 +114,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, e
       isOpen={isOpen}
       onClose={onClose}
       title={isEdit ? "Chỉnh sửa nhân viên" : "Thêm nhân viên mới"}
-      subtitle={isEdit ? `Mã NV: ${form.manv}` : "Điền thông tin nhân viên mới"}
+      subtitle={isEdit ? `Mã NV: ${form.MA_NV}` : "Điền thông tin nhân viên mới"}
       icon={<Users size={18} />}
       size="md"
       footer={
@@ -145,43 +145,43 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, e
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {!isEdit && (
             <FormField label="Mã nhân viên *">
-              <input className="form-input" placeholder="VD: NV001" value={form.manv} onChange={set("manv")} />
+              <input className="form-input" placeholder="VD: NV001" value={form.MA_NV} onChange={set("MA_NV")} />
             </FormField>
           )}
           <FormField label="Họ và tên *">
-            <input className="form-input" placeholder="Nguyễn Văn A" value={form.hoten} onChange={set("hoten")} />
+            <input className="form-input" placeholder="Nguyễn Văn A" value={form.HO_TEN} onChange={set("HO_TEN")} />
           </FormField>
           <FormField label="Email">
-            <input className="form-input" type="email" placeholder="email@huit.edu.vn" value={form.email} onChange={set("email")} />
+            <input className="form-input" type="EMAIL" placeholder="EMAIL@huit.edu.vn" value={form.EMAIL} onChange={set("EMAIL")} />
           </FormField>
           <FormField label="Số điện thoại">
-            <input className="form-input" placeholder="0901234567" value={form.sodienthoai} onChange={set("sodienthoai")} />
+            <input className="form-input" placeholder="0901234567" value={form.SDT} onChange={set("SDT")} />
           </FormField>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
             <FormField label="Ngày sinh">
-              <input className="form-input" type="date" value={form.ngaysinh} onChange={set("ngaysinh")} />
+              <input className="form-input" type="date" value={form.NGAY_SINH} onChange={set("NGAY_SINH")} />
             </FormField>
             <FormField label="Giới tính">
-              <select className="form-input" value={form.gioitinh} onChange={set("gioitinh")}>
+              <select className="form-input" value={form.GIOI_TINH} onChange={set("GIOI_TINH")}>
                 <option>Nam</option><option>Nữ</option>
               </select>
             </FormField>
           </div>
           <FormField label="Phòng ban">
-            <select className="form-input" value={form.maphg} onChange={set("maphg")}>
+            <select className="form-input" value={form.MA_PHG} onChange={set("MA_PHG")}>
               <option value="">— Chưa chọn —</option>
               {departments.map((d) => (
-                <option key={d.maphg} value={d.maphg}>{d.tenpb}</option>
+                <option key={d.MA_PHG} value={d.MA_PHG}>{d.tenpb}</option>
               ))}
             </select>
           </FormField>
           <FormField label="Chức vụ">
-            <select className="form-input" value={form.chucvu} onChange={set("chucvu")}>
+            <select className="form-input" value={form.CHUC_VU} onChange={set("CHUC_VU")}>
               <option>Cộng tác viên</option><option>Nhân viên</option><option>Quản lý</option>
             </select>
           </FormField>
           <FormField label="Lương cơ bản (VNĐ)">
-            <input className="form-input" type="number" placeholder="5000000" value={form.luong} onChange={set("luong")} />
+            <input className="form-input" type="number" placeholder="5000000" value={form.LUONG} onChange={set("LUONG")} />
           </FormField>
           {!isEdit && (
             <FormField label="Mật khẩu mặc định">
@@ -189,7 +189,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, e
             </FormField>
           )}
           <FormField label="Địa chỉ">
-            <input className="form-input" placeholder="Số nhà, đường, quận, TP" value={form.diachinhan} onChange={set("diachinhan")} />
+            <input className="form-input" placeholder="Số nhà, đường, quận, TP" value={form.DIA_CHI} onChange={set("DIA_CHI")} />
           </FormField>
         </div>
       )}

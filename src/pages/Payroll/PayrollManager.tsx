@@ -15,12 +15,12 @@ import { MONTHS } from "./usePayroll";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 interface Employee {
-  manv: string;
-  hoten: string;
-  email: string;
-  chucvu?: string;
+  MA_NV: string;
+  HO_TEN: string;
+  EMAIL: string;
+  CHUC_VU?: string;
   tenpb?: string;
-  luong?: number;
+  LUONG?: number;
   [key: string]: any;
 }
 
@@ -29,22 +29,22 @@ interface AttendanceRecord {
   giovao?: string;
   giora?: string;
   ngay?: string;
-  trangthai?: string;
+  TRANG_THAI?: string;
   [key: string]: any;
 }
 
 // ─── Field helpers ──────────────────────────────────────────────────────────────
-const getManv = (e: Employee) => e?.manv || "";
-const getHoTen = (e: Employee) => e?.hoten || "";
-const getEmail = (e: Employee) => e?.email || "";
-const getChucVu = (e: Employee) => e?.chucvu || "";
+const getManv = (e: Employee) => e?.MA_NV || "";
+const getHoTen = (e: Employee) => e?.HO_TEN || "";
+const getEmail = (e: Employee) => e?.EMAIL || "";
+const getChucVu = (e: Employee) => e?.CHUC_VU || "";
 const getPhongBan = (e: Employee) => e?.tenpb || "";
-const getLuong = (e: Employee) => e?.luong || 0;
+const getLuong = (e: Employee) => e?.LUONG || 0;
 
 const getCI = (r: AttendanceRecord) => r?.giovao || "";
 const getCO = (r: AttendanceRecord) => r?.giora || "";
 const getDate = (r: AttendanceRecord) => r?.ngay || "";
-const getStatus = (r: AttendanceRecord) => r?.trangthai || "";
+const getStatus = (r: AttendanceRecord) => r?.TRANG_THAI || "";
 
 const fmt = (iso?: string, mode: "time" | "date" = "time") => {
   if (!iso) return "—";
@@ -199,7 +199,7 @@ const EmployeePayrollModal: React.FC<{
   const [payslipLoading, setPayslipLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"attendance" | "payslip">("attendance");
 
-  const maNV = getManv(employee || {});
+  const maNV = getManv((employee || {}) as Employee);
 
   // Fetch attendance theo tháng
   const fetchAttendance = useCallback(async () => {
@@ -254,24 +254,24 @@ const EmployeePayrollModal: React.FC<{
         display: "flex", alignItems: "center", gap: 16,
         paddingBottom: 16, borderBottom: "1.5px solid #f0f0f0", marginBottom: 16,
       }}>
-        <Avatar name={getHoTen(employee || {})} size="lg" />
+        <Avatar name={getHoTen((employee || {}) as Employee)} size="lg" />
         <div style={{ flex: 1 }}>
-          <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>{getHoTen(employee || {})}</h3>
+          <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>{getHoTen((employee || {}) as Employee)}</h3>
           <div style={{ display: "flex", gap: 12, marginTop: 4, flexWrap: "wrap" }}>
             <span style={{ fontSize: 12, color: "#888", fontWeight: 600 }}>{maNV}</span>
-            {getChucVu(employee || {}) && (
-              <span style={{ fontSize: 12, color: "#555" }}>{getChucVu(employee || {})}</span>
+            {getChucVu((employee || {}) as Employee) && (
+              <span style={{ fontSize: 12, color: "#555" }}>{getChucVu((employee || {}) as Employee)}</span>
             )}
-            {getPhongBan(employee || {}) && (
+            {getPhongBan((employee || {}) as Employee) && (
               <span style={{
                 fontSize: 11, padding: "2px 8px", borderRadius: 20,
                 background: "#f0f0f0", color: "#555", fontWeight: 600,
-              }}>{getPhongBan(employee || {})}</span>
+              }}>{getPhongBan((employee || {}) as Employee)}</span>
             )}
           </div>
-          {getLuong(employee || {}) > 0 && (
+          {getLuong((employee || {}) as Employee) > 0 && (
             <p style={{ margin: "4px 0 0", fontSize: 12, color: "#aaa" }}>
-              Lương cơ bản: <strong style={{ color: "#111" }}>{formatCurrency(getLuong(employee || {}))}</strong>
+              Lương cơ bản: <strong style={{ color: "#111" }}>{formatCurrency(getLuong((employee || {}) as Employee))}</strong>
             </p>
           )}
         </div>
@@ -409,7 +409,7 @@ const EmployeePayrollModal: React.FC<{
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, borderBottom: "1px solid #f0f0f0", paddingBottom: 8 }}>
                   <span style={{ color: "#888" }}>Lương cơ bản</span>
-                  <span style={{ fontWeight: 600 }}>{formatCurrency(getLuong(employee || {}))}</span>
+                  <span style={{ fontWeight: 600 }}>{formatCurrency(getLuong((employee || {}) as Employee))}</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, borderBottom: "1px solid #f0f0f0", paddingBottom: 8 }}>
                   <span style={{ color: "#888" }}>Tổng giờ làm việc</span>
@@ -460,7 +460,7 @@ const EmployeeCard: React.FC<{
   const maNV = getManv(employee);
   const chucVu = getChucVu(employee);
   const phongBan = getPhongBan(employee);
-  const luong = getLuong(employee);
+  const LUONG = getLuong(employee);
 
   return (
     <div
@@ -489,8 +489,8 @@ const EmployeeCard: React.FC<{
         )}
       </div>
       <div style={{ textAlign: "right", flexShrink: 0 }}>
-        {luong > 0 && (
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{formatCurrency(luong)}</div>
+        {LUONG > 0 && (
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{formatCurrency(LUONG)}</div>
         )}
         {isClosed ? (
           <Badge color="green">Đã chốt</Badge>

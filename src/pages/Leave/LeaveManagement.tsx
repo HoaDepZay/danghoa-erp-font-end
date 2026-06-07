@@ -31,7 +31,7 @@ const LeaveManagement = ({ user }: { user: any }) => {
     try {
       const isLevel1 = currentStatus.includes("Chờ duyệt");
       const capDuyet = isLevel1 && !currentStatus.includes("Cấp 2") ? 1 : 2;
-      await api.approveLeave({ maDon: id, capDuyet, trangThai: "Đã duyệt" });
+      await api.approveLeave({ maDon: id, capDuyet, TRANG_THAI: "Đã duyệt" });
       toast.success("Duyệt đơn thành công");
       fetchLeaves();
     } catch (error) {
@@ -48,7 +48,7 @@ const LeaveManagement = ({ user }: { user: any }) => {
   const handleReject = async () => {
     if (!rejectReason) return toast.error("Vui lòng nhập lý do từ chối");
     try {
-      await api.approveLeave({ maDon: selectedLeaveId, capDuyet: 1, trangThai: "Từ chối", lyDoTuChoi: rejectReason });
+      await api.approveLeave({ maDon: selectedLeaveId, capDuyet: 1, TRANG_THAI: "Từ chối", lyDoTuChoi: rejectReason });
       toast.success("Đã từ chối đơn");
       setRejectModalOpen(false);
       fetchLeaves();
@@ -87,18 +87,18 @@ const LeaveManagement = ({ user }: { user: any }) => {
               ) : leaves.map((lv: any) => {
                 const maDon = getProp(lv, 'madon') ?? getProp(lv, 'id');
                 const tenNv = getProp(lv, 'tennhanvien') ?? "";
-                const maNv = getProp(lv, 'manv') ?? "";
-                const maPhg = getProp(lv, 'maphg') ?? "";
+                const MA_NV = getProp(lv, 'MA_NV') ?? "";
+                const maPhg = getProp(lv, 'MA_PHG') ?? "";
                 const tuNgay = getProp(lv, 'tungay');
                 const denNgay = getProp(lv, 'denngay');
                 const lyDo = getProp(lv, 'lydo') ?? "";
-                const trangThai = getProp(lv, 'trangthaiduyet') ?? getProp(lv, 'trangthai') ?? "Chờ duyệt";
+                const TRANG_THAI = getProp(lv, 'trangthaiduyet') ?? getProp(lv, 'TRANG_THAI') ?? "Chờ duyệt";
                 
                 return (
                 <tr key={maDon}>
                   <td>
                     <span style={{ fontWeight: 600 }}>{tenNv}</span>
-                    <br/><small className="text-gray">{maNv}</small>
+                    <br/><small className="text-gray">{MA_NV}</small>
                   </td>
                   <td>{maPhg}</td>
                   <td>{formatDate(tuNgay)}</td>
@@ -108,14 +108,14 @@ const LeaveManagement = ({ user }: { user: any }) => {
                     {lyDo}
                   </td>
                   <td>
-                    <Badge color={trangThai === "Đã duyệt" ? "green" : trangThai === "Từ chối" ? "red" : "yellow"}>
-                      {trangThai}
+                    <Badge color={TRANG_THAI === "Đã duyệt" ? "green" : TRANG_THAI === "Từ chối" ? "red" : "yellow"}>
+                      {TRANG_THAI}
                     </Badge>
                   </td>
                   <td>
-                    {(trangThai !== "Đã duyệt" && trangThai !== "Từ chối") && (
+                    {(TRANG_THAI !== "Đã duyệt" && TRANG_THAI !== "Từ chối") && (
                       <div style={{ display: "flex", gap: "8px" }}>
-                        <Btn variant="primary" onClick={() => handleApprove(maDon, trangThai)} icon={<CheckCircle2 size={14}/>}>Duyệt</Btn>
+                        <Btn variant="primary" onClick={() => handleApprove(maDon, TRANG_THAI)} icon={<CheckCircle2 size={14}/>}>Duyệt</Btn>
                         <Btn variant="danger" onClick={() => openRejectModal(maDon)} icon={<XCircle size={14}/>}>Từ chối</Btn>
                       </div>
                     )}

@@ -17,7 +17,7 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
   const handleProjectChat = async () => {
     if (!selectedProject) return;
     try {
-      await api.getProjectChatRoom(getProp(selectedProject, 'mada') ?? getProp(selectedProject, 'id'));
+      await api.getProjectChatRoom(getProp(selectedProject, 'MA_DA') ?? getProp(selectedProject, 'id'));
       setShowModal(false);
       onNavigate("chat");
     } catch (err) {
@@ -43,28 +43,28 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
       const projects = toArray(resProj.data);
       
       const projectEvents = projects
-        .filter((p: any) => getProp(p, 'ngaybatdau') && getProp(p, 'ngayketthuc'))
+        .filter((p: any) => getProp(p, 'NGAY_BAT_DAU') && getProp(p, 'NGAY_KET_THUC'))
         .map((p: any) => {
-          const mada = getProp(p, 'mada') ?? getProp(p, 'id');
-          const tenda = getProp(p, 'tenda') ?? getProp(p, 'ten');
-          const ngayBatDau = getProp(p, 'ngaybatdau');
-          const ngayKetThuc = getProp(p, 'ngayketthuc');
-          const trangThai = getProp(p, 'trangthai');
-          const isOverdue = checkOverdue(ngayKetThuc, trangThai);
+          const MA_DA = getProp(p, 'MA_DA') ?? getProp(p, 'id');
+          const TEN_DA = getProp(p, 'TEN_DA') ?? getProp(p, 'ten');
+          const NGAY_BAT_DAU = getProp(p, 'NGAY_BAT_DAU');
+          const NGAY_KET_THUC = getProp(p, 'NGAY_KET_THUC');
+          const TRANG_THAI = getProp(p, 'TRANG_THAI');
+          const isOverdue = checkOverdue(NGAY_KET_THUC, TRANG_THAI);
           return {
-            id: `proj_${mada}`,
-            title: `[DA] ${tenda || "Dự án không tên"}`,
-            start: ngayBatDau,
-            end: ngayKetThuc,
+            id: `proj_${MA_DA}`,
+            title: `[DA] ${TEN_DA || "Dự án không tên"}`,
+            start: NGAY_BAT_DAU,
+            end: NGAY_KET_THUC,
             backgroundColor: isOverdue ? "#ef4444" : 
-                             (trangThai === "Hoàn thành" ? "#10b981" : getRandomColor(String(mada))),
+                             (TRANG_THAI === "Hoàn thành" ? "#10b981" : getRandomColor(String(MA_DA))),
             borderColor: "transparent",
             extendedProps: { ...p, type: "project", isOverdue }
           };
         });
 
       // Lấy ca làm việc
-      const resShift = await api.getShiftAssignments({ maNv: getManv(user) });
+      const resShift = await api.getShiftAssignments({ MA_NV: getManv(user) });
       const shifts = toArray(resShift.data);
       
       const shiftEvents = shifts.map((s: any) => ({
@@ -94,7 +94,7 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
 
   const handleEventClick = (info: any) => {
     if (info.event.extendedProps.type === "shift") {
-      toast.info(`Ca làm việc: ${info.event.title} - Trạng thái: ${info.event.extendedProps.trangThai || info.event.extendedProps.TrangThai}`);
+      toast.info(`Ca làm việc: ${info.event.title} - Trạng thái: ${info.event.extendedProps.TRANG_THAI || info.event.extendedProps.TrangThai}`);
       return;
     }
     setSelectedProject(info.event.extendedProps);
@@ -299,15 +299,15 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
                             fontSize: "12px",
                             fontWeight: 700
                           }}>
-                            {m.hoten?.charAt(0) || "U"}
+                            {m.HO_TEN?.charAt(0) || "U"}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: "13px", fontWeight: 700, color: "#1e293b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                              {m.hoten}
+                              {m.HO_TEN}
                             </div>
                             <div style={{ fontSize: "11px", color: "#64748b" }}>{m.VaiTroDuAn || "Thành viên"}</div>
                           </div>
-                          <div className="badge badge-gray" style={{ fontSize: "9px" }}>{m.manv}</div>
+                          <div className="badge badge-gray" style={{ fontSize: "9px" }}>{m.MA_NV}</div>
                         </div>
                       ))
                     ) : (
@@ -322,7 +322,7 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
               ) : (
                 <div style={{ minHeight: "350px" }}>
                    <ProjectTasks 
-                    projectId={getProp(selectedProject, 'mada') ?? getProp(selectedProject, 'id')} 
+                    projectId={getProp(selectedProject, 'MA_DA') ?? getProp(selectedProject, 'id')} 
                     members={selectedProject.thanhVien || []} 
                     isAdmin={getUserLevel(user) >= 2} 
                   />

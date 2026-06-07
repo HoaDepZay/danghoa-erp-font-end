@@ -31,13 +31,14 @@ const stringToProjectColor = (str: string) => {
 };
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
-  const id     = project.mada;
-  const name   = project.tenda || "";
-  const desc   = project.mota;
-  const start  = project.ngaybatdau;
-  const status = project.trangthai || "—";
-  const role   = project.vaitroduan;
-  const end    = project.ngayketthuc;
+  
+  const id     = project.MA_DA;
+  const name   = project.TEN_DA ?? "";
+  const desc   = project.MO_TA;
+  const start  = project.NGAY_BAT_DAU;
+  const status = project.TRANG_THAI ?? "—";
+  const role   = project.VAI_TRO_DU_AN;
+  const end    = project.NGAY_KET_THUC;
   const isOverdue = checkOverdue(end, status);
 
   const colors = stringToProjectColor(name);

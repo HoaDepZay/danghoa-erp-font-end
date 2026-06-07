@@ -99,10 +99,10 @@ const Analytics = ({ user }: { user: any }) => {
     setLoading(true);
     try {
       const [t, s, a, sm] = await Promise.all([
-        api.getDashboardAnalyticsTurnover(),
-        api.getDashboardAnalyticsSalaryCost(),
-        api.getDashboardAnalyticsAttendance(),
-        api.getDashboardAnalyticsSummary(),
+        api.getDashboardAnalytics(),
+        api.getAnalyticsSalaryCost(),
+        api.getAnalyticsAttendance(),
+        api.getDashboardSummary(),
       ]);
       setTurnover(t.data?.data   || []);
       setSalaryCost(s.data?.data || []);

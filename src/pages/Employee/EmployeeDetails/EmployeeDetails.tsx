@@ -29,7 +29,7 @@ export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ isOpen, onClos
     if (!emp) return;
     setChatLoading(true);
     try {
-      const targetMaNv = emp.manv;
+      const targetMaNv = emp.MA_NV;
       const res = await api.createDirectRoom({ targetMaNv });
       const roomId = res.data?.data?.maPhong || res.data?.maPhong;
       if (roomId) {
@@ -48,23 +48,23 @@ export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ isOpen, onClos
   };
 
   const fields = emp ? [
-    ["Mã NV", emp.manv],
-    ["Email", emp.email],
-    ["SĐT", emp.sdt || "—"],
-    ["Ngày sinh", formatDate(emp.ngaysinh)],
-    ["Giới tính", formatGender(emp.gioitinh)],
-    ["Địa chỉ", emp.diachinhan],
+    ["Mã NV", emp.MA_NV],
+    ["Email", emp.EMAIL],
+    ["SĐT", emp.SDT || "—"],
+    ["Ngày sinh", formatDate(emp.NGAY_SINH)],
+    ["Giới tính", formatGender(emp.GIOI_TINH)],
+    ["Địa chỉ", emp.DIA_CHI],
     ["Phòng ban", emp.tenpb],
-    ["Lương cơ bản", (emp.luong != null)
-      ? `${Number(emp.luong).toLocaleString("vi-VN")} VNĐ` : "—"],
+    ["Lương cơ bản", (emp.LUONG != null)
+      ? `${Number(emp.LUONG).toLocaleString("vi-VN")} VNĐ` : "—"],
   ] : [];
 
   return (
     <Drawer
       isOpen={isOpen}
       onClose={onClose}
-      title={emp ? (emp.hoten || "Chi tiết nhân viên") : "Chi tiết nhân viên"}
-      subtitle={emp ? `Mã NV: ${emp.manv}` : undefined}
+      title={emp ? (emp.HO_TEN || "Chi tiết nhân viên") : "Chi tiết nhân viên"}
+      subtitle={emp ? `Mã NV: ${emp.MA_NV}` : undefined}
       icon={<User size={18} />}
       size="sm"
       footer={
@@ -84,10 +84,10 @@ export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ isOpen, onClos
         <div>
           {/* Avatar header */}
           <div style={{ display: "flex", alignItems: "center", gap: 16, background: "#f8f8f8", borderRadius: 14, padding: "16px 18px", marginBottom: 20 }}>
-            <Avatar name={emp.hoten} size="lg" />
+            <Avatar name={emp.HO_TEN} size="lg" />
             <div>
-              <p style={{ fontWeight: 700, fontSize: 16, margin: "0 0 6px" }}>{emp.hoten}</p>
-              <Badge color={ROLE_COLORS[emp.chucvu] || "gray"}>{emp.chucvu}</Badge>
+              <p style={{ fontWeight: 700, fontSize: 16, margin: "0 0 6px" }}>{emp.HO_TEN}</p>
+              <Badge color={ROLE_COLORS[emp.CHUC_VU] || "gray"}>{emp.CHUC_VU}</Badge>
             </div>
           </div>
 

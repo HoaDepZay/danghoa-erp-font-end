@@ -66,7 +66,7 @@ export const ROLE_LEVELS = {
   "Quản lý": 3,
   Admin: 4,
 };
-export const getRoleLevel = (chucvu) => ROLE_LEVELS[chucvu] || 1;
+export const getRoleLevel = (CHUC_VU) => ROLE_LEVELS[CHUC_VU] || 1;
 
 // ─── Export CSV ──────────────────────────────────────────────────────────────
 export const exportToCsv = (filename, headers, rows) => {
@@ -97,12 +97,12 @@ export const getCurrentMonthYear = () => {
   return { month: now.getMonth() + 1, year: now.getFullYear() };
 };
 
-// --- Helper: case-insensitive property lookup ---
+// --- Helper: case and underscore-insensitive property lookup ---
 export const getProp = (obj, key) => {
   if (!obj) return undefined;
-  const lowerKey = key.toLowerCase();
+  const cleanKey = key.toLowerCase().replace(/_/g, "");
   for (const k in obj) {
-    if (k.toLowerCase() === lowerKey) return obj[k];
+    if (k.toLowerCase().replace(/_/g, "") === cleanKey) return obj[k];
   }
   return undefined;
 };

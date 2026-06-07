@@ -35,7 +35,7 @@ export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, u
         const name = dept.tenpb || "";
         const colors = stringToDeptColor(name);
         return (
-          <div key={dept.maphg} className="card" style={{ transition: "box-shadow 0.15s", cursor: "pointer", background: "#fff", borderRadius: 16, padding: 16, border: "1px solid #eee" }}
+          <div key={dept.MA_PHG} className="card" style={{ transition: "box-shadow 0.15s", cursor: "pointer", background: "#fff", borderRadius: 16, padding: 16, border: "1px solid #eee" }}
             onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.1)"}
             onMouseLeave={(e) => e.currentTarget.style.boxShadow = ""}>
             <div className="card-body">
@@ -46,7 +46,7 @@ export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, u
                   </div>
                 <div>
                   <p style={{ fontWeight: 700, color: "#111", fontSize: 14, margin: 0 }}>{dept.tenpb}</p>
-                  <p style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>Mã: {dept.maphg}</p>
+                  <p style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>Mã: {dept.MA_PHG}</p>
                 </div>
               </div>
               {userLevel >= 3 && (
@@ -66,7 +66,7 @@ export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, u
             )}
 
             <button
-               onClick={(e) => { e.stopPropagation(); setModal({ type: "detail", data: dept.maphg }); }}
+               onClick={(e) => { e.stopPropagation(); setModal({ type: "detail", data: dept.MA_PHG }); }}
               style={{
                 marginTop: 14, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
                 fontSize: 12, color: "#888", background: "#f8f8f8", border: "none", borderRadius: 10, padding: "8px", cursor: "pointer",

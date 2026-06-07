@@ -6,7 +6,7 @@ import { getUserLevel } from "../../utils/user";
 export const useAdmin = (user: any) => {
   const [activeTab, setActiveTab] = useState("employees");
   const userLevel = getUserLevel(user);
-  const adminEmail = user?.email || user?.EMAIL || "";
+  const adminEmail = user?.EMAIL || user?.EMAIL || "";
 
   const [employees, setEmployees] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
@@ -77,16 +77,16 @@ export const useAdmin = (user: any) => {
   }, []);
 
   /** Duyệt hồ sơ onboarding */
-  const handleAcceptOnboarding = async (applicant: any, extra: { maphg: number; luong: number; chucvu: string }) => {
+  const handleAcceptOnboarding = async (applicant: any, extra: { MA_PHG: number; LUONG: number; CHUC_VU: string }) => {
     try {
       await api.acceptOnboarding({
-        email:      applicant.email,
+        EMAIL:      applicant.EMAIL,
         approvedBy: adminEmail,
-        maphg:      extra.maphg,
-        luong:      extra.luong,
-        chucvu:     extra.chucvu,
+        MA_PHG:      extra.MA_PHG,
+        LUONG:      extra.LUONG,
+        CHUC_VU:     extra.CHUC_VU,
       });
-      toast.success(`Đã duyệt hồ sơ của ${applicant.hoten || applicant.email}!`);
+      toast.success(`Đã duyệt hồ sơ của ${applicant.HO_TEN || applicant.EMAIL}!`);
       fetchPendingOnboarding();
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Lỗi khi duyệt hồ sơ!");
@@ -97,11 +97,11 @@ export const useAdmin = (user: any) => {
   const handleRejectOnboarding = async (applicant: any, reason: string) => {
     try {
       await api.rejectOnboarding({
-        email:      applicant.email,
+        EMAIL:      applicant.EMAIL,
         rejectedBy: adminEmail,
         reason,
       });
-      toast.success(`Đã từ chối hồ sơ của ${applicant.hoten || applicant.email}.`);
+      toast.success(`Đã từ chối hồ sơ của ${applicant.HO_TEN || applicant.EMAIL}.`);
       fetchPendingOnboarding();
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Lỗi khi từ chối hồ sơ!");
@@ -118,10 +118,10 @@ export const useAdmin = (user: any) => {
     }
   };
 
-  const handleDeleteDepartment = async (maphg: string | number, tenpb: string) => {
+  const handleDeleteDepartment = async (MA_PHG: string | number, tenpb: string) => {
     if (!window.confirm(`Xóa phòng ban "${tenpb}"?\nChỉ xóa được nếu không còn nhân viên.`)) return;
     try {
-      await api.adminDeleteDepartment(maphg);
+      await api.adminDeleteDepartment(MA_PHG);
       toast.success(`Đã xóa phòng ban "${tenpb}"!`);
       fetchDepartments();
     } catch (err: any) { toast.error(err.response?.data?.message || "Không thể xóa phòng ban!"); }

@@ -152,7 +152,7 @@ const Chat = ({ user }: { user: any }) => {
   };
   const getRoomId = (r: any) => getProp(r, 'maphong') ?? getProp(r, 'id');
   const getRoomName = (r: any) => getProp(r, 'tenphong') ?? "";
-  const getRoomType = (r: any) => getProp(r, 'loaiphong') ?? 1;
+  const getRoomType = (r: any) => getProp(r, 'LOAI_PHONG') ?? 1;
 
   // ─── Fetch room + latest message ───────────────────────────────────────────
   const fetchRooms = async () => {
@@ -581,7 +581,7 @@ const Chat = ({ user }: { user: any }) => {
                           {searchResults.length} kết quả
                         </p>
                         {searchResults.map((msg, i) => {
-                          const maNvGui = getProp(msg, 'manv_gui') ?? getProp(msg, 'manvgui') ?? getProp(msg, 'manv');
+                          const maNvGui = getProp(msg, 'manv_gui') ?? getProp(msg, 'manvgui') ?? getProp(msg, 'MA_NV');
                           const isMine = maNvGui === myMaNv;
                           const content = getProp(msg, 'noidung') ?? "";
                           const time = getProp(msg, 'thoigiangui') ?? getProp(msg, 'thoigian');
@@ -651,7 +651,7 @@ const Chat = ({ user }: { user: any }) => {
                 </div>
               ) : (
                 messages.map((msg, idx) => {
-                  const maNvGui = getProp(msg, 'manv_gui') ?? getProp(msg, 'manvgui') ?? getProp(msg, 'manv');
+                  const maNvGui = getProp(msg, 'manv_gui') ?? getProp(msg, 'manvgui') ?? getProp(msg, 'MA_NV');
                   const isMine = maNvGui === myMaNv;
                   const noiDung = getProp(msg, 'noidung') ?? "";
                   const thoiGian = getProp(msg, 'thoigiangui') ?? getProp(msg, 'thoigian');

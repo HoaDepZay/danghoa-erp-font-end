@@ -27,7 +27,7 @@ export const useProjects = (user: any) => {
   const [modal, setModal] = useState({ type: "", data: null as any });
   const [viewMode, setViewMode] = useState("all");
   const userLevel = getUserLevel(user);
-  const manv = getManv(user);
+  const MA_NV = getManv(user);
 
   // Cập nhật: Quản lý (level 3) và Admin (level 4) đều có quyền xem toàn bộ dự án
   const isAdmin = userLevel >= 3;
@@ -35,7 +35,7 @@ export const useProjects = (user: any) => {
   const fetchProjects = useCallback(async () => {
     setLoading(true);
     try {
-      const promises: Promise<any>[] = [api.getMyProjects(manv)];
+      const promises: Promise<any>[] = [api.getMyProjects(MA_NV)];
       if (isAdmin) promises.unshift(api.getProjects());
 
       const results = await Promise.allSettled(promises);
@@ -56,7 +56,7 @@ export const useProjects = (user: any) => {
     } finally {
       setLoading(false);
     }
-  }, [manv, isAdmin]);
+  }, [MA_NV, isAdmin]);
 
   useEffect(() => {
     fetchProjects();

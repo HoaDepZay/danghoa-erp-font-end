@@ -28,11 +28,11 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
       const emp = profile;
       // Chỉ kiểm tra 5 trường: Mã NV, Email, SĐT, Ngày sinh, Địa chỉ
       const isMissing =
-        !getProp(emp, 'manv') ||
-        !getProp(emp, 'email') ||
-        !getProp(emp, 'sdt') ||
-        !getProp(emp, 'ngaysinh') ||
-        !getProp(emp, 'diachinhan');
+        !getProp(emp, 'MA_NV') ||
+        !getProp(emp, 'EMAIL') ||
+        !getProp(emp, 'SDT') ||
+        !getProp(emp, 'NGAY_SINH') ||
+        !getProp(emp, 'DIA_CHI');
 
       if (isMissing) {
         setShowNotice(true);
@@ -49,21 +49,21 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
   }
 
   const emp = profile || user;
-  const name = getProp(emp, 'hoten') || getProp(emp, 'ten') || "Nhân viên";
-  const chucvu = getProp(emp, 'chucvu') || getProp(emp, 'chucVu') || getProp(emp, 'role');
+  const name = getProp(emp, 'HO_TEN') || getProp(emp, 'ten') || "Nhân viên";
+  const CHUC_VU = getProp(emp, 'CHUC_VU') || getProp(emp, 'chucVu') || getProp(emp, 'role');
 
   const infoItems = [
-    { icon: <UserCircle size={15} />, label: "Mã nhân viên", value: getProp(emp, 'manv') },
-    { icon: <Mail size={15} />, label: "Email", value: getProp(emp, 'email') },
-    { icon: <Phone size={15} />, label: "Số điện thoại", value: getProp(emp, 'sdt') },
-    { icon: <Calendar size={15} />, label: "Ngày sinh", value: formatDate(getProp(emp, 'ngaysinh')) },
-    { icon: <MapPin size={15} />, label: "Địa chỉ", value: getProp(emp, 'diachi') || getProp(emp, 'diachinhan') },
+    { icon: <UserCircle size={15} />, label: "Mã nhân viên", value: getProp(emp, 'MA_NV') },
+    { icon: <Mail size={15} />, label: "Email", value: getProp(emp, 'EMAIL') },
+    { icon: <Phone size={15} />, label: "Số điện thoại", value: getProp(emp, 'SDT') },
+    { icon: <Calendar size={15} />, label: "Ngày sinh", value: formatDate(getProp(emp, 'NGAY_SINH')) },
+    { icon: <MapPin size={15} />, label: "Địa chỉ", value: getProp(emp, 'DIA_CHI') || getProp(emp, 'DIA_CHI') },
   ];
 
   const workItems = [
     { label: "Phòng ban", value: getProp(emp, 'phongban') || getProp(emp, 'tenphongban') || getProp(emp, 'tenpb') || "Chưa cập nhật" },
-    { label: "Vị trí", value: getProp(emp, 'chucvu') || "Chưa cập nhật" },
-    { label: "Trạng thái", value: getProp(emp, 'trangthai') === 1 || getProp(emp, 'trangthai') === "Đang làm việc" ? "Đang làm việc" : "Nghỉ việc" },
+    { label: "Vị trí", value: getProp(emp, 'CHUC_VU') || "Chưa cập nhật" },
+    { label: "Trạng thái", value: getProp(emp, 'TRANG_THAI') === 1 || getProp(emp, 'TRANG_THAI') === "Đang làm việc" ? "Đang làm việc" : "Nghỉ việc" },
   ];
 
   const contractItems = [
@@ -81,7 +81,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
           <div style={{ flex: "1 1 240px", minWidth: 0 }}>
              <h2 style={{ fontSize: 22, fontWeight: 800, color: "#111", margin: 0 }}>{name}</h2>
             <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-               <Badge color={ROLE_COLORS[chucvu] || "gray"}>{chucvu}</Badge>
+               <Badge color={ROLE_COLORS[CHUC_VU] || "gray"}>{CHUC_VU}</Badge>
               {getProp(emp, 'tenpb') && (
                 <span style={{ fontSize: 13, color: "#888" }}>{getProp(emp, 'tenpb')}</span>
               )}

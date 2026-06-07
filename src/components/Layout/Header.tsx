@@ -43,8 +43,8 @@ const Header = ({ activePage, user, onToggleMenu, onNavigate }: any) => {
     if (user) {
       fetchNotifs();
       const socket = io(API_URL);
-      const maNv = user?.userInfo?.manv;
-      socket.emit("join_notification", maNv);
+      const MA_NV = user?.userInfo?.MA_NV;
+      socket.emit("join_notification", MA_NV);
       socket.on("new_notification", (notif: any) => {
         setNotifications((prev) => [notif, ...prev]);
         toast.info(notif.TieuDe || notif.tieuDe);

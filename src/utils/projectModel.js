@@ -13,17 +13,17 @@ const toNullableDate = (value) => {
 };
 
 export const CREATE_PROJECT_INITIAL_FORM = Object.freeze({
-  tenda: "",
-  mota: "",
-  ngaybatdau: "",
-  ngayketthuc: "",
-  trangthai: "Đang thực hiện",
+  TEN_DA: "",
+  MO_TA: "",
+  NGAY_BAT_DAU: "",
+  NGAY_KET_THUC: "",
+  TRANG_THAI: "Đang thực hiện",
 });
 
 export const buildCreateProjectModel = (form = {}) => ({
-  tenda: String(form.tenda ?? "").trim(),
-  mota: toNullableString(form.mota),
-  ngaybatdau: toNullableDate(form.ngaybatdau),
-  ngayketthuc: toNullableDate(form.ngayketthuc),
-  trangthai: toNullableString(form.trangthai),
+  TEN_DA: String(form.TEN_DA ?? "").trim(),
+  MO_TA: toNullableString(form.MO_TA),
+  NGAY_BAT_DAU: toNullableDate(form.NGAY_BAT_DAU),
+  NGAY_KET_THUC: toNullableDate(form.NGAY_KET_THUC),
+  TRANG_THAI: toNullableString(form.TRANG_THAI),
 });

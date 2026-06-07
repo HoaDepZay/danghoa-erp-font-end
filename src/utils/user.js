@@ -1,8 +1,8 @@
 // ─── Lấy MANV từ user object bất kể backend trả về key nào ──────────────────
-// Backend login trả: { manv, hoten, email, role }  (lowercase)
+// Backend login trả: { MA_NV, HO_TEN, EMAIL, role }  (lowercase)
 // Backend employees trả: { MANV, HOTEN, EMAIL, CHUCVU }  (UPPERCASE)
 export const getManv = (user) =>
-  user?.MANV || user?.MaNV || user?.manv || user?.ma_nv || user?.MaVN || "";
+  user?.MANV || user?.MaNV || user?.MA_NV || user?.ma_nv || user?.MaVN || "";
 
 // ─── Normalize response thành array ──────────────────────────────────────────
 export const toArray = (val) => {
@@ -20,9 +20,9 @@ export const toArray = (val) => {
 };
 
 // ─── Lấy tên hiển thị từ user object ─────────────────────────────────────────
-// Backend login: { hoten }  | Backend employees: { HOTEN }
+// Backend login: { HO_TEN }  | Backend employees: { HOTEN }
 export const getUserName = (user) =>
-  user?.HoTen || user?.HOTEN || user?.hoten || user?.name || "Nhân viên";
+  user?.HoTen || user?.HOTEN || user?.HO_TEN || user?.name || "Nhân viên";
 
 // ─── Lấy giá trị payroll theo key (uppercase hoặc camelCase) ─────────────────
 export const getPayValue = (payroll, key) => {
@@ -39,6 +39,7 @@ export const ROLE_LEVELS = {
   "Quản lý": 3,
   Admin: 4,
   admin: 4,  // lowercase từ backend login
+  "Giám đốc": 4,
 };
 
 const normalizeRole = (value) =>
@@ -46,7 +47,8 @@ const normalizeRole = (value) =>
     .trim()
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[đĐ]/g, "d");
 
 const ROLE_LEVELS_NORMALIZED = {
   "cong tac vien": 1,
@@ -54,6 +56,7 @@ const ROLE_LEVELS_NORMALIZED = {
   "nhan vien moi": 1,
   "quan ly": 3,
   admin: 4,
+  giamdoc: 4,
 };
 
 const ROLE_LABELS = {
@@ -61,6 +64,7 @@ const ROLE_LABELS = {
   "nhan vien": "Nhân viên",
   "quan ly": "Quản lý",
   admin: "Admin",
+  giamdoc: "Giám đốc",
 };
 
 export const getUserLevel = (user) => {
@@ -75,11 +79,11 @@ export const getDisplayRole = (user) => {
   return ROLE_LABELS[normalizeRole(role)] || role;
 };
 
-// ─── Lấy email từ user object ─────────────────────────────────────────────────
+// ─── Lấy EMAIL từ user object ─────────────────────────────────────────────────
 export const getUserEmail = (user) =>
-  user?.EMAIL || user?.Email || user?.email || "";
+  user?.EMAIL || user?.Email || user?.EMAIL || "";
 
 // ─── Lấy mã phòng ban từ user object ──────────────────────────────────────────
 export const getMaPhg = (user) =>
-  user?.MAPHG || user?.MaPhg || user?.maphg || user?.ma_phg || "";
+  user?.MAPHG || user?.MaPhg || user?.MA_PHG || user?.ma_phg || "";
 

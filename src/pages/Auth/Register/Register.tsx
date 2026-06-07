@@ -66,7 +66,7 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
           </div>
           <h1 style={{ ...S.title, fontSize: 22 }}>{TITLES[step]}</h1>
           {step === 1 && <p style={S.sub}>Điền thông tin để đăng ký</p>}
-          {step === 2 && <p style={S.sub}>Mã OTP gửi đến {form.email}</p>}
+          {step === 2 && <p style={S.sub}>Mã OTP gửi đến {form.EMAIL}</p>}
           {step === 3 && <p style={S.sub}>Hồ sơ đang chờ Admin xem xét</p>}
         </div>
 
@@ -79,8 +79,8 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
         )}
 
         {step === 1 && <StepInfo form={form} setForm={setForm} onNext={handleRegister} loading={loading} />}
-        {step === 2 && <StepOtp email={form.email} onVerify={handleVerify} onResend={handleResend} loading={loading} />}
-        {step === 3 && <StepPending email={form.email} onGoLogin={onSwitchToLogin} />}
+        {step === 2 && <StepOtp EMAIL={form.EMAIL} onVerify={handleVerify} onResend={handleResend} loading={loading} />}
+        {step === 3 && <StepPending EMAIL={form.EMAIL} onGoLogin={onSwitchToLogin} />}
 
         {/* Footer navigation — ẩn khi đang ở màn chờ duyệt */}
         {step < 3 && (

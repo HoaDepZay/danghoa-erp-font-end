@@ -18,7 +18,7 @@ const BANNER_CONFIG: Record<string, { icon: React.ReactNode; bg: string; border:
   PENDING_OTP: {
     icon: <AlertCircle size={16} />,
     bg: "#eff6ff", border: "#bfdbfe", color: "#1e40af",
-    text: "Vui lòng xác thực OTP trong email của bạn trước khi đăng nhập.",
+    text: "Vui lòng xác thực OTP trong EMAIL của bạn trước khi đăng nhập.",
   },
   EXPIRED: {
     icon: <ShieldOff size={16} />,
@@ -67,12 +67,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onForgotPassword,
           <User size={16} />
         </span>
         <input
-          type="email"
+          type="EMAIL"
           placeholder="Email đăng nhập"
-          value={form.email}
-          onChange={set("email")}
+          value={form.EMAIL}
+          onChange={set("EMAIL")}
           style={S.input}
-          autoComplete="email"
+          autoComplete="EMAIL"
           autoCapitalize="none"
           autoCorrect="off"
           onFocus={(e) => { e.target.style.borderColor = "#111"; e.target.style.backgroundColor = "#fff"; }}

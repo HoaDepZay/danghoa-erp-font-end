@@ -14,7 +14,7 @@ const PENDING_MESSAGES: Record<PendingStatus, string> = {
 };
 
 export const useLogin = (onLogin: (user: any) => void) => {
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ EMAIL: "", password: "" });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   // State banner hiển thị khi tài khoản chưa được duyệt
@@ -26,14 +26,14 @@ export const useLogin = (onLogin: (user: any) => void) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPendingStatus(null);
-    if (!form.email || !form.password) {
+    if (!form.EMAIL || !form.password) {
       toast.error("Vui lòng điền đầy đủ thông tin!");
       return;
     }
     setLoading(true);
     try {
-      const normalizedEmail = form.email.trim().toLowerCase();
-      const res = await api.login({ email: normalizedEmail, password: form.password });
+      const normalizedEmail = form.EMAIL.trim().toLowerCase();
+      const res = await api.login({ EMAIL: normalizedEmail, password: form.password });
       const data = res.data;
       if (data.success || data.token || data.accessToken) {
         const accToken = data.accessToken || data.token;

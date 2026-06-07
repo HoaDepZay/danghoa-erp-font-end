@@ -31,8 +31,8 @@ export const PayrollTable: React.FC<PayrollTableProps> = ({ loading, payroll, to
             <SkeletonRows cols={9} rows={8} />
           ) : (
             payroll.map((r, idx) => (
-              <tr key={r.manv ?? idx}>
-                <td style={{ fontWeight: 600, fontSize: 12 }}>{r.manv}</td>
+              <tr key={r.MA_NV ?? idx}>
+                <td style={{ fontWeight: 600, fontSize: 12 }}>{r.MA_NV}</td>
                 <td style={{ color: "#888" }}>
                   {r.thang}/{r.nam}
                 </td>

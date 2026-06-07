@@ -43,20 +43,20 @@ const EmployeeProfile: React.FC<EmployeeProfileProps> = ({ user, onLogout }) => 
           <div className="grid gap-6 md:grid-cols-3 animate-in fade-in duration-500">
             <div className="col-span-2 rounded-[2.5rem] bg-white p-8 shadow-sm border border-slate-100 flex items-center gap-8">
               <div className="h-32 w-32 rounded-3xl bg-gradient-to-tr from-red-600 to-yellow-500 text-4xl font-black text-white flex items-center justify-center">
-                {profile.hoten?.split(" ").pop()?.charAt(0) || "U"}
+                {profile.HO_TEN?.split(" ").pop()?.charAt(0) || "U"}
               </div>
               <div>
-                <h1 className="text-3xl font-black">{profile.hoten}</h1>
+                <h1 className="text-3xl font-black">{profile.HO_TEN}</h1>
                 <p className="text-lg font-medium text-red-500 uppercase tracking-tighter">{user.chuc_vu}</p>
                 <p className="text-slate-400 font-bold">{profile.tenpb}</p>
               </div>
             </div>
             <Card title="Thao tác nhanh" icon={<Activity className="text-red-600" size={20} />}>
               <div className="space-y-3">
-                <InfoItem label="Mã NV" value={profile.manv} />
-                <InfoItem label="Email" value={profile.email} />
+                <InfoItem label="Mã NV" value={profile.MA_NV} />
+                <InfoItem label="Email" value={profile.EMAIL} />
                 <div className="pt-4 flex gap-2">
-                  <button onClick={() => setModal({ isOpen: true, type: "self_edit", data: { email: profile.email } })} className="flex-1 rounded-xl bg-slate-900 py-3 text-[10px] font-black text-white">SỬA EMAIL</button>
+                  <button onClick={() => setModal({ isOpen: true, type: "self_edit", data: { EMAIL: profile.EMAIL } })} className="flex-1 rounded-xl bg-slate-900 py-3 text-[10px] font-black text-white">SỬA EMAIL</button>
                   <button onClick={() => setModal({ isOpen: true, type: "pass_edit", data: {} })} className="text-blue-50 flex-1 rounded-xl border border-slate-200 py-3 text-[10px] font-black">ĐỔI PASS</button>
                 </div>
               </div>
@@ -82,14 +82,14 @@ const EmployeeProfile: React.FC<EmployeeProfileProps> = ({ user, onLogout }) => 
             </div>
             <div className="grid gap-4 md:grid-cols-3 animate-in slide-in-from-right-4">
               {coworkers?.map((member) => (
-                <div key={member.manv} className="rounded-3xl bg-white p-5 border border-slate-100 flex items-center justify-between">
+                <div key={member.MA_NV} className="rounded-3xl bg-white p-5 border border-slate-100 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold">
-                      {member.hoten?.charAt(0) || "U"}
+                      {member.HO_TEN?.charAt(0) || "U"}
                     </div>
                     <div>
-                      <p className="font-bold text-sm">{member.hoten}</p>
-                      <p className="text-[10px] uppercase font-black text-slate-400">{member.chucvu}</p>
+                      <p className="font-bold text-sm">{member.HO_TEN}</p>
+                      <p className="text-[10px] uppercase font-black text-slate-400">{member.CHUC_VU}</p>
                     </div>
                   </div>
                   <button onClick={() => guard(3, () => setModal({ isOpen: true, type: "admin_edit", data: member }))} className="p-2 text-slate-300 hover:text-red-600"><Edit3 size={16} /></button>
@@ -126,11 +126,11 @@ const EmployeeProfile: React.FC<EmployeeProfileProps> = ({ user, onLogout }) => 
                   </thead>
                   <tbody>
                     {coworkers?.map((member) => (
-                      <tr key={member.manv} className="border-t border-slate-50">
-                        <td className="p-4 font-bold text-xs">{member.manv}</td>
-                        <td className="p-4 font-bold">{member.hoten}</td>
-                        <td className="p-4 text-xs uppercase">{member.chucvu}</td>
-                        <td className="p-4 text-sm">{member.maphg}</td>
+                      <tr key={member.MA_NV} className="border-t border-slate-50">
+                        <td className="p-4 font-bold text-xs">{member.MA_NV}</td>
+                        <td className="p-4 font-bold">{member.HO_TEN}</td>
+                        <td className="p-4 text-xs uppercase">{member.CHUC_VU}</td>
+                        <td className="p-4 text-sm">{member.MA_PHG}</td>
                         <td className="p-4">
                           <button onClick={() => guard(3, () => setModal({ isOpen: true, type: "admin_edit", data: member }))} className="text-blue-400 hover:text-blue-600"><Edit3 size={16} /></button>
                         </td>
@@ -151,7 +151,7 @@ const EmployeeProfile: React.FC<EmployeeProfileProps> = ({ user, onLogout }) => 
                   <tbody>
                     {myProjects.map((p, i) => (
                       <tr key={i} className="border-t border-slate-50">
-                        <td className="p-4 font-bold">{p.tenda}</td>
+                        <td className="p-4 font-bold">{p.TEN_DA}</td>
                         <td className="p-4">{p.thoigian} giờ</td>
                         <td className="p-4"><button className="text-red-300 hover:text-red-600"><Trash2 size={16} /></button></td>
                       </tr>
@@ -185,12 +185,12 @@ const EmployeeProfile: React.FC<EmployeeProfileProps> = ({ user, onLogout }) => 
                 </thead>
                 <tbody>
                   {departments.map((dept) => (
-                    <tr key={dept.maphg} className="border-t border-slate-50">
-                      <td className="p-4 font-bold text-xs">{dept.maphg}</td>
+                    <tr key={dept.MA_PHG} className="border-t border-slate-50">
+                      <td className="p-4 font-bold text-xs">{dept.MA_PHG}</td>
                       <td className="p-4 font-bold">{dept.tenpb}</td>
                      <td className="p-4 flex gap-2">
-                        <button onClick={() => guard(3, () => setModal({ isOpen: true, type: "dept_edit", data: { maphg: dept.maphg, tenpb: dept.tenpb } }))} className="text-blue-400 hover:text-blue-600"><Edit3 size={16} /></button>
-                        <button onClick={() => guard(3, () => handlers.handleDeleteDepartment(dept.maphg))} className="text-red-300 hover:text-red-600"><Trash2 size={16} /></button>
+                        <button onClick={() => guard(3, () => setModal({ isOpen: true, type: "dept_edit", data: { MA_PHG: dept.MA_PHG, tenpb: dept.tenpb } }))} className="text-blue-400 hover:text-blue-600"><Edit3 size={16} /></button>
+                        <button onClick={() => guard(3, () => handlers.handleDeleteDepartment(dept.MA_PHG))} className="text-red-300 hover:text-red-600"><Trash2 size={16} /></button>
                       </td>
                     </tr>
                   ))}

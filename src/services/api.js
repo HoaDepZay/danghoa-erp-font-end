@@ -139,13 +139,13 @@ axiosInstance.interceptors.response.use(
 
 export const api = {
   // ───── AUTH ─────────────────────────────────────────────────────────────────
-  // POST /api/auth/register       { email, password, manv, username, ... }
+  // POST /api/auth/register       { EMAIL, password, MA_NV, username, ... }
   register: (data) => axiosInstance.post("/auth/register", data),
 
-  // POST /api/auth/verify-otp     { email, otpCode }
+  // POST /api/auth/verify-otp     { EMAIL, otpCode }
   verifyOtp: (data) => axiosInstance.post("/auth/verify-otp", data),
 
-  // POST /api/auth/login          { email, password }
+  // POST /api/auth/login          { EMAIL, password }
   login: (data) => axiosInstance.post("/auth/login", data),
 
   // POST /api/auth/refresh-token  { refreshToken }
@@ -154,10 +154,10 @@ export const api = {
   // POST /api/auth/logout
   logout: () => axiosInstance.post("/auth/logout"),
 
-  // PUT  /api/auth/change-password { email, oldPassword, newPassword }
+  // PUT  /api/auth/change-password { EMAIL, oldPassword, newPassword }
   changePassword: (data) => axiosInstance.put("/auth/change-password", data),
 
-  // PUT  /api/auth/update-profile  { email, ...fields }
+  // PUT  /api/auth/update-profile  { EMAIL, ...fields }
   updateProfile: (data) => axiosInstance.put("/auth/update-profile", data),
 
   // (legacy alias – giữ để không break ForgotPassword.jsx)
@@ -166,7 +166,7 @@ export const api = {
   // GET  /api/dashboard/realtime
   getDashboardRealtime: () => axiosInstance.get("/dashboard/realtime"),
 
-  // POST /api/auth/reset-password  { email, otpCode, newPassword }
+  // POST /api/auth/reset-password  { EMAIL, otpCode, newPassword }
   resetPassword: (data) => axiosInstance.post("/auth/reset-password", data),
 
   // ───── EMPLOYEES ─────────────────────────────────────────────────────────────
@@ -185,16 +185,16 @@ export const api = {
   // DELETE /api/employees/:id
   deleteEmployee: (id) => axiosInstance.delete(`/employees/${id}`),
 
-  // GET  /api/employees/:manv   (cần Token)
-  getProfile: (manv) => axiosInstance.get(`/employees/${manv}`),
+  // GET  /api/employees/:MA_NV   (cần Token)
+  getProfile: (MA_NV) => axiosInstance.get(`/employees/${MA_NV}`),
 
   // GET  /api/projects/employee/:id  — dự án của một nhân viên
-  getMyProjects: (manv) => axiosInstance.get(`/projects/employee/${manv}`),
+  getMyProjects: (MA_NV) => axiosInstance.get(`/projects/employee/${MA_NV}`),
 
-  // GET  /api/employees/coworkers/:maphg  (cần Token)
-  getCoworkers: (maphg) => axiosInstance.get(`/employees/coworkers/${maphg}`),
+  // GET  /api/employees/coworkers/:MA_PHG  (cần Token)
+  getCoworkers: (MA_PHG) => axiosInstance.get(`/employees/coworkers/${MA_PHG}`),
 
-  // PUT  /api/employees/update-info       { email, ... }
+  // PUT  /api/employees/update-info       { EMAIL, ... }
   updateEmployeeInfo: (data) =>
     axiosInstance.put("/employees/update-info", data),
 
@@ -203,21 +203,21 @@ export const api = {
   getPendingOnboarding: () =>
     axiosInstance.get("/admin/onboarding/pending"),
 
-  // POST /api/admin/onboarding/accept   { email, approvedBy, maphg, luong, chucvu }
+  // POST /api/admin/onboarding/accept   { EMAIL, approvedBy, MA_PHG, LUONG, CHUC_VU }
   acceptOnboarding: (data) =>
     axiosInstance.post("/admin/onboarding/accept", data),
 
-  // POST /api/admin/onboarding/reject   { email, rejectedBy, reason }
+  // POST /api/admin/onboarding/reject   { EMAIL, rejectedBy, reason }
   rejectOnboarding: (data) =>
     axiosInstance.post("/admin/onboarding/reject", data),
 
-  // PUT  /api/admin/nhan-vien/edit  { manv, hoten, maphg, luong, chucvu }
+  // PUT  /api/admin/nhan-vien/edit  { MA_NV, HO_TEN, MA_PHG, LUONG, CHUC_VU }
   adminUpdateEmployee: (data) =>
     axiosInstance.put("/admin/nhan-vien/edit", data),
 
-  // DELETE /api/admin/nhan-vien/:manv
-  adminDeleteEmployee: (manv) =>
-    axiosInstance.delete(`/admin/nhan-vien/${manv}`),
+  // DELETE /api/admin/nhan-vien/:MA_NV
+  adminDeleteEmployee: (MA_NV) =>
+    axiosInstance.delete(`/admin/nhan-vien/${MA_NV}`),
 
   // GET  /api/admin/phong-ban
   adminGetDepartments: () => axiosInstance.get("/admin/phong-ban"),
@@ -226,13 +226,13 @@ export const api = {
   adminCreateDepartment: (data) =>
     axiosInstance.post("/admin/phong-ban/create", data),
 
-  // PUT  /api/admin/phong-ban/edit     { maphg, tenpb }
+  // PUT  /api/admin/phong-ban/edit     { MA_PHG, tenpb }
   adminUpdateDepartment: (data) =>
     axiosInstance.put("/admin/phong-ban/edit", data),
 
-  // DELETE /api/admin/phong-ban/:maphg
-  adminDeleteDepartment: (maphg) =>
-    axiosInstance.delete(`/admin/phong-ban/${maphg}`),
+  // DELETE /api/admin/phong-ban/:MA_PHG
+  adminDeleteDepartment: (MA_PHG) =>
+    axiosInstance.delete(`/admin/phong-ban/${MA_PHG}`),
 
   // ───── DEPARTMENTS ───────────────────────────────────────────────────────────
   // GET  /api/departments  → { success, data: [{ MAPHG, TENPB, NG_THANHLAP, MaTruongPhg, TenTruongPhong }] }
@@ -241,7 +241,7 @@ export const api = {
   // GET  /api/departments/:id  → { success, data: { ...dept, nhanVien: [] } }
   getDepartment: (id) => axiosInstance.get(`/departments/${id}`),
 
-  // POST /api/departments  body: { maphg?, tenpb, matruongphg?, ng_thanhlap? }
+  // POST /api/departments  body: { MA_PHG?, tenpb, matruongphg?, ng_thanhlap? }
   createDepartment: (data) => axiosInstance.post("/departments", data),
 
   // PUT  /api/departments/:id  body: { tenpb?, matruongphg? }
@@ -269,7 +269,7 @@ export const api = {
   // GET  /api/projects/employee/:id
   getMyProjects: (id) => axiosInstance.get(`/projects/employee/${id}`),
 
-  // POST /api/projects/:id/members   { manv, vaitroduan }
+  // POST /api/projects/:id/members   { MA_NV, VAI_TRO_DU_AN }
   addProjectMember: (id, data) =>
     axiosInstance.post(`/projects/${id}/members`, data),
 
@@ -346,7 +346,7 @@ export const api = {
   // POST /api/chat/groups body: { tenPhong, memberIds }
   createChatGroup: (data) => axiosInstance.post("/chat/groups", data),
 
-  // POST /api/chat/groups/:roomId/members body: { maNv }
+  // POST /api/chat/groups/:roomId/members body: { MA_NV }
   addChatGroupMember: (roomId, data) =>
     axiosInstance.post(`/chat/groups/${roomId}/members`, data),
 
@@ -398,7 +398,7 @@ export const api = {
   markAsRead: (id) => axiosInstance.put(`/notifications/${id}/read`),
 
   // --- TIMESHEET (PHASE 4) ---
-  getProjectTimesheets: (maDa) => axiosInstance.get(`/timesheet/${maDa}`),
+  getProjectTimesheets: (MA_DA) => axiosInstance.get(`/timesheet/${MA_DA}`),
   logTimesheet: (data) => axiosInstance.post("/timesheet", data),
   approveTimesheet: (id, data) => axiosInstance.patch(`/timesheet/${id}/approve`, data),
   uploadFile: (formData) => axiosInstance.post("/chat/upload", formData, { headers: { 'Content-Type': 'multipart/form-data' } }),

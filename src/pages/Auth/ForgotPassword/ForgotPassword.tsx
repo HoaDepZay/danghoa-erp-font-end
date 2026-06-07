@@ -18,7 +18,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
   const {
     step,
     setStep,
-    email,
+    EMAIL,
     setEmail,
     otp,
     setOtp,
@@ -108,7 +108,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
     },
     subtitle: { fontSize: 13, color: "#999", marginTop: 4 },
 
-    // Step bar: 2 thanh (email → reset)
+    // Step bar: 2 thanh (EMAIL → reset)
     stepBar: { display: "flex", gap: 6, marginBottom: 28 },
     stepDot: (active: boolean, done: boolean): React.CSSProperties => ({
       flex: 1,
@@ -310,7 +310,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
           </div>
         )}
 
-        {/* ── BƯỚC 1: Nhập email ───────────────────────────────────────── */}
+        {/* ── BƯỚC 1: Nhập EMAIL ───────────────────────────────────────── */}
         {step === STEP.EMAIL && (
           <>
             <button style={S.backBtn} onClick={onBack}>
@@ -318,7 +318,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
             </button>
             <form onSubmit={handleSendEmail} style={S.fields}>
               <p style={S.hint}>
-                Nhập địa chỉ email đã đăng ký. Hệ thống sẽ gửi mã OTP để đặt lại
+                Nhập địa chỉ EMAIL đã đăng ký. Hệ thống sẽ gửi mã OTP để đặt lại
                 mật khẩu.
               </p>
               <div style={S.fieldWrap}>
@@ -326,12 +326,12 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
                   <Mail size={16} />
                 </span>
                 <input
-                  type="email"
-                  placeholder="Địa chỉ email của bạn"
-                  value={email}
+                  type="EMAIL"
+                  placeholder="Địa chỉ EMAIL của bạn"
+                  value={EMAIL}
                   onChange={(e) => setEmail(e.target.value)}
                   style={S.input}
-                  autoComplete="email"
+                  autoComplete="EMAIL"
                   autoFocus
                   onFocus={focusBorder}
                   onBlur={blurBorder}
@@ -353,12 +353,12 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
         {step === STEP.RESET && (
           <>
             <button style={S.backBtn} onClick={() => setStep(STEP.EMAIL)}>
-              <ArrowLeft size={14} /> Thay đổi email
+              <ArrowLeft size={14} /> Thay đổi EMAIL
             </button>
             <form onSubmit={handleResetPassword} style={S.fields}>
-              {/* Banner email */}
+              {/* Banner EMAIL */}
               <p style={S.hint}>
-                Mã OTP đã được gửi đến <span style={S.hintEmail}>{email}</span>.
+                Mã OTP đã được gửi đến <span style={S.hintEmail}>{EMAIL}</span>.
                 <br />
                 Vui lòng kiểm tra hộp thư (kể cả mục SPAM).
               </p>

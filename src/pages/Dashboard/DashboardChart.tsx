@@ -152,18 +152,18 @@ export const DashboardChart: React.FC<DashboardChartProps> = ({
         ) : (
           <div>
             {myProjects.slice(0, 5).map((p, i) => {
-              const mada = getProp(p, 'mada') ?? getProp(p, 'id') ?? i;
-              const tenda = getProp(p, 'tenda') ?? getProp(p, 'ten') ?? "Dự án";
-              const vaiTro = getProp(p, 'vaitroduan') ?? getProp(p, 'vaitro') ?? "Thành viên";
+              const MA_DA = getProp(p, 'MA_DA') ?? getProp(p, 'id') ?? i;
+              const TEN_DA = getProp(p, 'TEN_DA') ?? getProp(p, 'ten') ?? "Dự án";
+              const vaiTro = getProp(p, 'VAI_TRO_DU_AN') ?? getProp(p, 'vaitro') ?? "Thành viên";
               const thoiGian = getProp(p, 'thoigian') ?? 0;
               return (
-              <div key={mada} style={{
+              <div key={MA_DA} style={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
                 padding: "11px 0",
                 borderBottom: i < Math.min(myProjects.length, 5) - 1 ? "1px solid #f5f5f5" : "none",
               }}>
                 <div>
-                  <p style={{ fontWeight: 600, fontSize: 13, margin: 0 }}>{tenda}</p>
+                  <p style={{ fontWeight: 600, fontSize: 13, margin: 0 }}>{TEN_DA}</p>
                   <p style={{ fontSize: 11, color: "#999", margin: "2px 0 0" }}>{vaiTro}</p>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#aaa", fontSize: 12 }}>

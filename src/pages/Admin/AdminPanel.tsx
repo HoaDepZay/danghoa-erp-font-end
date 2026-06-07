@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { AlertTriangle, Edit3, Trash2, Users, Building2, Plus, CheckCircle, XCircle, Clock, UserCheck } from "lucide-react";
 import { api } from "../../services/api";
-import { toast } from "../../utils/helpers";
+import { toast, getProp } from "../../utils/helpers";
 import { Btn, Badge, Card, SkeletonRows, EmptyState, Avatar, FormField } from "../../components/UI/index";
 import Modal from "../../components/UI/Modal";
 import { DeptDetailModal } from "../Department/DepartmentModal";
@@ -10,17 +10,17 @@ interface AdminEditEmpModalProps {
   isOpen: boolean; onClose: () => void; editData: any; departments: any[]; onSuccess: () => void;
 }
 export const AdminEditEmpModal: React.FC<AdminEditEmpModalProps> = ({ isOpen, onClose, editData, departments, onSuccess }) => {
-  const [form, setForm] = useState({ manv: "", hoten: "", maphg: "", luong: "", chucvu: "" });
+  const [form, setForm] = useState({ MA_NV: "", HO_TEN: "", MA_PHG: "", LUONG: "", CHUC_VU: "" });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (editData) {
       setForm({
-        manv:   editData.manv  || "",
-        hoten:  editData.hoten || "",
-        maphg:  editData.maphg || "",
-        luong:  editData.luong || "",
-        chucvu: editData.chucvu || "Nhân viên",
+        MA_NV:   editData.MA_NV  || "",
+        HO_TEN:  editData.HO_TEN || "",
+        MA_PHG:  editData.MA_PHG || "",
+        LUONG:  editData.LUONG || "",
+        CHUC_VU: editData.CHUC_VU || "Nhân viên",
       });
     }
   }, [editData, isOpen]);
@@ -28,14 +28,14 @@ export const AdminEditEmpModal: React.FC<AdminEditEmpModalProps> = ({ isOpen, on
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const handleSubmit = async () => {
-    if (!form.manv || !form.hoten) return toast.error("Mã NV và Họ tên không được trống!");
+    if (!form.MA_NV || !form.HO_TEN) return toast.error("Mã NV và Họ tên không được trống!");
     setLoading(true);
     try {
       await api.adminUpdateEmployee({
-         manv: form.manv, hoten: form.hoten,
-        maphg: form.maphg ? Number(form.maphg) : undefined,
-        luong: form.luong ? Number(form.luong) : undefined,
-        chucvu: form.chucvu,
+         MA_NV: form.MA_NV, HO_TEN: form.HO_TEN,
+        MA_PHG: form.MA_PHG ? Number(form.MA_PHG) : undefined,
+        LUONG: form.LUONG ? Number(form.LUONG) : undefined,
+        CHUC_VU: form.CHUC_VU,
       });
       toast.success("Cập nhật nhân viên thành công!");
       onSuccess(); onClose();
@@ -49,27 +49,27 @@ export const AdminEditEmpModal: React.FC<AdminEditEmpModalProps> = ({ isOpen, on
       footer={<><Btn variant="secondary" onClick={onClose}>Hủy</Btn><Btn loading={loading} onClick={handleSubmit}>Lưu thay đổi</Btn></>}>
       <div className="grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         <FormField label="Mã nhân viên">
-           <input className="form-input" value={form.manv} readOnly />
+           <input className="form-input" value={form.MA_NV} readOnly />
         </FormField>
          <FormField label="Họ và tên *">
-          <input className="form-input" placeholder="Nguyễn Văn A" value={form.hoten} onChange={set("hoten")} />
+          <input className="form-input" placeholder="Nguyễn Văn A" value={form.HO_TEN} onChange={set("HO_TEN")} />
         </FormField>
          <FormField label="Chức vụ">
-          <select className="form-input" value={form.chucvu} onChange={set("chucvu")}>
+          <select className="form-input" value={form.CHUC_VU} onChange={set("CHUC_VU")}>
              <option>Cộng tác viên</option><option>Nhân viên</option><option>Quản lý</option><option>Admin</option>
           </select>
         </FormField>
         <FormField label="Phòng ban">
-           <select className="form-input" value={form.maphg} onChange={set("maphg")}>
+           <select className="form-input" value={form.MA_PHG} onChange={set("MA_PHG")}>
             <option value="">— Chưa chọn —</option>
             {departments.map((d: any) => (
-               <option key={d.maphg} value={d.maphg}>{d.tenpb}</option>
+               <option key={d.MA_PHG} value={d.MA_PHG}>{getProp(d, 'tenpb')}</option>
             ))}
           </select>
         </FormField>
         <div style={{ gridColumn: "1 / -1" }}>
            <FormField label="Lương cơ bản (VNĐ)">
-            <input className="form-input" type="number" placeholder="5000000" value={form.luong} onChange={set("luong")} />
+            <input className="form-input" type="number" placeholder="5000000" value={form.LUONG} onChange={set("LUONG")} />
           </FormField>
         </div>
       </div>
@@ -82,17 +82,17 @@ interface AdminDeptModalProps {
 }
 export const AdminDeptModal: React.FC<AdminDeptModalProps> = ({ isOpen, onClose, editData, employees, onSuccess }) => {
   const isEdit = !!editData;
-  const [form, setForm] = useState({ tenpb: "", maphg: "", matruongphg: "" });
+  const [form, setForm] = useState({ tenpb: "", MA_PHG: "", matruongphg: "" });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setForm(editData
       ? { 
-          tenpb: editData.tenpb || "", 
-          maphg: editData.maphg || "",
+          tenpb: getProp(editData, 'tenpb') || "", 
+          MA_PHG: editData.MA_PHG || "",
           matruongphg: editData.matruongphg || ""
         }
-      : { tenpb: "", maphg: "", matruongphg: "" }
+      : { tenpb: "", MA_PHG: "", matruongphg: "" }
     );
   }, [editData, isOpen]);
 
@@ -105,7 +105,7 @@ export const AdminDeptModal: React.FC<AdminDeptModalProps> = ({ isOpen, onClose,
         matruongphg: form.matruongphg || undefined 
       };
       if (isEdit) {
-        await api.adminUpdateDepartment({ maphg: form.maphg, ...payload });
+        await api.adminUpdateDepartment({ MA_PHG: form.MA_PHG, ...payload });
         toast.success("Cập nhật phòng ban thành công!");
       } else {
         await api.adminCreateDepartment(payload);
@@ -133,8 +133,8 @@ export const AdminDeptModal: React.FC<AdminDeptModalProps> = ({ isOpen, onClose,
           >
             <option value="">— Chưa chọn —</option>
             {employees.map((emp) => (
-              <option key={emp.manv} value={emp.manv}>
-                {emp.hoten} ({emp.manv})
+              <option key={emp.MA_NV} value={emp.MA_NV}>
+                {emp.HO_TEN} ({emp.MA_NV})
               </option>
             ))}
           </select>
@@ -142,7 +142,7 @@ export const AdminDeptModal: React.FC<AdminDeptModalProps> = ({ isOpen, onClose,
         {isEdit && (
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 10, fontSize: 12, color: "#92400e" }}>
             <AlertTriangle size={14} />
-             <span>Mã phòng ban: <strong>{form.maphg}</strong> — không thể thay đổi</span>
+             <span>Mã phòng ban: <strong>{form.MA_PHG}</strong> — không thể thay đổi</span>
           </div>
         )}
       </div>
@@ -174,23 +174,23 @@ export const AdminEmployeeTab: React.FC<{ adminData: any }> = ({ adminData }) =>
                  <tr><td colSpan={6}><EmptyState icon={<Users size={40} />} title="Không có nhân viên" /></td></tr>
               ) : (
                 employees.map((emp: any) => (
-                  <tr key={emp.manv}>
+                  <tr key={emp.MA_NV}>
                      <td>
                       <span style={{ fontWeight: 600, fontSize: 11, background: "#f0f0f0", padding: "3px 8px", borderRadius: 5 }}>
-                        {emp.manv}
+                        {emp.MA_NV}
                       </span>
                     </td>
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <Avatar name={emp.hoten} size="sm" />
-                         <span style={{ fontWeight: 600 }}>{emp.hoten}</span>
+                        <Avatar name={emp.HO_TEN} size="sm" />
+                         <span style={{ fontWeight: 600 }}>{emp.HO_TEN}</span>
                       </div>
                     </td>
-                    <td><Badge color={ROLE_COLORS[emp.chucvu] || "gray"}>{emp.chucvu}</Badge></td>
-                    <td style={{ color: "#666" }}>{emp.tenpb || "—"}</td>
+                    <td><Badge color={ROLE_COLORS[emp.CHUC_VU] || "gray"}>{emp.CHUC_VU}</Badge></td>
+                    <td style={{ color: "#666" }}>{getProp(emp, 'tenpb') || "—"}</td>
                      <td style={{ fontSize: 12, color: "#555" }}>
-                      {emp.luong
-                         ? `${Number(emp.luong).toLocaleString("vi-VN")} đ`
+                      {emp.LUONG
+                         ? `${Number(emp.LUONG).toLocaleString("vi-VN")} đ`
                         : "—"}
                     </td>
                     <td>
@@ -222,7 +222,7 @@ export const AdminEmployeeTab: React.FC<{ adminData: any }> = ({ adminData }) =>
         onClose={() => setModal({ type: "", data: null })} 
         title="Xác nhận xóa nhân viên"
         footer={<><Btn variant="secondary" onClick={() => setModal({ type: "", data: null })}>Hủy</Btn><Btn variant="danger" onClick={async () => {
-          await handleDeleteEmployee(modal.data.manv);
+          await handleDeleteEmployee(modal.data.MA_NV);
           setModal({ type: "", data: null });
         }}>Xác nhận xóa</Btn></>}
       >
@@ -233,7 +233,7 @@ export const AdminEmployeeTab: React.FC<{ adminData: any }> = ({ adminData }) =>
           <div style={{ textAlign: "center" }}>
             <p style={{ margin: "0 0 8px 0", fontWeight: 600, fontSize: 16 }}>Bạn có chắc chắn muốn xóa nhân viên này?</p>
             <p style={{ margin: 0, color: "#666", fontSize: 14 }}>
-              Hành động này sẽ xóa vĩnh viễn nhân viên <strong style={{ color: "#111" }}>{modal.data?.hoten}</strong> ({modal.data?.manv}) khỏi hệ thống. Thao tác này không thể hoàn tác!
+              Hành động này sẽ xóa vĩnh viễn nhân viên <strong style={{ color: "#111" }}>{modal.data?.HO_TEN}</strong> ({modal.data?.MA_NV}) khỏi hệ thống. Thao tác này không thể hoàn tác!
             </p>
           </div>
         </div>
@@ -267,14 +267,14 @@ export const AdminDepartmentTab: React.FC<{ adminData: any }> = ({ adminData }) 
              <thead><tr><th>Mã PB</th><th>Tên phòng ban</th><th>Trưởng phòng</th><th style={{ width: 140 }}>Thao tác</th></tr></thead>
             <tbody>
               {departments.map((dept: any) => (
-                   <tr key={dept.maphg} 
-                      onClick={() => setModal({ type: "detailDept", data: dept.maphg })}
+                   <tr key={dept.MA_PHG} 
+                      onClick={() => setModal({ type: "detailDept", data: dept.MA_PHG })}
                       style={{ cursor: "pointer" }}
                       className="hover:bg-gray-50 transition-colors"
                   >
                    <td>
                      <span style={{ fontWeight: 600, fontSize: 11, background: "#f0f0f0", padding: "3px 8px", borderRadius: 5 }}>
-                       {dept.maphg}
+                       {dept.MA_PHG}
                      </span>
                    </td>
                    <td>
@@ -282,7 +282,7 @@ export const AdminDepartmentTab: React.FC<{ adminData: any }> = ({ adminData }) 
                         <div style={{ width: 32, height: 32, background: "#111", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
                          <Building2 size={14} color="#fff" />
                        </div>
-                       <span style={{ fontWeight: 600 }}>{dept.tenpb}</span>
+                       <span style={{ fontWeight: 600 }}>{getProp(dept, 'tenpb')}</span>
                      </div>
                    </td>
                    <td style={{ fontSize: 13, color: "#666" }}>
@@ -294,7 +294,7 @@ export const AdminDepartmentTab: React.FC<{ adminData: any }> = ({ adminData }) 
                          style={{ fontSize: 12, color: "#666", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
                         <Edit3 size={12} /> Sửa
                       </button>
-                       <button onClick={(e) => { e.stopPropagation(); handleDeleteDepartment(dept.maphg, dept.tenpb); }}
+                       <button onClick={(e) => { e.stopPropagation(); handleDeleteDepartment(dept.MA_PHG, getProp(dept, 'tenpb')); }}
                         style={{ fontSize: 12, color: "#f87171", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
                         <Trash2 size={12} /> Xóa
                       </button>
@@ -335,31 +335,31 @@ interface AcceptOnboardingModalProps {
   onClose: () => void;
   applicant: any;
   departments: any[];
-  onAccept: (applicant: any, extra: { maphg: number; luong: number; chucvu: string }) => Promise<void>;
+  onAccept: (applicant: any, extra: { MA_PHG: number; LUONG: number; CHUC_VU: string }) => Promise<void>;
 }
 
 export const AcceptOnboardingModal: React.FC<AcceptOnboardingModalProps> = ({ isOpen, onClose, applicant, departments, onAccept }) => {
-  const [form, setForm] = useState({ maphg: "", luong: "", chucvu: "Nhân viên" });
+  const [form, setForm] = useState({ MA_PHG: "", LUONG: "", CHUC_VU: "Nhân viên" });
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => { if (isOpen) setForm({ maphg: "", luong: "", chucvu: "Nhân viên" }); }, [isOpen]);
+  useEffect(() => { if (isOpen) setForm({ MA_PHG: "", LUONG: "", CHUC_VU: "Nhân viên" }); }, [isOpen]);
 
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const handleSubmit = async () => {
-    if (!form.maphg) return toast.error("Vui lòng chọn phòng ban!");
-    if (!form.luong || Number(form.luong) <= 0) return toast.error("Vui lòng nhập mức lương hợp lệ!");
+    if (!form.MA_PHG) return toast.error("Vui lòng chọn phòng ban!");
+    if (!form.LUONG || Number(form.LUONG) <= 0) return toast.error("Vui lòng nhập mức lương hợp lệ!");
     setLoading(true);
     try {
-      await onAccept(applicant, { maphg: Number(form.maphg), luong: Number(form.luong), chucvu: form.chucvu });
+      await onAccept(applicant, { MA_PHG: Number(form.MA_PHG), LUONG: Number(form.LUONG), CHUC_VU: form.CHUC_VU });
       onClose();
     } finally { setLoading(false); }
   };
 
   if (!isOpen || !applicant) return null;
-  const name = applicant.hoten || applicant.email || "???";
-  const email = applicant.email || "";
+  const name = applicant.HO_TEN || applicant.EMAIL || "???";
+  const EMAIL = applicant.EMAIL || "";
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Duyệt hồ sơ ứng viên"
@@ -371,27 +371,27 @@ export const AcceptOnboardingModal: React.FC<AcceptOnboardingModalProps> = ({ is
         </div>
         <div>
           <p style={{ fontWeight: 700, fontSize: 14, color: "#111", margin: 0 }}>{name}</p>
-          <p style={{ fontSize: 12, color: "#15803d", margin: 0 }}>{email}</p>
+          <p style={{ fontSize: 12, color: "#15803d", margin: 0 }}>{EMAIL}</p>
         </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         <FormField label="Chức vụ">
-          <select className="form-input" value={form.chucvu} onChange={set("chucvu")}>
+          <select className="form-input" value={form.CHUC_VU} onChange={set("CHUC_VU")}>
             <option>Cộng tác viên</option><option>Nhân viên</option><option>Quản lý</option><option>Admin</option>
           </select>
         </FormField>
         <FormField label="Phòng ban *">
-          <select className="form-input" value={form.maphg} onChange={set("maphg")}>
+          <select className="form-input" value={form.MA_PHG} onChange={set("MA_PHG")}>
             <option value="">— Chọn phòng ban —</option>
             {departments.map((d: any) => (
-              <option key={d.maphg} value={d.maphg}>{d.tenpb}</option>
+              <option key={d.MA_PHG} value={d.MA_PHG}>{getProp(d, 'tenpb')}</option>
             ))}
           </select>
         </FormField>
         <div style={{ gridColumn: "1 / -1" }}>
           <FormField label="Lương cơ bản (VNĐ) *">
-            <input className="form-input" type="number" placeholder="VD: 12000000" value={form.luong} onChange={set("luong")} />
+            <input className="form-input" type="number" placeholder="VD: 12000000" value={form.LUONG} onChange={set("LUONG")} />
           </FormField>
         </div>
       </div>
@@ -425,7 +425,7 @@ export const RejectOnboardingModal: React.FC<RejectOnboardingModalProps> = ({ is
   };
 
   if (!isOpen || !applicant) return null;
-  const name = applicant.hoten || applicant.email || "???";
+  const name = applicant.HO_TEN || applicant.EMAIL || "???";
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Từ chối hồ sơ ứng viên"
@@ -468,7 +468,7 @@ export const AdminOnboardingTab: React.FC<{ adminData: any }> = ({ adminData }) 
   useEffect(() => { fetchPendingOnboarding(); }, [fetchPendingOnboarding]);
 
   const pendingCount = pendingList.filter((a: any) =>
-    a.registrationStatus === "OTP_VERIFIED"
+    getProp(a, "registrationStatus") === "OTP_VERIFIED"
   ).length;
 
   return (
@@ -521,10 +521,10 @@ export const AdminOnboardingTab: React.FC<{ adminData: any }> = ({ adminData }) 
                 </tr>
               ) : (
                 pendingList.map((a: any, idx: number) => {
-                  const status = a.registrationStatus || "PENDING_OTP";
-                  const name = a.hoten || "—";
-                  const email = a.email || "—";
-                  const createdAt = a.createdAt || "";
+                  const status = getProp(a, "registrationStatus") || "PENDING_OTP";
+                  const name = a.HO_TEN || "—";
+                  const EMAIL = a.EMAIL || "—";
+                  const createdAt = getProp(a, "createdAt") || "";
                   const badgeCfg = STATUS_BADGE[status] || { label: status, color: "gray" };
                   const canAction = status === "OTP_VERIFIED";
 
@@ -532,11 +532,11 @@ export const AdminOnboardingTab: React.FC<{ adminData: any }> = ({ adminData }) 
                     <tr key={idx}>
                       <td>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          <Avatar name={name !== "—" ? name : email} size="sm" />
+                          <Avatar name={name !== "—" ? name : EMAIL} size="sm" />
                           <span style={{ fontWeight: 600 }}>{name}</span>
                         </div>
                       </td>
-                      <td style={{ fontSize: 13, color: "#555" }}>{email}</td>
+                      <td style={{ fontSize: 13, color: "#555" }}>{EMAIL}</td>
                       <td style={{ fontSize: 12, color: "#888" }}>
                         {createdAt ? new Date(createdAt).toLocaleDateString("vi-VN") : "—"}
                       </td>

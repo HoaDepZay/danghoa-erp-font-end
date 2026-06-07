@@ -9,7 +9,7 @@ interface LeaveRequestProps {
   user: any;
 }
 
-const STATUS_COLOR: Record<string, { bg: string; text: string; icon: JSX.Element }> = {
+const STATUS_COLOR: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
   "Chờ duyệt":          { bg: "#fef9c3", text: "#92400e", icon: <Clock size={13} /> },
   "Chờ duyệt (Cấp 2)":  { bg: "#dbeafe", text: "#1e40af", icon: <Clock size={13} /> },
   "Đã duyệt":           { bg: "#dcfce7", text: "#166534", icon: <CheckCircle size={13} /> },
@@ -47,7 +47,7 @@ const LeaveRequest = ({ user }: LeaveRequestProps) => {
     }
   };
 
-  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm(f => ({ ...f, [k]: e.target.value }));
 
   const handleSubmit = async (e: React.FormEvent) => {

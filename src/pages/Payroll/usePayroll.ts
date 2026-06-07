@@ -18,7 +18,7 @@ export const usePayroll = (user: any) => {
   const [modal, setModal] = useState({ type: "", data: null as any });
 
   const userLevel = getUserLevel(user);
-  const manv = getManv(user);
+  const MA_NV = getManv(user);
   const isHR = userLevel >= 3;
 
   const fetchPayroll = useCallback(async () => {
@@ -29,7 +29,7 @@ export const usePayroll = (user: any) => {
         const d = res.data;
         setPayroll(Array.isArray(d?.data) ? d.data : Array.isArray(d) ? d : []);
       } else {
-        const res = await api.getMyPayroll(manv, year, month);
+        const res = await api.getMyPayroll(MA_NV, year, month);
         const d = res.data;
         setMyPayroll(d?.data || d || null);
       }
@@ -43,7 +43,7 @@ export const usePayroll = (user: any) => {
     } finally {
       setLoading(false);
     }
-  }, [isHR, manv, month, year]);
+  }, [isHR, MA_NV, month, year]);
 
   useEffect(() => { fetchPayroll(); }, [fetchPayroll]);
 
