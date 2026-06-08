@@ -91,6 +91,22 @@ const SharedCalendar: React.FC<SharedCalendarProps> = ({
         .shared-calendar-container .fc-day-today {
           background-color: #f8fafc !important;
         }
+        @media (max-width: 768px) {
+          .shared-calendar-container .fc-toolbar {
+            flex-direction: column !important;
+            gap: 12px;
+          }
+          .shared-calendar-container .fc-toolbar-title {
+            font-size: 16px;
+          }
+          .shared-calendar-container .fc-button-primary {
+            padding: 6px 12px;
+            font-size: 12px;
+          }
+          .shared-calendar-container .fc-event {
+            font-size: 10px;
+          }
+        }
       `}</style>
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
