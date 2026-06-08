@@ -22,10 +22,8 @@ interface CheckRecord {
 }
 
 interface AttendanceRecord {
-  maNV?: string;
+  MA_NV?: string;
   HO_TEN?: string;
-  MANV?: string;
-  HOTEN?: string;
   checkIn?: string;
   checkOut?: string;
   CHECK_IN?: string;
@@ -42,7 +40,7 @@ interface EmployeeInfo {
   maNV: string;
   HO_TEN: string;
   phongBan: string;
-  chucVu: string;
+  CHUC_VU: string;
   EMAIL: string;
   avatar?: string;
 }
@@ -127,7 +125,7 @@ const getCheckIn = (r: AttendanceRecord) => {
     || r.thoiGianVao || r.ThoiGianVao || r.THOIGIANVAO || r.thoi_gian_vao
     || r.gioVao || r.GioVao || r.GIOVAO
     || r.timeIn || r.time_in || r.TimeIn || r.TIMEIN
-    || (r.loai === "check-in" || r.loai === "vào" || r.type === "in" || r.loaiChamCong === "IN" ? r.timestamp || r.thoiGian || r.ThoiGian : undefined)
+    || (r.loai === "check-in" || r.loai === "vào" || r.type === "in" || r.loaiChamCong === "IN" ? r.timestamp || r.THOI_GIAN || r.THOI_GIAN : undefined)
     || r.vao || r.VAO;
   return combineDateTime(date, raw);
 };
@@ -139,7 +137,7 @@ const getCheckOut = (r: AttendanceRecord) => {
     || r.thoiGianRa || r.ThoiGianRa || r.THOIGIANRA || r.thoi_gian_ra
     || r.gioRa || r.GioRa || r.GIORA
     || r.timeOut || r.time_out || r.TimeOut || r.TIMEOUT
-    || (r.loai === "check-out" || r.loai === "ra" || r.type === "out" || r.loaiChamCong === "OUT" ? r.timestamp || r.thoiGian || r.ThoiGian : undefined)
+    || (r.loai === "check-out" || r.loai === "ra" || r.type === "out" || r.loaiChamCong === "OUT" ? r.timestamp || r.THOI_GIAN || r.THOI_GIAN : undefined)
     || r.ra || r.RA;
   return combineDateTime(date, raw);
 };
@@ -150,25 +148,25 @@ const getDate = (r: AttendanceRecord) =>
   || r.ngayLamViec || r.NgayLamViec || r.NGAYLAMVIEC || r.ngay_lam_viec
   || r.ngayCC || r.NgayCC || r.NGAYCC
   || r.workDate || r.work_date || r.WorkDate
-  || r.thoiGian || r.ThoiGian || r.timestamp
+  || r.THOI_GIAN || r.THOI_GIAN || r.timestamp
   || getCheckIn(r); // fallback to checkIn timestamp
 
 const getManvField = (r: AttendanceRecord) =>
-  r.maNV || r.MaNV || r.MANV || r.MA_NV || r.ma_nv
+  r.maNV || r.MA_NV || r.MA_NV || r.MA_NV || r.ma_nv
   || r.maNhanVien || r.MaNhanVien || r.MANHANVIEN
   || r.employeeId || r.EmployeeId || r.employee_id || r.EMPLOYEE_ID
   || r.NhanVien_ID || r.nhanVienId
   || r.id || r.ID;
 
 const getHoTen = (r: AttendanceRecord) =>
-  r.HO_TEN || r.HoTen || r.HOTEN || r.HO_TEN || r.ho_ten
+  r.HO_TEN || r.HO_TEN || r.HO_TEN || r.HO_TEN || r.ho_ten
   || r.tenNhanVien || r.TenNhanVien || r.TENNHANVIEN
   || r.fullName || r.full_name || r.FullName || r.FULLNAME
   || r.name || r.Name || r.NAME;
 
 const getStatus = (r: AttendanceRecord) =>
   r.status || r.Status || r.STATUS
-  || r.TRANG_THAI || r.TrangThai || r.TRANGTHAI || r.trang_thai
+  || r.TRANG_THAI || r.TRANG_THAI || r.TRANG_THAI || r.trang_thai
   || r.loai || r.Loai || r.LOAI;
 
 
@@ -176,21 +174,21 @@ const getStatus = (r: AttendanceRecord) =>
 const normalizeEmployee = (d: any): EmployeeInfo => {
   console.log("👤 [Employee] Raw data:", JSON.stringify(d, null, 2));
   return {
-    maNV: d?.MANV || d?.MaNV || d?.MA_NV || d?.maNV || d?.maNhanVien || "",
-    HO_TEN: d?.HOTEN || d?.HoTen || d?.HO_TEN || d?.tenNhanVien || d?.TenNhanVien || d?.fullName || d?.name || "",
+    maNV: d?.MA_NV || d?.MA_NV || d?.MA_NV || d?.maNV || d?.maNhanVien || "",
+    HO_TEN: d?.HO_TEN || d?.HO_TEN || d?.HO_TEN || d?.tenNhanVien || d?.TenNhanVien || d?.fullName || d?.name || "",
     // Phèng ban: thường phải join từ bảng phòng ban, thử tất cả keys có thể
-    phongBan: d?.TENPB || d?.TenPB || d?.tenpb || d?.tenPB
+    phongBan: d?.TEN_PB || d?.TEN_PB || d?.TEN_PB || d?.tenPB
       || d?.phongBan || d?.PhongBan || d?.PHONGBAN
       || d?.tenPhongBan || d?.TenPhongBan
       || d?.departmentName || d?.DepartmentName || d?.department_name
-      || d?.department?.TENPB || d?.department?.TenPB || d?.department?.name
-      || d?.phongHo?.TENPB || d?.phongHo?.TenPB
+      || d?.department?.TEN_PB || d?.department?.TEN_PB || d?.department?.name
+      || d?.phongHo?.TEN_PB || d?.phongHo?.TEN_PB
       || "",
-    chucVu: d?.CHUCVU || d?.ChucVu || d?.chucVu || d?.chuc_vu
-      || d?.chucVu || d?.position || d?.Position
+    CHUC_VU: d?.CHUC_VU || d?.CHUC_VU || d?.CHUC_VU || d?.chuc_vu
+      || d?.CHUC_VU || d?.position || d?.Position
       || d?.role || d?.Role
       || "",
-    EMAIL: d?.EMAIL || d?.Email || d?.EMAIL || "",
+    EMAIL: d?.EMAIL || d?.EMAIL || d?.EMAIL || "",
   };
 };
 
@@ -534,7 +532,7 @@ const AdminAttendanceTable: React.FC<{
             const emp = empMap[maNV];
             const HO_TEN = emp?.HO_TEN || getHoTen(r) || "—";
             const phongBan = emp?.phongBan || "—";
-            const chucVu = emp?.chucVu || "—";
+            const CHUC_VU = emp?.CHUC_VU || "—";
             return (
               <tr key={i}>
                 <td style={{ color: "#aaa", fontSize: 12 }}>{i + 1}</td>
@@ -558,8 +556,8 @@ const AdminAttendanceTable: React.FC<{
                   )}
                 </td>
                 <td>
-                  {chucVu !== "—" ? (
-                    <span className="at-role-text">{chucVu}</span>
+                  {CHUC_VU !== "—" ? (
+                    <span className="at-role-text">{CHUC_VU}</span>
                   ) : (
                     enriching ? <span className="at-skeleton-pill" /> : <span className="at-null">—</span>
                   )}

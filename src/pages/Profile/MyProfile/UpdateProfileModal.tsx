@@ -155,7 +155,7 @@ export const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({ isOpen, 
     >
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         <div style={{ gridColumn: "1 / -1" }}>
-          <FormField label="Email (không thể chỉnh sửa)">
+          <FormField label="EMAIL (không thể chỉnh sửa)">
             <input className="form-input" value={form.EMAIL} readOnly />
           </FormField>
         </div>

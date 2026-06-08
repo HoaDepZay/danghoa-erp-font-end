@@ -32,7 +32,7 @@ export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, u
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
       {departments.map((dept) => {
-        const name = dept.tenpb || "";
+        const name = dept.TEN_PB || "";
         const colors = stringToDeptColor(name);
         return (
           <div key={dept.MA_PHG} className="card" style={{ transition: "box-shadow 0.15s", cursor: "pointer", background: "#fff", borderRadius: 16, padding: 16, border: "1px solid #eee" }}
@@ -45,7 +45,7 @@ export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, u
                     <Building2 size={18} color={colors.icon} />
                   </div>
                 <div>
-                  <p style={{ fontWeight: 700, color: "#111", fontSize: 14, margin: 0 }}>{dept.tenpb}</p>
+                  <p style={{ fontWeight: 700, color: "#111", fontSize: 14, margin: 0 }}>{dept.TEN_PB}</p>
                   <p style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>Mã: {dept.MA_PHG}</p>
                 </div>
               </div>

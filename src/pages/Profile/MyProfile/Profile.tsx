@@ -26,7 +26,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
   React.useEffect(() => {
     if (!loading && profile) {
       const emp = profile;
-      // Chỉ kiểm tra 5 trường: Mã NV, Email, SĐT, Ngày sinh, Địa chỉ
+      // Chỉ kiểm tra 5 trường: Mã NV, EMAIL, SĐT, Ngày sinh, Địa chỉ
       const isMissing =
         !getProp(emp, 'MA_NV') ||
         !getProp(emp, 'EMAIL') ||
@@ -50,18 +50,18 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
 
   const emp = profile || user;
   const name = getProp(emp, 'HO_TEN') || getProp(emp, 'ten') || "Nhân viên";
-  const CHUC_VU = getProp(emp, 'CHUC_VU') || getProp(emp, 'chucVu') || getProp(emp, 'role');
+  const CHUC_VU = getProp(emp, 'CHUC_VU') || getProp(emp, 'CHUC_VU') || getProp(emp, 'role');
 
   const infoItems = [
     { icon: <UserCircle size={15} />, label: "Mã nhân viên", value: getProp(emp, 'MA_NV') },
-    { icon: <Mail size={15} />, label: "Email", value: getProp(emp, 'EMAIL') },
+    { icon: <Mail size={15} />, label: "EMAIL", value: getProp(emp, 'EMAIL') },
     { icon: <Phone size={15} />, label: "Số điện thoại", value: getProp(emp, 'SDT') },
     { icon: <Calendar size={15} />, label: "Ngày sinh", value: formatDate(getProp(emp, 'NGAY_SINH')) },
     { icon: <MapPin size={15} />, label: "Địa chỉ", value: getProp(emp, 'DIA_CHI') || getProp(emp, 'DIA_CHI') },
   ];
 
   const workItems = [
-    { label: "Phòng ban", value: getProp(emp, 'phongban') || getProp(emp, 'tenphongban') || getProp(emp, 'tenpb') || "Chưa cập nhật" },
+    { label: "Phòng ban", value: getProp(emp, 'phongban') || getProp(emp, 'tenphongban') || getProp(emp, 'TEN_PB') || "Chưa cập nhật" },
     { label: "Vị trí", value: getProp(emp, 'CHUC_VU') || "Chưa cập nhật" },
     { label: "Trạng thái", value: getProp(emp, 'TRANG_THAI') === 1 || getProp(emp, 'TRANG_THAI') === "Đang làm việc" ? "Đang làm việc" : "Nghỉ việc" },
   ];
@@ -82,8 +82,8 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
              <h2 style={{ fontSize: 22, fontWeight: 800, color: "#111", margin: 0 }}>{name}</h2>
             <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                <Badge color={ROLE_COLORS[CHUC_VU] || "gray"}>{CHUC_VU}</Badge>
-              {getProp(emp, 'tenpb') && (
-                <span style={{ fontSize: 13, color: "#888" }}>{getProp(emp, 'tenpb')}</span>
+              {getProp(emp, 'TEN_PB') && (
+                <span style={{ fontSize: 13, color: "#888" }}>{getProp(emp, 'TEN_PB')}</span>
               )}
             </div>
           </div>

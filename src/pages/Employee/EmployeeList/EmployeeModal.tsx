@@ -151,7 +151,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, e
           <FormField label="Họ và tên *">
             <input className="form-input" placeholder="Nguyễn Văn A" value={form.HO_TEN} onChange={set("HO_TEN")} />
           </FormField>
-          <FormField label="Email">
+          <FormField label="EMAIL">
             <input className="form-input" type="EMAIL" placeholder="EMAIL@huit.edu.vn" value={form.EMAIL} onChange={set("EMAIL")} />
           </FormField>
           <FormField label="Số điện thoại">
@@ -171,7 +171,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, e
             <select className="form-input" value={form.MA_PHG} onChange={set("MA_PHG")}>
               <option value="">— Chưa chọn —</option>
               {departments.map((d) => (
-                <option key={d.MA_PHG} value={d.MA_PHG}>{d.tenpb}</option>
+                <option key={d.MA_PHG} value={d.MA_PHG}>{d.TEN_PB}</option>
               ))}
             </select>
           </FormField>

@@ -42,8 +42,8 @@ export const useEmployees = (user: any) => {
   }, []);
 
   const handleExport = () => {
-    exportToCsv("nhan_vien", ["Mã NV", "Họ tên", "Email", "SĐT", "Chức vụ", "Phòng ban"],
-      employees.map((e) => [e.MA_NV, e.HO_TEN, e.EMAIL, e.SDT || e.SDT, e.CHUC_VU, e.tenpb]));
+    exportToCsv("nhan_vien", ["Mã NV", "Họ tên", "EMAIL", "SĐT", "Chức vụ", "Phòng ban"],
+      employees.map((e) => [e.MA_NV, e.HO_TEN, e.EMAIL, e.SDT || e.SDT, e.CHUC_VU, e.TEN_PB]));
     toast.success("Xuất CSV thành công!");
   };
 

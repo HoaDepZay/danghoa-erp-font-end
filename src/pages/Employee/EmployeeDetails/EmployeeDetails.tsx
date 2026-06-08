@@ -49,12 +49,12 @@ export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ isOpen, onClos
 
   const fields = emp ? [
     ["Mã NV", emp.MA_NV],
-    ["Email", emp.EMAIL],
+    ["EMAIL", emp.EMAIL],
     ["SĐT", emp.SDT || "—"],
     ["Ngày sinh", formatDate(emp.NGAY_SINH)],
     ["Giới tính", formatGender(emp.GIOI_TINH)],
     ["Địa chỉ", emp.DIA_CHI],
-    ["Phòng ban", emp.tenpb],
+    ["Phòng ban", emp.TEN_PB],
     ["Lương cơ bản", (emp.LUONG != null)
       ? `${Number(emp.LUONG).toLocaleString("vi-VN")} VNĐ` : "—"],
   ] : [];

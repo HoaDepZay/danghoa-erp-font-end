@@ -48,13 +48,13 @@ const EmployeeProfile: React.FC<EmployeeProfileProps> = ({ user, onLogout }) => 
               <div>
                 <h1 className="text-3xl font-black">{profile.HO_TEN}</h1>
                 <p className="text-lg font-medium text-red-500 uppercase tracking-tighter">{user.chuc_vu}</p>
-                <p className="text-slate-400 font-bold">{profile.tenpb}</p>
+                <p className="text-slate-400 font-bold">{profile.TEN_PB}</p>
               </div>
             </div>
             <Card title="Thao tác nhanh" icon={<Activity className="text-red-600" size={20} />}>
               <div className="space-y-3">
                 <InfoItem label="Mã NV" value={profile.MA_NV} />
-                <InfoItem label="Email" value={profile.EMAIL} />
+                <InfoItem label="EMAIL" value={profile.EMAIL} />
                 <div className="pt-4 flex gap-2">
                   <button onClick={() => setModal({ isOpen: true, type: "self_edit", data: { EMAIL: profile.EMAIL } })} className="flex-1 rounded-xl bg-slate-900 py-3 text-[10px] font-black text-white">SỬA EMAIL</button>
                   <button onClick={() => setModal({ isOpen: true, type: "pass_edit", data: {} })} className="text-blue-50 flex-1 rounded-xl border border-slate-200 py-3 text-[10px] font-black">ĐỔI PASS</button>
@@ -152,7 +152,7 @@ const EmployeeProfile: React.FC<EmployeeProfileProps> = ({ user, onLogout }) => 
                     {myProjects.map((p, i) => (
                       <tr key={i} className="border-t border-slate-50">
                         <td className="p-4 font-bold">{p.TEN_DA}</td>
-                        <td className="p-4">{p.thoigian} giờ</td>
+                        <td className="p-4">{p.THOI_GIAN} giờ</td>
                         <td className="p-4"><button className="text-red-300 hover:text-red-600"><Trash2 size={16} /></button></td>
                       </tr>
                     ))}
@@ -165,7 +165,7 @@ const EmployeeProfile: React.FC<EmployeeProfileProps> = ({ user, onLogout }) => 
               <div className="flex justify-between items-center mb-8">
                 <h3 className="text-xl font-black">Quản lý Phòng ban</h3>
                  <div className="flex gap-2">
-                  <button onClick={() => guard(3, () => setModal({ isOpen: true, type: "dept_create", data: { tenpb: "" } }))} className="rounded-xl bg-emerald-600 px-6 py-2.5 text-xs font-black text-white shadow-lg flex items-center gap-2">
+                  <button onClick={() => guard(3, () => setModal({ isOpen: true, type: "dept_create", data: { TEN_PB: "" } }))} className="rounded-xl bg-emerald-600 px-6 py-2.5 text-xs font-black text-white shadow-lg flex items-center gap-2">
                     <FolderPlus size={16} /> THÊM PHÒNG BAN
                   </button>
                   <button onClick={exportDepartmentsToCsv} className="rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-black text-white shadow-lg flex items-center gap-2 hover:bg-blue-700">
@@ -187,9 +187,9 @@ const EmployeeProfile: React.FC<EmployeeProfileProps> = ({ user, onLogout }) => 
                   {departments.map((dept) => (
                     <tr key={dept.MA_PHG} className="border-t border-slate-50">
                       <td className="p-4 font-bold text-xs">{dept.MA_PHG}</td>
-                      <td className="p-4 font-bold">{dept.tenpb}</td>
+                      <td className="p-4 font-bold">{dept.TEN_PB}</td>
                      <td className="p-4 flex gap-2">
-                        <button onClick={() => guard(3, () => setModal({ isOpen: true, type: "dept_edit", data: { MA_PHG: dept.MA_PHG, tenpb: dept.tenpb } }))} className="text-blue-400 hover:text-blue-600"><Edit3 size={16} /></button>
+                        <button onClick={() => guard(3, () => setModal({ isOpen: true, type: "dept_edit", data: { MA_PHG: dept.MA_PHG, TEN_PB: dept.TEN_PB } }))} className="text-blue-400 hover:text-blue-600"><Edit3 size={16} /></button>
                         <button onClick={() => guard(3, () => handlers.handleDeleteDepartment(dept.MA_PHG))} className="text-red-300 hover:text-red-600"><Trash2 size={16} /></button>
                       </td>
                     </tr>

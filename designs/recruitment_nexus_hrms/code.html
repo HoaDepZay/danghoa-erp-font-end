@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nexus HRMS - Recruitment Pipeline</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .kanban-column {
+            min-height: calc(100vh - 240px);
+        }
+        .drag-preview {
+            transform: rotate(2deg);
+            opacity: 0.9;
+            cursor: grabbing;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#00174b",
+                        "primary": "#004ac6",
+                        "surface-dim": "#d9d9e5",
+                        "tertiary-container": "#bc4800",
+                        "surface-container-low": "#f3f3fe",
+                        "background": "#faf8ff",
+                        "tertiary": "#943700",
+                        "secondary": "#006b5f",
+                        "on-primary-container": "#eeefff",
+                        "inverse-on-surface": "#f0f0fb",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e1e2ed",
+                        "surface-tint": "#0053db",
+                        "outline": "#737686",
+                        "on-secondary-container": "#006f64",
+                        "on-secondary-fixed": "#00201c",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#2563eb",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#2e3039",
+                        "on-primary": "#ffffff",
+                        "on-background": "#191b23",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "surface-container": "#ededf9",
+                        "surface-container-high": "#e7e7f3",
+                        "surface": "#faf8ff",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed-variant": "#005048",
+                        "on-tertiary-container": "#ffede6",
+                        "primary-fixed": "#dbe1ff",
+                        "outline-variant": "#c3c6d7",
+                        "secondary-container": "#6df5e1",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#71f8e4",
+                        "on-surface-variant": "#434655",
+                        "tertiary-fixed": "#ffdbcd",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "on-surface": "#191b23",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "inverse-primary": "#b4c5ff",
+                        "secondary-fixed-dim": "#4fdbc8",
+                        "on-tertiary-fixed": "#360f00",
+                        "surface-bright": "#faf8ff",
+                        "surface-variant": "#e1e2ed"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "xs": "4px",
+                        "margin-desktop": "32px",
+                        "margin-mobile": "16px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "max-width": "1440px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "code": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "code": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-hidden">
+<!-- Side Navigation -->
+<aside class="w-64 h-full fixed left-0 top-0 bg-inverse-surface dark:bg-surface-container-lowest shadow-md flex flex-col py-md px-sm overflow-y-auto z-50">
+<div class="mb-lg px-md">
+<h1 class="font-headline-sm text-headline-sm text-surface-container-lowest dark:text-primary font-bold">HRMS Core</h1>
+<p class="text-surface-variant font-label-md">Enterprise Suite</p>
+</div>
+<nav class="flex-1 space-y-1">
+<div class="flex items-center space-x-3 px-md py-sm text-surface-variant hover:text-surface-bright hover:bg-on-surface-variant/10 transition-colors cursor-pointer active:scale-95">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-sm">Dashboard</span>
+</div>
+<div class="flex items-center space-x-3 px-md py-sm text-surface-variant hover:text-surface-bright hover:bg-on-surface-variant/10 transition-colors cursor-pointer active:scale-95">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-body-sm">Employees</span>
+</div>
+<div class="flex items-center space-x-3 px-md py-sm text-on-primary-fixed bg-primary-fixed-dim border-l-4 border-primary dark:bg-primary-container dark:text-on-primary-container cursor-pointer active:scale-95">
+<span class="material-symbols-outlined" data-icon="person_add">person_add</span>
+<span class="font-body-sm">Recruitment</span>
+</div>
+<div class="flex items-center space-x-3 px-md py-sm text-surface-variant hover:text-surface-bright hover:bg-on-surface-variant/10 transition-colors cursor-pointer active:scale-95">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-body-sm">Attendance</span>
+</div>
+<div class="flex items-center space-x-3 px-md py-sm text-surface-variant hover:text-surface-bright hover:bg-on-surface-variant/10 transition-colors cursor-pointer active:scale-95">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-body-sm">Payroll</span>
+</div>
+<div class="flex items-center space-x-3 px-md py-sm text-surface-variant hover:text-surface-bright hover:bg-on-surface-variant/10 transition-colors cursor-pointer active:scale-95">
+<span class="material-symbols-outlined" data-icon="trending_up">trending_up</span>
+<span class="font-body-sm">Performance</span>
+</div>
+<div class="flex items-center space-x-3 px-md py-sm text-surface-variant hover:text-surface-bright hover:bg-on-surface-variant/10 transition-colors cursor-pointer active:scale-95">
+<span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+<span class="font-body-sm">Reports</span>
+</div>
+<div class="flex items-center space-x-3 px-md py-sm text-surface-variant hover:text-surface-bright hover:bg-on-surface-variant/10 transition-colors cursor-pointer active:scale-95">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-sm">Settings</span>
+</div>
+</nav>
+<div class="mt-auto border-t border-outline-variant pt-md flex items-center space-x-3 px-md">
+<img alt="User Profile Avatar" class="w-8 h-8 rounded-full object-cover" data-alt="A professional headshot of a middle-aged corporate executive with a friendly expression. He is wearing a sharp charcoal grey suit and a white shirt, against a soft-focus office background with warm, natural lighting. The style is clean, modern, and high-quality, fitting for an enterprise software user profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBO13We9xO_g9oaSGXBLICX-gZdKHRQYbLuFyv8yQu9kq5NkOwoDFMuvRkstBfmVHnFsCY55adJ4-ETImPiRFISF5m6NUaXoKYLJePBe8pdoTjFxfigYEErEBbzUpPp6HkLyLrIP__tKaC8ZfSGDHMELVvS9xy3UY23I96CYGXRB3Er74lFAwerCCbpwnSYEnj0ZLR2naOoN-PhkoSI4-vsW6iHAy_M24HWyyicmoT89dqC-KJm1u7iQaePY8Ynm1YzQEFhFstl-Wua"/>
+<div class="overflow-hidden">
+<p class="font-label-md text-on-primary-fixed truncate">Alex Rivera</p>
+<p class="text-xs text-surface-variant truncate">HR Director</p>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen flex flex-col">
+<!-- Top Navigation -->
+<header class="h-16 w-full sticky top-0 z-40 bg-surface-container-lowest dark:bg-surface-container-high border-b border-outline-variant dark:border-outline flex items-center justify-between px-lg">
+<div class="flex items-center space-x-lg flex-1">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">HRMS Portal</span>
+<div class="relative w-96 max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full bg-surface-container text-on-surface font-label-md rounded-full py-2 pl-10 pr-4 border-none focus:ring-2 focus:ring-primary/20" placeholder="Search candidates, roles, documents..." type="text"/>
+</div>
+</div>
+<div class="flex items-center space-x-sm">
+<div class="hover:bg-surface-container dark:hover:bg-surface-container-highest rounded-full p-2 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="notifications">notifications</span>
+</div>
+<div class="hover:bg-surface-container dark:hover:bg-surface-container-highest rounded-full p-2 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chat">chat</span>
+</div>
+<div class="hover:bg-surface-container dark:hover:bg-surface-container-highest rounded-full p-2 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="dark_mode">dark_mode</span>
+</div>
+<button class="ml-4 bg-primary text-on-primary px-lg py-2 rounded-full font-label-md hover:brightness-110 active:scale-95 transition-all">
+                    Check In
+                </button>
+</div>
+</header>
+<!-- Kanban Header Section -->
+<section class="p-lg bg-surface-container-low/50">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-md mb-lg">
+<div class="flex items-center space-x-md">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface flex items-center gap-sm">
+                            Recruitment Pipeline
+                            <span class="material-symbols-outlined text-outline-variant" data-icon="chevron_right">chevron_right</span>
+</h2>
+<div class="flex items-center gap-sm mt-1">
+<span class="font-body-sm text-on-surface-variant">Active Job:</span>
+<div class="relative inline-block">
+<button class="flex items-center space-x-2 bg-surface-container-lowest px-md py-1 rounded-lg border border-outline-variant font-label-md hover:border-primary transition-colors">
+<span>Senior Frontend Developer</span>
+<span class="material-symbols-outlined text-sm" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<button class="bg-primary text-on-primary flex items-center space-x-2 px-lg py-2.5 rounded-xl font-label-md shadow-lg shadow-primary/20 hover:shadow-xl transition-all active:scale-95">
+<span class="material-symbols-outlined text-md" data-icon="add">add</span>
+<span>Create Job Post</span>
+</button>
+</div>
+<!-- Kanban Board Grid -->
+<div class="grid grid-cols-5 gap-md overflow-x-auto pb-lg">
+<!-- Column: Applied -->
+<div class="flex flex-col gap-sm min-w-[300px]">
+<div class="flex items-center justify-between px-sm py-2 border-b-2 border-primary-fixed">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-on-surface">Applied</span>
+<span class="bg-surface-container-highest text-on-surface-variant text-[10px] px-1.5 py-0.5 rounded-full font-bold">45</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant cursor-pointer" data-icon="more_horiz">more_horiz</span>
+</div>
+<div class="kanban-column space-y-md p-sm bg-surface-container-low/30 rounded-xl">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-outline-variant hover:shadow-md transition-all cursor-grab active:cursor-grabbing group">
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-sm">
+<img alt="Sarah Connor" class="w-10 h-10 rounded-full object-cover" data-alt="A portrait of a creative professional woman with curly auburn hair and glasses. She is wearing a modern teal turtleneck sweater. The background is a minimalist studio setting with soft side-lighting, creating a clean and focused aesthetic suitable for a professional talent profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSTWxEkzgiFQhFAwG2ylRsy9nxR8PhA4fjIXC9Y-br0xRxY-ceZzn0BqRf2LjPoD-RZnamRQqCGZfaGHUDjB6Il6oPpdTQk4UUomYwigtM5JucFWD0LDqoHYkr8t9xQJljtPBIFQtMfdXiqJUCy0gqWBNLNBMeHgKH0YcaG9B5IoYLmqPP3__zv6v0vhATCICcwUVtu6SnaytLB-cuwJFhnhdW2dtb3K94SydgtLFPBmwigKtwM40IZUza6sTmgzsIyOFg-rFewnYx"/>
+<div>
+<p class="font-label-md text-on-surface group-hover:text-primary transition-colors">Sarah Connor</p>
+<p class="text-xs text-on-surface-variant">Senior UI Engineer</p>
+</div>
+</div>
+<div class="flex items-center gap-0.5 text-tertiary">
+<span class="material-symbols-outlined text-[16px]" data-icon="star" data-weight="fill">star</span>
+<span class="text-xs font-bold">4.8</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-xs mb-md">
+<span class="bg-secondary-container/20 text-on-secondary-fixed-variant text-[10px] px-2 py-0.5 rounded-full font-bold">High Potential</span>
+<span class="bg-surface-container-highest text-on-surface-variant text-[10px] px-2 py-0.5 rounded-full font-bold">LinkedIn</span>
+</div>
+<div class="flex justify-between items-center pt-sm border-t border-outline-variant/50">
+<span class="text-xs text-on-surface-variant">Applied 2d ago</span>
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-primary-container text-white text-[8px] flex items-center justify-center border-2 border-white">+3</div>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-outline-variant hover:shadow-md transition-all cursor-grab">
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-sm">
+<img alt="Marcus Chen" class="w-10 h-10 rounded-full object-cover" data-alt="A studio portrait of a young Asian man in professional attire, wearing a minimalist navy blue blazer and a light grey t-shirt. He has a confident, slight smile. The lighting is bright and even, reinforcing a corporate-modern HR platform aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDW_DxjF1h6v00XhT2x30xHmqv7yNBDCKOMUrv0H5PRW5ceEs2iq1k05rfp5WbteeSnKKyag2j0nFex5qj0bSscC36q06VZwNDmPWqmpP8Mz9L4jGXHJYYTbiESdyM0gYlzO5H5bUWqjNibYnbshlE__Jwb5N6VONelWvkaL8kwzRD8485qAGD6yIusnO7Yb_TvSQ6G7FmjEytj7yHA7Xp5vOOnbebcmzDUOZkR6icAghXSF7EQAN0Bg_M0vs9Bi9rQig2TNCbvVdYy"/>
+<div>
+<p class="font-label-md text-on-surface">Marcus Chen</p>
+<p class="text-xs text-on-surface-variant">Fullstack Dev</p>
+</div>
+</div>
+<div class="flex items-center gap-0.5 text-tertiary">
+<span class="material-symbols-outlined text-[16px]" data-icon="star" data-weight="fill">star</span>
+<span class="text-xs font-bold">4.2</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-xs mb-md">
+<span class="bg-tertiary-fixed/20 text-on-tertiary-fixed-variant text-[10px] px-2 py-0.5 rounded-full font-bold">Referral</span>
+</div>
+<div class="flex justify-between items-center pt-sm border-t border-outline-variant/50">
+<span class="text-xs text-on-surface-variant">Applied 5h ago</span>
+<span class="material-symbols-outlined text-outline-variant text-[16px]" data-icon="attach_file">attach_file</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Column: Screening -->
+<div class="flex flex-col gap-sm min-w-[300px]">
+<div class="flex items-center justify-between px-sm py-2 border-b-2 border-secondary-fixed">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-on-surface">Screening</span>
+<span class="bg-surface-container-highest text-on-surface-variant text-[10px] px-1.5 py-0.5 rounded-full font-bold">12</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant cursor-pointer" data-icon="more_horiz">more_horiz</span>
+</div>
+<div class="kanban-column space-y-md p-sm bg-surface-container-low/30 rounded-xl">
+<div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-outline-variant hover:shadow-md transition-all cursor-grab">
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-sm">
+<img alt="Elena Rodriguez" class="w-10 h-10 rounded-full object-cover" data-alt="A professional headshot of a Hispanic woman with long dark hair, wearing a white blouse and a light grey cardigan. She is in a brightly lit modern office setting with glass walls in the background. The mood is welcoming and professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaUASYmyeYgMUszb67r99HsVPAqFJpVK1PSx27ERu2T6PIAn1D2LgTKnxF_CJ5NH212sazl5Wrxqawheaj8YadSTfOP0rUYnN8MFqUsxCH62Qifneq2NndQ0M1XdlVmlgp60bZuYn3nyF90fLbwFfSap3KHSo0139bO7fXKIcJoZBXW46qr5rE5Plm9_iVFJosstlCrXvtNaPgslLRNKX_wOV7iBagnHQXKbBRQ46qd6I0ekzjcSH6W4weOgtDBhM-TWKi_WTy8KzI"/>
+<div>
+<p class="font-label-md text-on-surface">Elena Rodriguez</p>
+<p class="text-xs text-on-surface-variant">Lead Developer</p>
+</div>
+</div>
+<div class="flex items-center gap-0.5 text-tertiary">
+<span class="material-symbols-outlined text-[16px]" data-icon="star" data-weight="fill">star</span>
+<span class="text-xs font-bold">4.9</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-xs mb-md">
+<span class="bg-primary-fixed/20 text-on-primary-fixed-variant text-[10px] px-2 py-0.5 rounded-full font-bold">Top Talent</span>
+</div>
+<div class="flex justify-between items-center pt-sm border-t border-outline-variant/50">
+<span class="text-xs text-secondary font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="call">call</span>
+                                    In Review
+                                </span>
+</div>
+</div>
+</div>
+</div>
+<!-- Column: Interview -->
+<div class="flex flex-col gap-sm min-w-[300px]">
+<div class="flex items-center justify-between px-sm py-2 border-b-2 border-tertiary-fixed">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-on-surface">Interview</span>
+<span class="bg-surface-container-highest text-on-surface-variant text-[10px] px-1.5 py-0.5 rounded-full font-bold">8</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant cursor-pointer" data-icon="more_horiz">more_horiz</span>
+</div>
+<div class="kanban-column space-y-md p-sm bg-surface-container-low/30 rounded-xl">
+<div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border-l-4 border-l-tertiary border border-outline-variant hover:shadow-md transition-all cursor-grab">
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-sm">
+<img alt="David Smith" class="w-10 h-10 rounded-full object-cover" data-alt="A portrait of a male tech professional with short dark hair and a beard, wearing a casual dark blue polo shirt. He is standing in front of a blurred green park background, suggesting a relaxed but professional vibe. Soft outdoor lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1vdjpVfkTNeEKopYCEnzz_0Ki6irl-fVwueZ8uZPqAXGwbpCNVrxFYPdS5mX8-jyK1nfbZWAImy0hDB8Jgj4ytFzeYayhR59XeMZVbv1lP78BHzZksJl1QmRPFi7j2_JEcZ4XecVhAQlOgIb5J2buuuD5aBMXWBvs78O5ZKQyQ-0lFQ1Cc_WA0C_OyGo3GZt8zzJ99lL3_8_OymUXPAm1jFM0VxZXh6Fw60oxVSadTTrsc-zrBhC2flp4jSfdDWEO-ANEanLyhwA1"/>
+<div>
+<p class="font-label-md text-on-surface">David Smith</p>
+<p class="text-xs text-on-surface-variant">Frontend Architect</p>
+</div>
+</div>
+<div class="flex items-center gap-0.5 text-tertiary">
+<span class="material-symbols-outlined text-[16px]" data-icon="star" data-weight="fill">star</span>
+<span class="text-xs font-bold">5.0</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-xs mb-md">
+<span class="bg-tertiary-fixed/20 text-on-tertiary-fixed-variant text-[10px] px-2 py-0.5 rounded-full font-bold">Urgent</span>
+</div>
+<div class="bg-surface-container p-sm rounded-lg mb-sm">
+<p class="text-[10px] text-on-surface-variant font-bold uppercase">Next Round</p>
+<p class="text-xs text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="calendar_month">calendar_month</span>
+                                    Today, 2:30 PM
+                                </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Column: Offer -->
+<div class="flex flex-col gap-sm min-w-[300px]">
+<div class="flex items-center justify-between px-sm py-2 border-b-2 border-outline">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-on-surface">Offer</span>
+<span class="bg-surface-container-highest text-on-surface-variant text-[10px] px-1.5 py-0.5 rounded-full font-bold">3</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant cursor-pointer" data-icon="more_horiz">more_horiz</span>
+</div>
+<div class="kanban-column space-y-md p-sm bg-surface-container-low/30 rounded-xl">
+<div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-outline-variant opacity-75 grayscale-[0.5] transition-all">
+<!-- Placeholder for Offer card -->
+<div class="flex items-center gap-sm opacity-50">
+<div class="w-10 h-10 rounded-full bg-surface-container"></div>
+<div class="space-y-1">
+<div class="h-3 w-24 bg-surface-container rounded"></div>
+<div class="h-2 w-16 bg-surface-container rounded"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Column: Hired -->
+<div class="flex flex-col gap-sm min-w-[300px]">
+<div class="flex items-center justify-between px-sm py-2 border-b-2 border-secondary">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-on-surface">Hired</span>
+<span class="bg-secondary-container/30 text-secondary text-[10px] px-1.5 py-0.5 rounded-full font-bold">20</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant cursor-pointer" data-icon="more_horiz">more_horiz</span>
+</div>
+<div class="kanban-column space-y-md p-sm bg-surface-container-low/30 rounded-xl">
+<div class="bg-secondary-container/10 p-md rounded-xl shadow-sm border border-secondary/30 hover:shadow-md transition-all">
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-sm">
+<img alt="Jordan Taylor" class="w-10 h-10 rounded-full object-cover" data-alt="A portrait of a confident black woman professional in a modern white blazer. She is smiling and has short dark hair. The background is a blurred high-end corporate office with minimalist architecture and soft daylight." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFo2X0eXezCkMPgPMc9MFpEoe7H83WWbMnw2mjcF6ZmIpEtPf3Wz02rpFj15PBso9qozVPp72455ckJcc6KmINBDubrVRGLv2rfGzLFm63yqmIt2oI_p8WqYcfr9vq1p8XiOcUWT5M_V9ASc7NvcCtCw8k2M90IfEtjTkH4an79sRdoPJz9Fn3-kLA3ddNEJ58zxr3ZC6i7hlydjCxobnBd9z78gLZBd5a5qFPwJqv8HgQY-Ke1TROWpKyeNNNvlOJJPwIGqSiSGz4"/>
+<div>
+<p class="font-label-md text-secondary font-bold">Jordan Taylor</p>
+<p class="text-xs text-on-surface-variant">Onboarding Started</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="verified" data-weight="fill">verified</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Interactive Layer: FAB (Floating Action Button) -->
+<button class="fixed bottom-margin-desktop right-margin-desktop bg-primary text-on-primary w-14 h-14 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50 group">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+<span class="absolute right-full mr-4 bg-inverse-surface text-surface-container-lowest px-md py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">Add Candidate</span>
+</button>
+<script>
+        // Simple micro-interactions for the Kanban board
+        document.querySelectorAll('.cursor-grab').forEach(card => {
+            card.addEventListener('mousedown', () => {
+                card.classList.add('drag-preview');
+            });
+            card.addEventListener('mouseup', () => {
+                card.classList.remove('drag-preview');
+            });
+        });
+
+        // Search bar focus effect
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('ring-2', 'ring-primary/20');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('ring-2', 'ring-primary/20');
+        });
+    </script>
+</body></html>

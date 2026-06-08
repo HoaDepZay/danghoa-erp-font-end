@@ -11,13 +11,13 @@ import {
   CheckCircle,
   Layout,
   X,
+  List,
+  Kanban,
   CalendarDays
 } from "lucide-react";
-import FullCalendar from "@fullcalendar/react";
-import dayGridPlugin from "@fullcalendar/daygrid";
 import { api } from "../services/api";
 import { toast, formatDate, checkOverdue } from "../utils/helpers";
-import { Spinner, Btn, Badge, FormField } from "./UI";
+import { Spinner, Btn, Badge, FormField, SharedCalendar } from "./UI";
 
 interface Task {
   maNvDa: number;
@@ -37,17 +37,18 @@ interface ProjectTasksProps {
   projectId: number;
   members: any[];
   isAdmin: boolean;
-  defaultView?: "list" | "calendar";
+  defaultView?: "list" | "calendar" | "kanban";
   currentUser?: any;
 }
 
 const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin, defaultView = "list", currentUser }) => {
-  const myId = currentUser?.userInfo?.MA_NV || currentUser?.userInfo?.MANV;
+  const myId = currentUser?.userInfo?.MA_NV || currentUser?.userInfo?.MA_NV;
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [selectedEvent, setSelectedEvent] = useState<Task | null>(null);
+  const [selectedEventId, setSelectedEventId] = useState<any>(null);
+  const [view, setView] = useState<"list" | "calendar" | "kanban">(defaultView);
   const [form, setForm] = useState({
     MA_NV: "",
     TEN_NHIEM_VU: "",
@@ -109,9 +110,10 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
     }
   };
 
-  const handleQuickUpdate = async (task: Task, status: string, progress: number) => {
+  const handleQuickUpdate = async (task: any, status: string, progress: number) => {
     try {
-      await api.updateProjectTask(projectId, task.maNvDa, {
+      const taskId = task.maNvDa || task.MA_NV_DA || task.id || task.TEN_NHIEM_VU;
+      await api.updateProjectTask(projectId, taskId, {
         TRANG_THAI: status,
         PHAN_TRAM_HOAN_THANH: progress,
         MO_TA: task.MO_TA
@@ -137,21 +139,51 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
   };
 
   const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "Cao": return "red";
-      case "Trung bình": return "yellow";
-      case "Thấp": return "gray";
+    switch (priority?.toLowerCase()) {
+      case "cao":
+      case "high": return "red";
+      case "trung bình":
+      case "normal":
+      case "medium": return "yellow";
+      case "thấp":
+      case "low": return "gray";
       default: return "gray";
     }
   };
 
   const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "Hoàn thành": return <CheckCircle2 size={14} color="#10b981" />;
-      case "Đang làm": return <Clock size={14} color="#3b82f6" />;
-      case "Mới": return <Activity size={14} color="#94a3b8" />;
+    switch (status?.toLowerCase()) {
+      case "hoàn thành":
+      case "completed":
+      case "done": return <CheckCircle2 size={14} color="#10b981" />;
+      case "đang làm":
+      case "in progress":
+      case "doing": return <Clock size={14} color="#3b82f6" />;
+      case "mới":
+      case "new":
+      case "todo": return <Activity size={14} color="#94a3b8" />;
       default: return <AlertCircle size={14} color="#f59e0b" />;
     }
+  };
+
+  const getStatusColorHex = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case "hoàn thành":
+      case "completed":
+      case "done": return "green";
+      case "đang làm":
+      case "in progress":
+      case "doing": return "blue";
+      case "tạm dừng":
+      case "paused": return "red";
+      default: return "gray";
+    }
+  };
+
+  const getAssigneeName = (maNv: string) => {
+    if (!maNv) return "";
+    const member = members.find((m: any) => (m.MA_NV || m.MANV)?.toLowerCase() === maNv.toLowerCase());
+    return member?.HO_TEN || member?.TEN_NV || member?.TENNV || maNv;
   };
 
   const calendarEvents = tasks.map((t) => ({
@@ -162,87 +194,135 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
     extendedProps: t
   }));
 
-  if (defaultView === "calendar") {
+  const renderTaskCard = (task: any) => {
+    const taskId = task.maNvDa || task.MA_NV_DA || task.id || task.TEN_NHIEM_VU;
+    const isOverdue = checkOverdue(task.NGAY_KET_THUC, task.TRANG_THAI);
+    const isEditing = editingTask && (taskId === (editingTask as any).maNvDa || taskId === (editingTask as any).MA_NV_DA || taskId === (editingTask as any).id || taskId === (editingTask as any).TEN_NHIEM_VU);
+
     return (
-      <div className="project-tasks-calendar" style={{ padding: "0 10px" }}>
-        <style>{`
-          .fc-event { border: none !important; border-radius: 4px; padding: 2px 6px; font-size: 11px; font-weight: 600; cursor: pointer; color: white !important; margin-bottom: 2px; }
-          .fc-daygrid-day-number { color: #334155; font-weight: 600; }
-          .fc-col-header-cell { background: #f8fafc; padding: 8px 0; font-weight: 600; color: #64748b; }
-        `}</style>
-        <FullCalendar
-          plugins={[dayGridPlugin]}
-          initialView="dayGridMonth"
-          events={calendarEvents}
-          height="auto"
-          locale="vi"
-          headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,dayGridWeek'
-          }}
-          eventContent={(arg) => (
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {arg.event.title}
-              </span>
-              <span style={{ fontSize: 10, opacity: 0.9 }}>
-                {arg.event.extendedProps.tenNhanVien}
-              </span>
+      <div key={taskId} className="card" style={{ 
+        padding: 16, 
+        background: isOverdue ? "#fff1f2" : "#fff", 
+        borderColor: isOverdue ? "#fecdd3" : "#e2e8f0",
+        borderWidth: 1,
+        borderStyle: "solid",
+        transition: "all 0.2s",
+        display: "flex",
+        flexDirection: "column",
+        gap: 12
+      }}>
+        {/* Header: Status, Title, Priority */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
+              <Badge color={getStatusColorHex(task.TRANG_THAI)}>{task.TRANG_THAI}</Badge>
+              {isOverdue && <Badge color="red">Quá hạn</Badge>}
+              <Badge color={getPriorityColor(task.DO_UU_TIEN)}>{task.DO_UU_TIEN}</Badge>
             </div>
-          )}
-          eventClick={(info) => {
-            setSelectedEvent(info.event.extendedProps as Task);
-          }}
-        />
-        {selectedEvent && (
-          <div className="modal-overlay" onClick={() => setSelectedEvent(null)}>
-            <div className="modal-box" onClick={e => e.stopPropagation()} style={{ width: 400, maxWidth: "90%" }}>
-              <div className="modal-header">
-                <h3 style={{ margin: 0, fontSize: 16, display: "flex", alignItems: "center", gap: 8 }}>
-                  {getStatusIcon(selectedEvent.TRANG_THAI)} {selectedEvent.TEN_NHIEM_VU}
-                </h3>
-                <button className="modal-close" onClick={() => setSelectedEvent(null)}><X size={20} /></button>
-              </div>
-              <div className="modal-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8" }}>MÔ TẢ</label>
-                  <p style={{ margin: "4px 0 0", fontSize: 14 }}>{selectedEvent.MO_TA || "Không có mô tả"}</p>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <div>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8" }}>NHÂN VIÊN</label>
-                    <p style={{ margin: "4px 0 0", fontSize: 14, fontWeight: 600 }}>{selectedEvent.tenNhanVien}</p>
-                  </div>
-                  <div>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8" }}>TIẾN ĐỘ</label>
-                    <p style={{ margin: "4px 0 0", fontSize: 14, fontWeight: 700, color: "#3b82f6" }}>{selectedEvent.PHAN_TRAM_HOAN_THANH}%</p>
-                  </div>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <div>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8" }}>BẮT ĐẦU</label>
-                    <p style={{ margin: "4px 0 0", fontSize: 14 }}>{formatDate(selectedEvent.NGAY_BAT_DAU)}</p>
-                  </div>
-                  <div>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8" }}>KẾT THÚC</label>
-                    <p style={{ margin: "4px 0 0", fontSize: 14 }}>{formatDate(selectedEvent.NGAY_KET_THUC)}</p>
-                  </div>
-                </div>
+            <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: isOverdue ? "#9f1239" : "#1e293b" }}>{task.TEN_NHIEM_VU}</h4>
+          </div>
+          
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+            <span style={{ fontSize: 16, fontWeight: 800, color: "#3b82f6" }}>{task.PHAN_TRAM_HOAN_THANH || 0}%</span>
+            <div style={{ width: 80, height: 6, background: "#f1f5f9", borderRadius: 3, overflow: "hidden" }}>
+              <div style={{ width: `${task.PHAN_TRAM_HOAN_THANH || 0}%`, height: "100%", background: "#3b82f6" }} />
+            </div>
+          </div>
+        </div>
+
+        {/* Description */}
+        <p style={{ margin: 0, fontSize: 13, color: "#475569", lineHeight: 1.5 }}>
+          {task.MO_TA || <span style={{ fontStyle: "italic", color: "#94a3b8" }}>Không có mô tả chi tiết...</span>}
+        </p>
+        
+        {/* Meta Info */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center", background: "#f8fafc", padding: "10px 14px", borderRadius: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#eff6ff", padding: "4px 12px 4px 4px", borderRadius: 20, border: "1px solid #bfdbfe" }}>
+            <div style={{ width: 24, height: 24, background: "#3b82f6", color: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800 }}>
+              {(getAssigneeName(task.MA_NV) || "C").charAt(0).toUpperCase()}
+            </div>
+            <span style={{ fontWeight: 800, color: "#1e40af", fontSize: 13 }}>
+              {getAssigneeName(task.MA_NV) || "Chưa phân công"}
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#475569", fontWeight: 500 }}>
+            <Calendar size={15} color="#64748b" /> 
+            <span>{formatDate(task.NGAY_BAT_DAU)} <strong style={{ color: "#cbd5e1", margin: "0 6px" }}>→</strong> {formatDate(task.NGAY_KET_THUC)}</span>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4, paddingTop: 12, borderTop: "1px dashed #e2e8f0" }}>
+          <div style={{ display: "flex", gap: 8 }}>
+            {(task.TRANG_THAI === "Mới" || task.TRANG_THAI?.toLowerCase() === "new" || task.TRANG_THAI?.toLowerCase() === "todo") && (
+              <Btn size="sm" variant="secondary" onClick={() => handleQuickUpdate(task, "Đang làm", 10)} style={{ fontSize: 12, padding: "4px 12px" }}>Bắt đầu làm</Btn>
+            )}
+            {(task.TRANG_THAI === "Đang làm" || task.TRANG_THAI?.toLowerCase() === "doing" || task.TRANG_THAI?.toLowerCase() === "in progress") && (
+              <Btn size="sm" variant="success" onClick={() => handleQuickUpdate(task, "Hoàn thành", 100)} style={{ fontSize: 12, padding: "4px 12px" }}>Hoàn tất</Btn>
+            )}
+          </div>
+          
+          <div style={{ display: "flex", gap: 8 }}>
+            {isEditing ? (
+              <>
+                <Btn size="sm" variant="primary" onClick={() => handleUpdateTask(taskId, editingTask)} style={{ fontSize: 12 }}>Lưu</Btn>
+                <Btn size="sm" variant="ghost" onClick={() => setEditingTask(null)} style={{ fontSize: 12, color: "#ef4444" }}>Hủy</Btn>
+              </>
+            ) : (
+              <Btn size="sm" variant="ghost" onClick={() => setEditingTask({...task})} style={{ fontSize: 12, color: "#64748b", display: "flex", alignItems: "center", gap: 4 }}>
+                <MoreVertical size={14} /> Sửa
+              </Btn>
+            )}
+          </div>
+        </div>
+
+        {isEditing && (
+          <div style={{ marginTop: 12, borderTop: "1px solid #f1f5f9", paddingTop: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              <FormField label="Trạng thái">
+                <select className="form-input" value={editingTask.TRANG_THAI} onChange={(e) => setEditingTask({...editingTask, TRANG_THAI: e.target.value})}>
+                  <option>Mới</option>
+                  <option>Đang làm</option>
+                  <option>Hoàn thành</option>
+                  <option>Tạm dừng</option>
+                </select>
+              </FormField>
+              <FormField label="Hoàn thành (%)">
+                <input type="number" className="form-input" min="0" max="100" value={editingTask.PHAN_TRAM_HOAN_THANH} onChange={(e) => setEditingTask({...editingTask, PHAN_TRAM_HOAN_THANH: parseInt(e.target.value)})} />
+              </FormField>
+              <div style={{ gridColumn: "span 2" }}>
+                <FormField label="Ghi chú/Mô tả tiến độ mới">
+                  <textarea 
+                    className="form-input" 
+                    rows={2} 
+                    value={editingTask.MO_TA} 
+                    onChange={(e) => setEditingTask({...editingTask, MO_TA: e.target.value})} 
+                    style={{ resize: "none" }} 
+                  />
+                </FormField>
               </div>
             </div>
           </div>
         )}
       </div>
     );
-  }
+  };
+
+  const KANBAN_COLUMNS = ["Mới", "Đang làm", "Hoàn thành", "Tạm dừng"];
 
   return (
     <div className="project-tasks">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <h5 style={{ margin: 0, display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
-          <Layout size={14} /> Danh sách nhiệm vụ ({tasks.length})
-        </h5>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <h5 style={{ margin: 0, display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+            <Layout size={14} /> Nhiệm vụ ({tasks.length})
+          </h5>
+          <div style={{ display: "flex", background: "#f1f5f9", borderRadius: 8, padding: 4 }}>
+            <button onClick={() => setView("list")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", border: "none", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer", background: view === "list" ? "#fff" : "transparent", color: view === "list" ? "#111" : "#64748b", boxShadow: view === "list" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}><List size={14}/> Danh sách</button>
+            <button onClick={() => setView("kanban")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", border: "none", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer", background: view === "kanban" ? "#fff" : "transparent", color: view === "kanban" ? "#111" : "#64748b", boxShadow: view === "kanban" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}><Kanban size={14}/> Kanban</button>
+            <button onClick={() => setView("calendar")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", border: "none", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer", background: view === "calendar" ? "#fff" : "transparent", color: view === "calendar" ? "#111" : "#64748b", boxShadow: view === "calendar" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}><CalendarDays size={14}/> Lịch</button>
+          </div>
+        </div>
         {isAdmin && !showAddForm && (
           <Btn size="sm" variant="primary" icon={<Plus size={14} />} onClick={() => setShowAddForm(true)}>
             Giao nhiệm vụ
@@ -258,7 +338,7 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
               <select className="form-input" value={form.MA_NV} onChange={(e) => setForm({...form, MA_NV: e.target.value})}>
                 <option value="">-- Chọn nhân viên --</option>
                 {members.map((m: any) => (
-                  <option key={m.MA_NV} value={m.MA_NV}>{m.HO_TEN}</option>
+                  <option key={m.MA_NV || m.MANV} value={m.MA_NV || m.MANV}>{m.HO_TEN || m.TEN_NV || m.TENNV}</option>
                 ))}
               </select>
             </FormField>
@@ -306,97 +386,74 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
           <p style={{ margin: 0, color: "#94a3b8", fontSize: 13 }}>Chưa có nhiệm vụ nào được phân công.</p>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {tasks.map((task) => {
-            const isOverdue = checkOverdue(task.NGAY_KET_THUC, task.TRANG_THAI);
-            return (
-            <div key={task.maNvDa} className="card" style={{ 
-              padding: 14, 
-              background: isOverdue ? "#fff1f2" : "#fff", 
-              borderColor: isOverdue ? "#fecdd3" : "#f1f5f9",
-              transition: "all 0.2s" 
-            }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                    {getStatusIcon(task.TRANG_THAI)}
-                    <span style={{ fontWeight: 700, fontSize: 14, color: isOverdue ? "#9f1239" : "#1e293b" }}>{task.TEN_NHIEM_VU}</span>
-                    {isOverdue && <Badge color="red">Quá hạn</Badge>}
-                    <Badge color={getPriorityColor(task.DO_UU_TIEN)}>{task.DO_UU_TIEN}</Badge>
-                  </div>
-                  <p style={{ margin: "0 0 10px 0", fontSize: 12, color: "#64748b" }}>{task.MO_TA || "Không có mô tả"}</p>
-                  
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "#94a3b8" }}>
-                      <User size={12} /> <span style={{ fontWeight: 600, color: "#475569" }}>{task.tenNhanVien}</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "#94a3b8" }}>
-                      <Calendar size={12} /> {formatDate(task.NGAY_BAT_DAU)} - {formatDate(task.NGAY_KET_THUC)}
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ textAlign: "right", paddingLeft: 16 }}>
-                  <div style={{ marginBottom: 8 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "#3b82f6" }}>{task.PHAN_TRAM_HOAN_THANH}%</div>
-                    <div style={{ width: 60, height: 6, background: "#f1f5f9", borderRadius: 3, overflow: "hidden", marginTop: 4, display: "inline-block" }}>
-                      <div style={{ width: `${task.PHAN_TRAM_HOAN_THANH}%`, height: "100%", background: "#3b82f6" }} />
-                    </div>
-                  </div>
-                  {(isAdmin || task.MA_NV?.toLowerCase() === myId?.toLowerCase()) && (
-                    <>
-                      {task.TRANG_THAI === "Mới" && (
-                        <Btn size="sm" variant="secondary" onClick={() => handleQuickUpdate(task, "Đang làm", 10)} style={{ marginBottom: 4, fontSize: 11, padding: "2px 8px" }}>Bắt đầu làm</Btn>
-                      )}
-                      {task.TRANG_THAI === "Đang làm" && (
-                        <Btn size="sm" variant="primary" onClick={() => handleQuickUpdate(task, "Hoàn thành", 100)} style={{ marginBottom: 4, fontSize: 11, padding: "2px 8px" }}>Hoàn tất</Btn>
-                      )}
-                      {editingTask?.maNvDa === task.maNvDa ? (
-                        <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
-                          <button onClick={() => handleUpdateTask(task.maNvDa, editingTask)} style={{ color: "#10b981", background: "none", border: "none", cursor: "pointer" }}><CheckCircle size={16} /></button>
-                          <button onClick={() => setEditingTask(null)} style={{ color: "#f43f5e", background: "none", border: "none", cursor: "pointer" }}><X size={16} /></button>
-                        </div>
-                      ) : (
-                        <button onClick={() => setEditingTask({...task})} style={{ color: "#94a3b8", background: "none", border: "none", cursor: "pointer", marginLeft: 8 }}>
-                          <MoreVertical size={16} />
-                        </button>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {editingTask?.maNvDa === task.maNvDa && (
-                <div style={{ marginTop: 12, borderTop: "1px solid #f1f5f9", paddingTop: 12 }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                    <FormField label="Trạng thái">
-                      <select className="form-input" value={editingTask.TRANG_THAI} onChange={(e) => setEditingTask({...editingTask, TRANG_THAI: e.target.value})}>
-                        <option>Mới</option>
-                        <option>Đang làm</option>
-                        <option>Hoàn thành</option>
-                        <option>Tạm dừng</option>
-                      </select>
-                    </FormField>
-                    <FormField label="Hoàn thành (%)">
-                      <input type="number" className="form-input" min="0" max="100" value={editingTask.PHAN_TRAM_HOAN_THANH} onChange={(e) => setEditingTask({...editingTask, PHAN_TRAM_HOAN_THANH: parseInt(e.target.value)})} />
-                    </FormField>
-                    <div style={{ gridColumn: "span 2" }}>
-                      <FormField label="Ghi chú/Mô tả tiến độ mới">
-                        <textarea 
-                          className="form-input" 
-                          rows={2} 
-                          value={editingTask.MO_TA} 
-                          onChange={(e) => setEditingTask({...editingTask, MO_TA: e.target.value})} 
-                          style={{ resize: "none" }} 
-                        />
-                      </FormField>
-                    </div>
-                  </div>
-                </div>
-              )}
+        <>
+          {view === "list" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {tasks.map(renderTaskCard)}
             </div>
-          );
-          })}
+          )}
+
+          {view === "kanban" && (
+            <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 12, alignItems: "flex-start" }}>
+              {KANBAN_COLUMNS.map(col => {
+                const colTasks = tasks.filter(t => t.TRANG_THAI === col);
+                return (
+                  <div key={col} style={{ minWidth: 300, flex: 1, background: "#f8fafc", borderRadius: 12, padding: 12, border: "1px solid #e2e8f0" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                      <h6 style={{ fontSize: 13, fontWeight: 700, color: "#475569", margin: 0 }}>{col}</h6>
+                      <Badge color={getStatusColorHex(col)}>{colTasks.length}</Badge>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      {colTasks.length > 0 ? colTasks.map(renderTaskCard) : (
+                        <div style={{ padding: 20, textAlign: "center", color: "#94a3b8", fontSize: 12, border: "1px dashed #cbd5e1", borderRadius: 8 }}>
+                          Không có nhiệm vụ
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {view === "calendar" && (
+            <div className="project-tasks-calendar" style={{ padding: "0 10px", background: "#fff", borderRadius: 12, border: "1px solid #f1f5f9" }}>
+              <SharedCalendar
+                events={calendarEvents}
+                eventContent={(arg) => (
+                  <div style={{ display: "flex", flexDirection: "column", padding: "4px 8px", backgroundColor: arg.event.backgroundColor || "#3b82f6", color: "#fff", fontSize: 11, fontWeight: 600, width: "100%", boxSizing: "border-box" }}>
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {arg.event.title}
+                    </span>
+                    <span style={{ fontSize: 10, opacity: 0.9, fontWeight: 500 }}>
+                      {arg.event.extendedProps.tenNhanVien}
+                    </span>
+                  </div>
+                )}
+                onEventClick={(info: any) => {
+                  const props = info.event.extendedProps as any;
+                  setSelectedEventId(props.maNvDa || props.MA_NV_DA || props.id || props.TEN_NHIEM_VU);
+                }}
+              />
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Calendar Event Details Modal */}
+      {selectedEventId && view === "calendar" && (
+        <div className="modal-overlay" onClick={() => { setSelectedEventId(null); setEditingTask(null); }}>
+          <div className="modal-box" onClick={e => e.stopPropagation()} style={{ width: 600, maxWidth: "90%", padding: "24px", position: "relative" }}>
+            <button className="modal-close" onClick={() => { setSelectedEventId(null); setEditingTask(null); }} style={{ position: "absolute", right: 24, top: 24, zIndex: 10 }}>
+              <X size={20} />
+            </button>
+            <h3 style={{ margin: "0 0 16px 0", fontSize: 16 }}>Chi tiết nhiệm vụ (Từ Lịch)</h3>
+            {(() => {
+              const task = tasks.find(t => (t.maNvDa || (t as any).MA_NV_DA || (t as any).id || t.TEN_NHIEM_VU) === selectedEventId);
+              if (!task) return <p>Không tìm thấy nhiệm vụ.</p>;
+              return renderTaskCard(task);
+            })()}
+          </div>
         </div>
       )}
     </div>

@@ -1,5 +1,6 @@
 import React, { ReactNode, CSSProperties } from "react";
 export { default as Drawer } from "./Drawer";
+export { default as SharedCalendar } from "./SharedCalendar";
 
 // ── Spinner ──────────────────────────────────────────────────────────────────
 export const Spinner = ({ size = 20, color = "currentColor" }: { size?: number, color?: string }) => (
@@ -150,11 +151,13 @@ export const SkeletonRows = ({ cols = 4, rows = 5 }: { cols?: number, rows?: num
 // ── StatCard ──────────────────────────────────────────────────────────────────
 export const StatCard = ({ label, value, icon, trend }: { label: string, value: string | number | null, icon?: ReactNode, trend?: string }) => (
   <div className="stat-card">
-    <div className="stat-icon">{icon}</div>
-    <div>
-      <div className="stat-value">{value ?? "—"}</div>
+    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'flex-start' }}>
+      <div className="stat-icon">{icon}</div>
+      {trend && <div style={{ fontSize: 12, color: "var(--secondary)", fontWeight: 600 }}>{trend}</div>}
+    </div>
+    <div style={{ marginTop: 4 }}>
       <div className="stat-label">{label}</div>
-      {trend && <div style={{ fontSize: 11, color: "#10b981", fontWeight: 600, marginTop: 2 }}>{trend}</div>}
+      <div className="stat-value">{value ?? "—"}</div>
     </div>
   </div>
 );

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login | Nexus HRMS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-effect {
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed": "#00174b",
+                    "primary": "#004ac6",
+                    "surface-dim": "#d9d9e5",
+                    "tertiary-container": "#bc4800",
+                    "surface-container-low": "#f3f3fe",
+                    "background": "#faf8ff",
+                    "tertiary": "#943700",
+                    "secondary": "#006b5f",
+                    "on-primary-container": "#eeefff",
+                    "inverse-on-surface": "#f0f0fb",
+                    "on-error-container": "#93000a",
+                    "error": "#ba1a1a",
+                    "surface-container-highest": "#e1e2ed",
+                    "surface-tint": "#0053db",
+                    "outline": "#737686",
+                    "on-secondary-container": "#006f64",
+                    "on-secondary-fixed": "#00201c",
+                    "error-container": "#ffdad6",
+                    "primary-container": "#2563eb",
+                    "on-secondary": "#ffffff",
+                    "inverse-surface": "#2e3039",
+                    "on-primary": "#ffffff",
+                    "on-background": "#191b23",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "surface-container": "#ededf9",
+                    "surface-container-high": "#e7e7f3",
+                    "surface": "#faf8ff",
+                    "on-tertiary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "on-secondary-fixed-variant": "#005048",
+                    "on-tertiary-container": "#ffede6",
+                    "primary-fixed": "#dbe1ff",
+                    "outline-variant": "#c3c6d7",
+                    "secondary-container": "#6df5e1",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed": "#71f8e4",
+                    "on-surface-variant": "#434655",
+                    "tertiary-fixed": "#ffdbcd",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "on-surface": "#191b23",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "inverse-primary": "#b4c5ff",
+                    "secondary-fixed-dim": "#4fdbc8",
+                    "on-tertiary-fixed": "#360f00",
+                    "surface-bright": "#faf8ff",
+                    "surface-variant": "#e1e2ed"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "sm": "8px",
+                    "lg": "24px",
+                    "base": "4px",
+                    "xs": "4px",
+                    "margin-desktop": "32px",
+                    "margin-mobile": "16px",
+                    "xl": "32px",
+                    "md": "16px",
+                    "max-width": "1440px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "code": ["JetBrains Mono"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "code": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+</head>
+<body class="bg-surface-container-low min-h-screen flex items-center justify-center p-md selection:bg-primary-fixed-dim selection:text-on-primary-fixed">
+<!-- Atmospheric Background Decoration -->
+<div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+<div class="absolute -top-[10%] -left-[5%] w-[40%] h-[40%] rounded-full bg-primary/5 blur-[120px]"></div>
+<div class="absolute top-[60%] -right-[10%] w-[50%] h-[50%] rounded-full bg-secondary/5 blur-[120px]"></div>
+</div>
+<!-- Login Container -->
+<main class="relative z-10 w-full max-w-[480px]">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg shadow-md overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
+<!-- Card Header & Logo -->
+<div class="px-lg pt-xl pb-md text-center">
+<div class="inline-flex items-center justify-center mb-md">
+<img alt="Nexus HR Logo" class="w-10 h-10 object-contain" src="data:image/png;base64,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"/>
+</div>
+<h1 class="font-headline-md text-headline-md text-on-surface mb-xs">Welcome Back</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Sign in to manage your enterprise workforce.</p>
+</div>
+<!-- Login Form -->
+<form class="px-lg pb-lg space-y-md" id="loginForm" onsubmit="return false;">
+<!-- Email Input -->
+<div class="space-y-base">
+<label class="font-label-md text-label-md text-on-surface-variant block ml-xs" for="email">Corporate Email</label>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[20px]">mail</span>
+</div>
+<input class="w-full pl-[44px] pr-md py-sm bg-surface-bright border border-outline-variant rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" id="email" name="email" placeholder="name@company.com" required="" type="email"/>
+</div>
+</div>
+<!-- Password Input -->
+<div class="space-y-base">
+<div class="flex justify-between items-center px-xs">
+<label class="font-label-md text-label-md text-on-surface-variant" for="password">Password</label>
+<a class="font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors" href="#">Forgot Password?</a>
+</div>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+</div>
+<input class="w-full pl-[44px] pr-[44px] py-sm bg-surface-bright border border-outline-variant rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" id="password" name="password" placeholder="••••••••" required="" type="password"/>
+<button class="absolute inset-y-0 right-0 pr-md flex items-center text-on-surface-variant hover:text-on-surface focus:outline-none transition-colors" onclick="togglePasswordVisibility()" type="button">
+<span class="material-symbols-outlined text-[20px]" id="passwordIcon">visibility</span>
+</button>
+</div>
+</div>
+<!-- Remember Me -->
+<div class="flex items-center px-xs">
+<input class="w-4 h-4 text-primary border-outline-variant rounded focus:ring-primary/20 bg-surface-bright cursor-pointer" id="remember" name="remember" type="checkbox"/>
+<label class="ml-sm font-body-sm text-body-sm text-on-surface-variant cursor-pointer select-none" for="remember">Stay signed in for 30 days</label>
+</div>
+<!-- Primary Action -->
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-md rounded-lg shadow-sm hover:bg-on-primary-fixed-variant hover:shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-sm" type="submit">
+                    Sign In to Nexus
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+<!-- Divider -->
+<div class="relative py-sm">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-outline-variant"></div>
+</div>
+<div class="relative flex justify-center text-label-sm">
+<span class="px-md bg-surface-container-lowest text-outline font-label-sm uppercase tracking-wider">or continue with</span>
+</div>
+</div>
+<!-- Social Logins -->
+<div class="grid grid-cols-2 gap-md">
+<button class="flex items-center justify-center gap-sm px-md py-sm border border-outline-variant rounded-lg bg-surface-bright hover:bg-surface-container-low transition-colors active:scale-95 group" type="button">
+<svg class="w-5 h-5" viewbox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+</svg>
+<span class="font-label-md text-label-md text-on-surface-variant group-hover:text-on-surface">Google</span>
+</button>
+<button class="flex items-center justify-center gap-sm px-md py-sm border border-outline-variant rounded-lg bg-surface-bright hover:bg-surface-container-low transition-colors active:scale-95 group" type="button">
+<svg class="w-5 h-5" viewbox="0 0 23 23">
+<path d="M0 0h23v23H0z" fill="#f3f3f3"></path>
+<path d="M1 1h10v10H1z" fill="#f35325"></path>
+<path d="M12 1h10v10H12z" fill="#81bc06"></path>
+<path d="M1 12h10v10H1z" fill="#05a6f0"></path>
+<path d="M12 12h10v10H12z" fill="#ffba08"></path>
+</svg>
+<span class="font-label-md text-label-md text-on-surface-variant group-hover:text-on-surface">Microsoft</span>
+</button>
+</div>
+</form>
+<!-- Card Footer -->
+<div class="px-lg py-md bg-surface-container text-center border-t border-outline-variant">
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                    Don't have an enterprise account? 
+                    <a class="text-primary font-label-md hover:underline" href="#">Contact Administrator</a>
+</p>
+</div>
+</div>
+<!-- System Status/Help Links -->
+<div class="mt-xl flex flex-col md:flex-row items-center justify-between gap-md px-md">
+<div class="flex items-center gap-xs text-on-surface-variant/60 font-label-sm text-label-sm">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary-container opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+</span>
+                All Systems Operational
+            </div>
+<div class="flex gap-lg">
+<a class="text-on-surface-variant/60 hover:text-on-surface-variant font-label-sm text-label-sm transition-colors" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant/60 hover:text-on-surface-variant font-label-sm text-label-sm transition-colors" href="#">Terms of Service</a>
+<a class="text-on-surface-variant/60 hover:text-on-surface-variant font-label-sm text-label-sm transition-colors" href="#">Help Center</a>
+</div>
+</div>
+</main>
+<script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const passwordIcon = document.getElementById('passwordIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.innerText = 'visibility_off';
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.innerText = 'visibility';
+            }
+        }
+
+        // Add a subtle entrance animation delay for form children
+        document.addEventListener('DOMContentLoaded', () => {
+            const formElements = document.querySelectorAll('#loginForm > *');
+            formElements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(10px)';
+                el.style.transition = `all 0.5s ease-out ${0.2 + (index * 0.05)}s`;
+                
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, 100);
+            });
+        });
+    </script>
+</body></html>

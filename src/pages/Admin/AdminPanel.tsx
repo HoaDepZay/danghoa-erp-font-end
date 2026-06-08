@@ -29,6 +29,7 @@ export const AdminEditEmpModal: React.FC<AdminEditEmpModalProps> = ({ isOpen, on
 
   const handleSubmit = async () => {
     if (!form.MA_NV || !form.HO_TEN) return toast.error("Mã NV và Họ tên không được trống!");
+    if (form.CHUC_VU === "Trưởng phòng" && !form.MA_PHG) return toast.error("Trưởng phòng bắt buộc phải có phòng ban!");
     setLoading(true);
     try {
       await api.adminUpdateEmployee({
@@ -56,14 +57,14 @@ export const AdminEditEmpModal: React.FC<AdminEditEmpModalProps> = ({ isOpen, on
         </FormField>
          <FormField label="Chức vụ">
           <select className="form-input" value={form.CHUC_VU} onChange={set("CHUC_VU")}>
-             <option>Cộng tác viên</option><option>Nhân viên</option><option>Quản lý</option><option>Admin</option>
+             <option>Thực tập sinh</option><option>Nhân viên</option><option>Trưởng nhóm</option><option>Trưởng phòng</option><option>Giám đốc</option>
           </select>
         </FormField>
-        <FormField label="Phòng ban">
+        <FormField label={form.CHUC_VU === "Trưởng phòng" ? "Phòng ban *" : "Phòng ban"}>
            <select className="form-input" value={form.MA_PHG} onChange={set("MA_PHG")}>
             <option value="">— Chưa chọn —</option>
             {departments.map((d: any) => (
-               <option key={d.MA_PHG} value={d.MA_PHG}>{getProp(d, 'tenpb')}</option>
+               <option key={d.MA_PHG} value={d.MA_PHG}>{getProp(d, 'TEN_PB')}</option>
             ))}
           </select>
         </FormField>
@@ -82,26 +83,26 @@ interface AdminDeptModalProps {
 }
 export const AdminDeptModal: React.FC<AdminDeptModalProps> = ({ isOpen, onClose, editData, employees, onSuccess }) => {
   const isEdit = !!editData;
-  const [form, setForm] = useState({ tenpb: "", MA_PHG: "", matruongphg: "" });
+  const [form, setForm] = useState({ TEN_PB: "", MA_PHG: "", matruongphg: "" });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setForm(editData
       ? { 
-          tenpb: getProp(editData, 'tenpb') || "", 
+          TEN_PB: getProp(editData, 'TEN_PB') || "", 
           MA_PHG: editData.MA_PHG || "",
           matruongphg: editData.matruongphg || ""
         }
-      : { tenpb: "", MA_PHG: "", matruongphg: "" }
+      : { TEN_PB: "", MA_PHG: "", matruongphg: "" }
     );
   }, [editData, isOpen]);
 
   const handleSubmit = async () => {
-    if (!form.tenpb.trim()) return toast.error("Tên phòng ban không được trống!");
+    if (!form.TEN_PB.trim()) return toast.error("Tên phòng ban không được trống!");
     setLoading(true);
     try {
       const payload: any = { 
-        tenpb: form.tenpb, 
+        TEN_PB: form.TEN_PB, 
         matruongphg: form.matruongphg || undefined 
       };
       if (isEdit) {
@@ -122,8 +123,8 @@ export const AdminDeptModal: React.FC<AdminDeptModalProps> = ({ isOpen, onClose,
       footer={<><Btn variant="secondary" onClick={onClose}>Hủy</Btn><Btn loading={loading} onClick={handleSubmit}>{isEdit ? "Lưu" : "Tạo mới"}</Btn></>}>
        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         <FormField label="Tên phòng ban *">
-          <input className="form-input" placeholder="VD: Phòng Công nghệ" value={form.tenpb}
-             onChange={(e) => setForm((f) => ({ ...f, tenpb: e.target.value }))} />
+          <input className="form-input" placeholder="VD: Phòng Công nghệ" value={form.TEN_PB}
+             onChange={(e) => setForm((f) => ({ ...f, TEN_PB: e.target.value }))} />
         </FormField>
         <FormField label="Trưởng phòng">
           <select 
@@ -154,7 +155,7 @@ export const AdminEmployeeTab: React.FC<{ adminData: any }> = ({ adminData }) =>
   const { employees, departments, loading, modal, setModal, fetchEmployees, handleDeleteEmployee } = adminData;
 
   useEffect(() => { fetchEmployees(); }, [fetchEmployees]);
-  const ROLE_COLORS: Record<string, string> = { "Quản lý": "black", "Nhân viên": "gray", "Cộng tác viên": "blue", "Admin": "purple" };
+  const ROLE_COLORS: Record<string, string> = { "Giám đốc": "purple", "Trưởng phòng": "indigo", "Trưởng nhóm": "blue", "Nhân viên": "gray", "Thực tập sinh": "orange" };
 
   return (
     <>
@@ -187,7 +188,7 @@ export const AdminEmployeeTab: React.FC<{ adminData: any }> = ({ adminData }) =>
                       </div>
                     </td>
                     <td><Badge color={ROLE_COLORS[emp.CHUC_VU] || "gray"}>{emp.CHUC_VU}</Badge></td>
-                    <td style={{ color: "#666" }}>{getProp(emp, 'tenpb') || "—"}</td>
+                    <td style={{ color: "#666" }}>{getProp(emp, 'TEN_PB') || "—"}</td>
                      <td style={{ fontSize: 12, color: "#555" }}>
                       {emp.LUONG
                          ? `${Number(emp.LUONG).toLocaleString("vi-VN")} đ`
@@ -282,7 +283,7 @@ export const AdminDepartmentTab: React.FC<{ adminData: any }> = ({ adminData }) 
                         <div style={{ width: 32, height: 32, background: "#111", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
                          <Building2 size={14} color="#fff" />
                        </div>
-                       <span style={{ fontWeight: 600 }}>{getProp(dept, 'tenpb')}</span>
+                       <span style={{ fontWeight: 600 }}>{getProp(dept, 'TEN_PB')}</span>
                      </div>
                    </td>
                    <td style={{ fontSize: 13, color: "#666" }}>
@@ -294,7 +295,7 @@ export const AdminDepartmentTab: React.FC<{ adminData: any }> = ({ adminData }) 
                          style={{ fontSize: 12, color: "#666", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
                         <Edit3 size={12} /> Sửa
                       </button>
-                       <button onClick={(e) => { e.stopPropagation(); handleDeleteDepartment(dept.MA_PHG, getProp(dept, 'tenpb')); }}
+                       <button onClick={(e) => { e.stopPropagation(); handleDeleteDepartment(dept.MA_PHG, getProp(dept, 'TEN_PB')); }}
                         style={{ fontSize: 12, color: "#f87171", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
                         <Trash2 size={12} /> Xóa
                       </button>
@@ -335,7 +336,7 @@ interface AcceptOnboardingModalProps {
   onClose: () => void;
   applicant: any;
   departments: any[];
-  onAccept: (applicant: any, extra: { MA_PHG: number; LUONG: number; CHUC_VU: string }) => Promise<void>;
+  onAccept: (applicant: any, extra: { MA_PHG?: number; LUONG: number; CHUC_VU: string }) => Promise<void>;
 }
 
 export const AcceptOnboardingModal: React.FC<AcceptOnboardingModalProps> = ({ isOpen, onClose, applicant, departments, onAccept }) => {
@@ -348,11 +349,11 @@ export const AcceptOnboardingModal: React.FC<AcceptOnboardingModalProps> = ({ is
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const handleSubmit = async () => {
-    if (!form.MA_PHG) return toast.error("Vui lòng chọn phòng ban!");
+    if (form.CHUC_VU === "Trưởng phòng" && !form.MA_PHG) return toast.error("Vui lòng chọn phòng ban cho Trưởng phòng!");
     if (!form.LUONG || Number(form.LUONG) <= 0) return toast.error("Vui lòng nhập mức lương hợp lệ!");
     setLoading(true);
     try {
-      await onAccept(applicant, { MA_PHG: Number(form.MA_PHG), LUONG: Number(form.LUONG), CHUC_VU: form.CHUC_VU });
+      await onAccept(applicant, { MA_PHG: form.MA_PHG ? Number(form.MA_PHG) : undefined, LUONG: Number(form.LUONG), CHUC_VU: form.CHUC_VU });
       onClose();
     } finally { setLoading(false); }
   };
@@ -378,14 +379,14 @@ export const AcceptOnboardingModal: React.FC<AcceptOnboardingModalProps> = ({ is
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         <FormField label="Chức vụ">
           <select className="form-input" value={form.CHUC_VU} onChange={set("CHUC_VU")}>
-            <option>Cộng tác viên</option><option>Nhân viên</option><option>Quản lý</option><option>Admin</option>
+            <option>Thực tập sinh</option><option>Nhân viên</option><option>Trưởng nhóm</option><option>Trưởng phòng</option><option>Giám đốc</option>
           </select>
         </FormField>
-        <FormField label="Phòng ban *">
+        <FormField label={form.CHUC_VU === "Trưởng phòng" ? "Phòng ban *" : "Phòng ban"}>
           <select className="form-input" value={form.MA_PHG} onChange={set("MA_PHG")}>
             <option value="">— Chọn phòng ban —</option>
             {departments.map((d: any) => (
-              <option key={d.MA_PHG} value={d.MA_PHG}>{getProp(d, 'tenpb')}</option>
+              <option key={d.MA_PHG} value={d.MA_PHG}>{getProp(d, 'TEN_PB')}</option>
             ))}
           </select>
         </FormField>
@@ -501,7 +502,7 @@ export const AdminOnboardingTab: React.FC<{ adminData: any }> = ({ adminData }) 
             <thead>
               <tr>
                 <th>Họ tên</th>
-                <th>Email</th>
+                <th>EMAIL</th>
                 <th>Ngày đăng ký</th>
                 <th>Trạng thái</th>
                 <th style={{ width: 160 }}>Thao tác</th>

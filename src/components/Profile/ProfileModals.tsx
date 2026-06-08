@@ -1,7 +1,7 @@
 import React from "react";
 import { X } from "lucide-react";
 
-const ProfileModals = ({ modal, setModal, departments, loading, handlers }) => {
+const ProfileModals = ({ modal, setModal, departments, loading, handlers }: any) => {
   if (!modal.isOpen) return null;
   const close = () => setModal({ isOpen: false, type: "", data: {} });
 
@@ -10,7 +10,7 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }) => {
       <div className="w-full max-w-md rounded-[2.5rem] bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-200">
         <div className="mb-6 flex items-center justify-between font-black text-xl">
           {modal.type === "self_edit"
-            ? "Sửa Email"
+            ? "Sửa EMAIL"
             : modal.type === "pass_edit"
               ? "Đổi mật khẩu"
               : "Quản trị"}
@@ -141,11 +141,11 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }) => {
             <input
               type="text"
               placeholder="Tên phòng ban"
-              value={modal.data.tenpb}
+              value={modal.data.TEN_PB}
               onChange={(e) =>
                 setModal({
                   ...modal,
-                  data: { ...modal.data, tenpb: e.target.value },
+                  data: { ...modal.data, TEN_PB: e.target.value },
                 })
               }
               className="w-full rounded-2xl border-2 border-slate-100 p-4 outline-none focus:border-emerald-500 font-bold"
@@ -178,7 +178,7 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }) => {
             />
             <input
               type="EMAIL"
-              placeholder="Email"
+              placeholder="EMAIL"
               onChange={(e) =>
                 setModal({
                   ...modal,
@@ -208,9 +208,9 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }) => {
               className="w-full rounded-2xl border-2 border-slate-100 p-4 outline-none focus:border-red-500 font-bold"
             >
               <option value="">Chọn phòng ban</option>
-              {departments.map((dept) => (
+              {departments.map((dept: any) => (
                 <option key={dept.MA_PHG} value={dept.MA_PHG}>
-                  {dept.tenpb}
+                  {dept.TEN_PB}
                 </option>
               ))}
             </select>

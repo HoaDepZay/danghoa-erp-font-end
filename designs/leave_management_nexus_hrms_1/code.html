@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nexus HRMS - Leave Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#191b23",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "primary-fixed": "#dbe1ff",
+                        "on-secondary-fixed-variant": "#005048",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "on-primary-fixed": "#00174b",
+                        "tertiary": "#943700",
+                        "surface-dim": "#d9d9e5",
+                        "on-secondary-container": "#006f64",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "tertiary-fixed": "#ffdbcd",
+                        "surface": "#faf8ff",
+                        "inverse-on-surface": "#f0f0fb",
+                        "surface-variant": "#e1e2ed",
+                        "secondary": "#006b5f",
+                        "outline": "#737686",
+                        "secondary-fixed": "#71f8e4",
+                        "on-tertiary-container": "#ffede6",
+                        "primary": "#004ac6",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c3c6d7",
+                        "on-secondary-fixed": "#00201c",
+                        "on-background": "#191b23",
+                        "secondary-container": "#6df5e1",
+                        "secondary-fixed-dim": "#4fdbc8",
+                        "background": "#faf8ff",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "surface-container": "#ededf9",
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#434655",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "error": "#ba1a1a",
+                        "tertiary-container": "#bc4800",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f3f3fe",
+                        "primary-container": "#2563eb",
+                        "surface-container-high": "#e7e7f3",
+                        "inverse-surface": "#2e3039",
+                        "surface-tint": "#0053db",
+                        "on-tertiary-fixed": "#360f00",
+                        "on-primary-container": "#eeefff",
+                        "on-primary": "#ffffff",
+                        "surface-bright": "#faf8ff",
+                        "surface-container-highest": "#e1e2ed"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "sm": "8px",
+                        "margin-desktop": "32px",
+                        "md": "16px",
+                        "base": "4px",
+                        "margin-mobile": "16px",
+                        "max-width": "1440px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "code": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "code": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-0 h-full w-[256px] bg-inverse-surface dark:bg-surface-container-low shadow-md flex flex-col h-full overflow-y-auto z-50 transition-all duration-300">
+<div class="p-lg flex items-center gap-md">
+<div class="w-8 h-8 bg-primary-fixed-dim rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="corporate_fare">corporate_fare</span>
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-surface-bright dark:text-primary-fixed leading-none">Nexus HRMS</h1>
+<p class="font-label-sm text-label-sm text-outline-variant/60">Enterprise HR</p>
+</div>
+</div>
+<nav class="flex-1 px-sm py-md space-y-1 custom-scrollbar">
+<!-- Navigation Items -->
+<a class="flex items-center gap-md px-md py-sm rounded transition-colors duration-200 text-on-surface-variant dark:text-outline-variant hover:text-surface-bright hover:bg-on-surface-variant/5" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded transition-colors duration-200 text-on-surface-variant dark:text-outline-variant hover:text-surface-bright hover:bg-on-surface-variant/5" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-md text-label-md">Employees</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded transition-colors duration-200 border-l-4 border-primary-fixed-dim bg-on-surface-variant/10 text-primary-fixed-dim font-bold" href="#">
+<span class="material-symbols-outlined" data-icon="event_busy">event_busy</span>
+<span class="font-label-md text-label-md">Leave</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded transition-colors duration-200 text-on-surface-variant dark:text-outline-variant hover:text-surface-bright hover:bg-on-surface-variant/5" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-md text-label-md">Attendance</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded transition-colors duration-200 text-on-surface-variant dark:text-outline-variant hover:text-surface-bright hover:bg-on-surface-variant/5" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-label-md text-label-md">Payroll</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded transition-colors duration-200 text-on-surface-variant dark:text-outline-variant hover:text-surface-bright hover:bg-on-surface-variant/5" href="#">
+<span class="material-symbols-outlined" data-icon="trending_up">trending_up</span>
+<span class="font-label-md text-label-md">Performance</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded transition-colors duration-200 text-on-surface-variant dark:text-outline-variant hover:text-surface-bright hover:bg-on-surface-variant/5" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-label-md text-label-md">Documents</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded transition-colors duration-200 text-on-surface-variant dark:text-outline-variant hover:text-surface-bright hover:bg-on-surface-variant/5" href="#">
+<span class="material-symbols-outlined" data-icon="assessment">assessment</span>
+<span class="font-label-md text-label-md">Reports</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded transition-colors duration-200 text-on-surface-variant dark:text-outline-variant hover:text-surface-bright hover:bg-on-surface-variant/5" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<div class="p-md mt-auto border-t border-outline/10">
+<a class="flex items-center gap-md px-md py-sm rounded text-on-surface-variant hover:text-surface-bright hover:bg-on-surface-variant/5 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-md text-label-md">Help Center</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded text-error hover:bg-error/10 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</aside>
+<!-- TopAppBar Shell -->
+<header class="fixed top-0 right-0 w-[calc(100%-256px)] h-16 bg-surface dark:bg-surface-container-lowest border-b border-outline-variant dark:border-outline z-40 flex items-center justify-between px-lg">
+<div class="flex items-center gap-lg flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full pl-xl pr-md py-base bg-surface-container rounded-lg border-none focus:ring-2 focus:ring-primary/20 font-body-sm text-body-sm" placeholder="Search leave records, employees..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-sm text-on-surface-variant hover:bg-surface-container-low transition-all rounded-full relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-sm text-on-surface-variant hover:bg-surface-container-low transition-all rounded-full">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant mx-sm"></div>
+<button class="px-md py-sm bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:bg-primary-container transition-all active:scale-95">
+                Check In
+            </button>
+<div class="flex items-center gap-sm ml-md">
+<img alt="HR Administrator Profile" class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A professional headshot of a confident female HR administrator with a warm smile, wearing a modern charcoal blazer. She is in a brightly lit, contemporary office with soft-focus glass partitions and lush green plants in the background. The lighting is clean and airy, perfectly aligning with a high-utility enterprise software aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDj98J13QOF5u1aUPFunEXa42OjAT5H7mWj0JG9G7qqtL_2fxJIz_rXrRjd4E4NIIeJZSwXipXnp47TXCKbQlKhlOZ6_qXyus5MWGmbYZTEOg-R9QKJLz4o_aTkG_e_UHQwOXwMelOtOFJsqCTkTt6okBMFxrbtBNeNKV4RXkGdx7IcavS5URmHeQrvCu1JaGenhKOB-Z0i6QGF4PaBzvF-1-frpbkgqxNB2ZmolzChUp3ArMyoRqbJxeH-EkA95p6hatX9WTVIlWvC"/>
+<div class="hidden xl:block">
+<p class="font-label-md text-label-md leading-none">Sarah Jenkins</p>
+<p class="text-[10px] text-outline">HR Director</p>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[256px] mt-16 p-margin-desktop min-h-screen">
+<div class="max-w-[1440px] mx-auto">
+<!-- Page Header & Action -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-xl">
+<div>
+<h2 class="font-headline-lg text-headline-lg mb-xs">Leave Management</h2>
+<p class="text-on-surface-variant font-body-md text-body-md">Track your time off and manage team availability.</p>
+</div>
+<button class="flex items-center gap-sm px-xl py-md bg-primary text-on-primary rounded-xl font-label-md text-label-md shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5 active:translate-y-0">
+<span class="material-symbols-outlined" data-icon="add" data-weight="fill">add</span>
+                    Apply for Leave
+                </button>
+</div>
+<!-- Bento Balance Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-xl">
+<!-- Card 1: Annual Leave -->
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-md">
+<div class="p-sm bg-primary-fixed rounded-lg text-on-primary-fixed group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="beach_access">beach_access</span>
+</div>
+<span class="text-primary font-label-sm text-label-sm">+2.5 earned this month</span>
+</div>
+<p class="text-outline font-label-md text-label-md mb-xs">Annual Leave Balance</p>
+<h3 class="font-display-lg text-display-lg text-on-surface">18.5 <span class="text-headline-sm font-label-md">Days</span></h3>
+<div class="mt-md w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 74%"></div>
+</div>
+</div>
+<!-- Card 2: Sick Leave -->
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-md">
+<div class="p-sm bg-secondary-fixed rounded-lg text-on-secondary-fixed group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+</div>
+<span class="text-secondary font-label-sm text-label-sm">Full allowance reset</span>
+</div>
+<p class="text-outline font-label-md text-label-md mb-xs">Sick Leave Balance</p>
+<h3 class="font-display-lg text-display-lg text-on-surface">10 <span class="text-headline-sm font-label-md">Days</span></h3>
+<div class="mt-md w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 100%"></div>
+</div>
+</div>
+<!-- Card 3: Unpaid Leave -->
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-md">
+<div class="p-sm bg-tertiary-fixed rounded-lg text-on-tertiary-fixed group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="event_note">event_note</span>
+</div>
+<span class="text-tertiary font-label-sm text-label-sm">Used this year</span>
+</div>
+<p class="text-outline font-label-md text-label-md mb-xs">Unpaid Leave Taken</p>
+<h3 class="font-display-lg text-display-lg text-on-surface">02 <span class="text-headline-sm font-label-md">Days</span></h3>
+<div class="mt-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-outline text-body-sm" data-icon="info">info</span>
+<p class="text-outline text-body-sm">No impact on payroll yet.</p>
+</div>
+</div>
+<!-- Card 4: Quick Overview Graphic -->
+<div class="bg-primary-container p-lg rounded-xl shadow-sm overflow-hidden relative group">
+<div class="relative z-10 text-on-primary-container">
+<h4 class="font-headline-sm text-headline-sm mb-xs">Upcoming Break</h4>
+<p class="text-on-primary-container/80 font-body-sm text-body-sm mb-lg">You have a scheduled trip in 12 days.</p>
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-primary-container bg-surface flex items-center justify-center text-primary text-[10px] font-bold">SJ</div>
+<div class="w-8 h-8 rounded-full border-2 border-primary-container bg-surface-variant flex items-center justify-center text-on-surface-variant text-[10px] font-bold">MK</div>
+</div>
+</div>
+<!-- Abstract Background Pattern -->
+<div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-700">
+<span class="material-symbols-outlined text-[160px]" data-icon="flight_takeoff">flight_takeoff</span>
+</div>
+</div>
+</div>
+<!-- Main Tabs Content -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+<!-- Tab Headers -->
+<div class="flex border-b border-outline-variant px-lg">
+<button class="px-lg py-md font-label-md text-label-md text-primary border-b-2 border-primary transition-all">My Leave</button>
+<button class="px-lg py-md font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all">Team Approvals</button>
+<button class="px-lg py-md font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all">Leave Calendar</button>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3">
+<!-- Left: Data Table (2/3 width) -->
+<div class="lg:col-span-2 border-r border-outline-variant overflow-x-auto">
+<div class="p-lg flex items-center justify-between">
+<h4 class="font-headline-sm text-headline-sm">Recent Requests</h4>
+<div class="flex gap-sm">
+<button class="p-sm text-on-surface-variant hover:bg-surface-container rounded"><span class="material-symbols-outlined" data-icon="filter_list">filter_list</span></button>
+<button class="p-sm text-on-surface-variant hover:bg-surface-container rounded"><span class="material-symbols-outlined" data-icon="download">download</span></button>
+</div>
+</div>
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low border-y border-outline-variant">
+<tr>
+<th class="px-lg py-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Leave Type</th>
+<th class="px-lg py-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Duration</th>
+<th class="px-lg py-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Days</th>
+<th class="px-lg py-md font-label-sm text-label-sm text-outline uppercase tracking-wider">Status</th>
+<th class="px-lg py-md font-label-sm text-label-sm text-outline uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-primary-fixed/5 transition-colors group">
+<td class="px-lg py-md">
+<div class="flex items-center gap-sm">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="font-label-md text-label-md">Annual Leave</span>
+</div>
+</td>
+<td class="px-lg py-md font-body-sm text-body-sm">Oct 12 - Oct 15, 2023</td>
+<td class="px-lg py-md font-body-sm text-body-sm">4.0 Days</td>
+<td class="px-lg py-md">
+<span class="inline-flex items-center px-sm py-xs rounded bg-secondary-container/20 text-on-secondary-container font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px] mr-1" data-icon="check_circle" data-weight="fill">check_circle</span>
+                                            Approved
+                                        </span>
+</td>
+<td class="px-lg py-md text-right">
+<button class="p-xs text-outline hover:text-on-surface"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-primary-fixed/5 transition-colors group">
+<td class="px-lg py-md">
+<div class="flex items-center gap-sm">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+<span class="font-label-md text-label-md">Sick Leave</span>
+</div>
+</td>
+<td class="px-lg py-md font-body-sm text-body-sm">Sep 28, 2023</td>
+<td class="px-lg py-md font-body-sm text-body-sm">1.0 Day</td>
+<td class="px-lg py-md">
+<span class="inline-flex items-center px-sm py-xs rounded bg-surface-container-highest text-outline font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px] mr-1" data-icon="pending" data-weight="fill">pending</span>
+                                            Pending
+                                        </span>
+</td>
+<td class="px-lg py-md text-right">
+<button class="p-xs text-outline hover:text-on-surface"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-primary-fixed/5 transition-colors group">
+<td class="px-lg py-md">
+<div class="flex items-center gap-sm">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="font-label-md text-label-md">Annual Leave</span>
+</div>
+</td>
+<td class="px-lg py-md font-body-sm text-body-sm">Aug 14 - Aug 21, 2023</td>
+<td class="px-lg py-md font-body-sm text-body-sm">6.0 Days</td>
+<td class="px-lg py-md">
+<span class="inline-flex items-center px-sm py-xs rounded bg-secondary-container/20 text-on-secondary-container font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px] mr-1" data-icon="check_circle" data-weight="fill">check_circle</span>
+                                            Approved
+                                        </span>
+</td>
+<td class="px-lg py-md text-right">
+<button class="p-xs text-outline hover:text-on-surface"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-primary-fixed/5 transition-colors group">
+<td class="px-lg py-md">
+<div class="flex items-center gap-sm">
+<div class="w-2 h-2 rounded-full bg-error"></div>
+<span class="font-label-md text-label-md">Casual Leave</span>
+</div>
+</td>
+<td class="px-lg py-md font-body-sm text-body-sm">Jul 05, 2023</td>
+<td class="px-lg py-md font-body-sm text-body-sm">1.0 Day</td>
+<td class="px-lg py-md">
+<span class="inline-flex items-center px-sm py-xs rounded bg-error-container text-on-error-container font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px] mr-1" data-icon="cancel" data-weight="fill">cancel</span>
+                                            Rejected
+                                        </span>
+</td>
+<td class="px-lg py-md text-right">
+<button class="p-xs text-outline hover:text-on-surface"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="p-lg flex justify-center">
+<button class="text-primary font-label-md text-label-md hover:underline">View All History</button>
+</div>
+</div>
+<!-- Right: Monthly Calendar Overview (1/3 width) -->
+<div class="bg-surface-container-low p-lg">
+<div class="flex items-center justify-between mb-lg">
+<h4 class="font-headline-sm text-headline-sm">Team Activity</h4>
+<div class="flex items-center gap-sm">
+<button class="p-xs hover:bg-surface-container-high rounded"><span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span></button>
+<span class="font-label-md text-label-md">October 2023</span>
+<button class="p-xs hover:bg-surface-container-high rounded"><span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span></button>
+</div>
+</div>
+<!-- Mini Calendar Grid -->
+<div class="grid grid-cols-7 gap-1 text-center mb-xl">
+<div class="py-sm font-label-sm text-label-sm text-outline">S</div>
+<div class="py-sm font-label-sm text-label-sm text-outline">M</div>
+<div class="py-sm font-label-sm text-label-sm text-outline">T</div>
+<div class="py-sm font-label-sm text-label-sm text-outline">W</div>
+<div class="py-sm font-label-sm text-label-sm text-outline">T</div>
+<div class="py-sm font-label-sm text-label-sm text-outline">F</div>
+<div class="py-sm font-label-sm text-label-sm text-outline">S</div>
+<!-- Dummy days -->
+<div class="py-md text-outline-variant font-body-sm text-body-sm">24</div>
+<div class="py-md text-outline-variant font-body-sm text-body-sm">25</div>
+<div class="py-md text-outline-variant font-body-sm text-body-sm">26</div>
+<div class="py-md text-outline-variant font-body-sm text-body-sm">27</div>
+<div class="py-md text-outline-variant font-body-sm text-body-sm">28</div>
+<div class="py-md text-outline-variant font-body-sm text-body-sm">29</div>
+<div class="py-md text-outline-variant font-body-sm text-body-sm">30</div>
+<div class="py-md font-body-sm text-body-sm">1</div>
+<div class="py-md font-body-sm text-body-sm">2</div>
+<div class="py-md font-body-sm text-body-sm">3</div>
+<div class="py-md font-body-sm text-body-sm bg-primary/10 rounded-full font-bold text-primary">4</div>
+<div class="py-md font-body-sm text-body-sm">5</div>
+<div class="py-md font-body-sm text-body-sm">6</div>
+<div class="py-md font-body-sm text-body-sm">7</div>
+<div class="py-md font-body-sm text-body-sm">8</div>
+<div class="py-md font-body-sm text-body-sm">9</div>
+<div class="py-md font-body-sm text-body-sm">10</div>
+<div class="py-md font-body-sm text-body-sm relative group cursor-pointer">
+                                11
+                                <div class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-secondary rounded-full"></div>
+<div class="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-sm bg-inverse-surface text-surface-bright rounded text-[10px] w-24 z-20">Mike: Sick Leave</div>
+</div>
+<div class="py-md font-body-sm text-body-sm bg-primary text-on-primary rounded-full font-bold">12</div>
+<div class="py-md font-body-sm text-body-sm bg-primary/20">13</div>
+<div class="py-md font-body-sm text-body-sm bg-primary/20">14</div>
+<div class="py-md font-body-sm text-body-sm bg-primary/20 rounded-r-full">15</div>
+<!-- ... and so on -->
+</div>
+<div class="space-y-md">
+<h5 class="font-label-md text-label-md uppercase tracking-wide text-outline">On Leave Today</h5>
+<div class="flex items-center justify-between p-md bg-surface-container-lowest rounded-lg border border-outline-variant">
+<div class="flex items-center gap-sm">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="A clean portrait of a professional male employee with a neatly groomed beard, wearing a light blue oxford shirt. He is photographed in a professional setting with soft lighting and a neutral background, conveying a high-end enterprise SaaS user experience." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdLx6aiQME9QV40_xq2S5RoBqHFRT4yOyA5vH8KqcyTb3rGmT7ZbjL_kWzcr-gEAV-Y2XT2HSWwmZW0D7jmj3yfdkROffowV1HQ-xAoIUMFLYvJkEta7h4LHbSaf1YE23sfVMfBnI0DZzegAfKzerx2Ioqn4LR2tWzWE_TPk98tHpCHDBCd-LDlkPEKdxidbUbVYNdfSJ6OJP6uQf-bQVditcwZuj8vA8V__vzM3nkHu5nMvNczbb6otwx5Q-xEWj7aoLwmvgb1_3D"/>
+<div>
+<p class="font-label-md text-label-md">Michael Chen</p>
+<p class="text-[10px] text-outline">Product Designer</p>
+</div>
+</div>
+<span class="px-sm py-xs bg-tertiary-container/10 text-on-tertiary-container text-[10px] font-bold rounded">SICK</span>
+</div>
+<div class="flex items-center justify-between p-md bg-surface-container-lowest rounded-lg border border-outline-variant">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed font-bold text-[10px]">AW</div>
+<div>
+<p class="font-label-md text-label-md">Alice Wong</p>
+<p class="text-[10px] text-outline">Backend Dev</p>
+</div>
+</div>
+<span class="px-sm py-xs bg-primary-container/10 text-on-primary-container text-[10px] font-bold rounded">VACATION</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Team Planning Visualization (Bento Style) -->
+<div class="mt-xl grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant">
+<h4 class="font-headline-sm text-headline-sm mb-lg">Upcoming Team Gap Analysis</h4>
+<div class="space-y-lg">
+<div>
+<div class="flex justify-between mb-sm">
+<span class="font-label-md text-label-md">Design Team</span>
+<span class="font-label-md text-label-md text-error">Critical (40% Capacity)</span>
+</div>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="bg-error h-full" style="width: 40%"></div>
+</div>
+<p class="text-[10px] text-outline mt-xs">Week of Oct 23rd: 3 members out of 5 on leave.</p>
+</div>
+<div>
+<div class="flex justify-between mb-sm">
+<span class="font-label-md text-label-md">Engineering Team</span>
+<span class="font-label-md text-label-md text-secondary">Healthy (85% Capacity)</span>
+</div>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="bg-secondary h-full" style="width: 85%"></div>
+</div>
+<p class="text-[10px] text-outline mt-xs">Optimal coverage maintained throughout October.</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container p-lg rounded-xl flex flex-col justify-between overflow-hidden relative border border-outline-variant">
+<div class="relative z-10">
+<h4 class="font-headline-sm text-headline-sm mb-xs">Leave Policy Reminder</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-lg">Remember to book your Christmas holidays by Nov 15th to guarantee approval during the peak period.</p>
+<button class="flex items-center gap-sm text-primary font-label-md text-label-md group">
+                            Read Policy Manual
+                            <span class="material-symbols-outlined text-body-sm group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<div class="absolute -right-8 -bottom-8 opacity-5">
+<span class="material-symbols-outlined text-[200px]" data-icon="policy">policy</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual Toast/Notification (Hidden by default, for interaction demo) -->
+<div class="fixed bottom-lg right-lg bg-inverse-surface text-surface-bright px-lg py-md rounded-xl shadow-2xl flex items-center gap-md translate-y-32 transition-transform duration-500 z-[60]" id="toast">
+<span class="material-symbols-outlined text-secondary-fixed" data-icon="check_circle">check_circle</span>
+<p class="font-label-md text-label-md">Leave request submitted successfully.</p>
+<button class="p-xs hover:bg-surface-variant/20 rounded" onclick="hideToast()"><span class="material-symbols-outlined text-body-sm" data-icon="close">close</span></button>
+</div>
+<script>
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-32');
+            setTimeout(hideToast, 5000);
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('translate-y-32');
+        }
+
+        // Logic to simulate active nav based on page context
+        document.addEventListener('DOMContentLoaded', () => {
+            // For demo purposes, let's trigger a toast on the "Apply for Leave" button
+            const applyBtn = document.querySelector('button.bg-primary.text-on-primary');
+            if(applyBtn) {
+                applyBtn.addEventListener('click', () => {
+                    showToast();
+                });
+            }
+        });
+    </script>
+</body></html>

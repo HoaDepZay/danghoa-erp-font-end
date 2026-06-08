@@ -199,7 +199,7 @@ const Analytics = ({ user }: { user: any }) => {
               </div>
               {summary?.byRole?.length > 0 ? (
                 <DonutChart data={summary.byRole.map((r: any, i: number) => ({
-                  label: getProp(r, 'CHUCVU') || "Khác",
+                  label: getProp(r, 'CHUC_VU') || "Khác",
                   value: getProp(r, 'SoLuong') || 0,
                   color: ROLE_COLORS[i % ROLE_COLORS.length],
                 }))} />
@@ -218,8 +218,8 @@ const Analytics = ({ user }: { user: any }) => {
               </div>
               {salaryCost.length > 0 ? salaryCost.map((d: any) => (
                 <HBar
-                  key={getProp(d, 'MAPHG') || Math.random()}
-                  label={getProp(d, 'TENPB') || "—"}
+                  key={getProp(d, 'MA_PHG') || Math.random()}
+                  label={getProp(d, 'TEN_PB') || "—"}
                   value={getProp(d, 'TongLuong') || 0}
                   max={maxSalary}
                   color="#f59e0b"
@@ -267,13 +267,13 @@ const Analytics = ({ user }: { user: any }) => {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
                 {summary.topDepartments.map((d: any, i: number) => (
-                  <div key={getProp(d, 'TENPB') || i} style={{
+                  <div key={getProp(d, 'TEN_PB') || i} style={{
                     padding: "14px 16px", borderRadius: 14,
                     background: i === 0 ? "#1e293b" : "#f8fafc",
                     border: "1px solid " + (i === 0 ? "#1e293b" : "#f1f5f9"),
                   }}>
                     <p style={{ fontSize: 11, margin: "0 0 6px", color: i === 0 ? "rgba(255,255,255,0.5)" : "#94a3b8", fontWeight: 700, textTransform: "uppercase" }}>
-                      #{i + 1} · {getProp(d, 'TENPB')}
+                      #{i + 1} · {getProp(d, 'TEN_PB')}
                     </p>
                     <p style={{ fontSize: 22, fontWeight: 800, margin: "0 0 2px", color: i === 0 ? "#fff" : "#1e293b" }}>
                       {getProp(d, 'SoNhanVien') || 0} <span style={{ fontSize: 12, fontWeight: 400 }}>NV</span>

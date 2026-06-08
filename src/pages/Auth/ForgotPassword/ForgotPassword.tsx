@@ -67,7 +67,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
     }
   };
 
-  const S: Record<string, React.CSSProperties> = {
+  const S: any = {
     page: {
       position: "fixed",
       inset: 0,

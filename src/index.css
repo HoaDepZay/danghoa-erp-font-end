@@ -4,16 +4,19 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..900;1,14..32,300..900&display=swap");
 
 :root {
-  --primary-color: #2d5a27;
-  --primary-hover: #1e3e1a;
-  --primary-light: rgba(45, 90, 39, 0.12);
-  --text-dark: #142912;
-  --text-muted: #4a6048;
-  --border-light: rgba(45, 90, 39, 0.15);
-  --glass-bg: rgba(255, 255, 255, 0.82);
-  --glass-border: rgba(255, 255, 255, 0.45);
-  --glass-shadow: 0 8px 32px 0 rgba(18, 38, 28, 0.08);
-  --glass-blur: blur(10px);
+  --primary-color: #2563eb; /* Corporate Blue */
+  --primary-hover: #1d4ed8;
+  --primary-light: rgba(37, 99, 235, 0.1);
+  --text-dark: #1e293b;
+  --text-muted: #64748b;
+  --border-light: #e2e8f0;
+  --glass-bg: #ffffff;
+  --glass-border: #e2e8f0;
+  --glass-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --glass-blur: none;
+  --background: #f8fafc;
+  --surface-dim: #f1f5f9;
+  --inverse-surface: #0f172a;
 }
 
 /* ── Reset ─────────────────────────────────────────────────── */
@@ -58,12 +61,8 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image: linear-gradient(rgba(240, 248, 240, 0.5), rgba(240, 248, 240, 0.55)), url("https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2070&auto=format&fit=crop");
-  background-size: cover;
-  background-position: center;
+  background-color: var(--background);
   pointer-events: none;
-  transform: translate3d(0, 0, 0);
-  will-change: transform;
 }
 
 #root {
@@ -98,9 +97,9 @@ body::before {
 .sidebar {
   width: 240px;
   min-width: 240px;
-  background: rgba(18, 38, 28, 0.88) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--inverse-surface) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -181,6 +180,7 @@ body::before {
     color 0.15s;
   white-space: nowrap;
   border: none;
+  border-left: 4px solid transparent;
   background: transparent;
   width: 100%;
   text-align: left;
@@ -188,13 +188,14 @@ body::before {
 }
 
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
   color: #fff;
 }
 .nav-item.active {
-  background: rgba(255, 255, 255, 0.15) !important;
+  background: rgba(37, 99, 235, 0.15) !important;
   color: #ffffff !important;
-  font-weight: 700;
+  border-left-color: var(--primary-color);
+  font-weight: 600;
 }
 .sidebar.collapsed .nav-item {
   justify-content: center;
@@ -271,10 +272,10 @@ body::before {
 
 /* ── Header ─────────────────────────────────────────────────── */
 .topbar {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(45, 90, 39, 0.12);
+  background: #ffffff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom: 1px solid var(--border-light);
   padding: 0 24px;
   height: 60px;
   display: flex;
@@ -291,10 +292,10 @@ body::before {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  border: 1.5px solid rgba(45, 90, 39, 0.15);
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border-light);
+  background: #ffffff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   color: var(--text-dark);
   align-items: center;
   justify-content: center;
@@ -324,9 +325,9 @@ body::before {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(45, 90, 39, 0.06);
-  border-radius: 10px;
-  padding: 7px 12px;
+  background: var(--surface-dim);
+  border-radius: 100px;
+  padding: 8px 16px;
   font-size: 13px;
   color: var(--text-muted);
   cursor: pointer;
@@ -340,10 +341,10 @@ body::before {
 
 .topbar-bell {
   position: relative;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: rgba(45, 90, 39, 0.06);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--surface-dim);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -372,7 +373,7 @@ body::before {
   align-items: center;
   gap: 10px;
   padding-left: 10px;
-  border-left: 1px solid rgba(45, 90, 39, 0.12);
+  border-left: 1px solid var(--border-light);
 }
 
 .topbar-avatar-info .user-name {
@@ -465,14 +466,12 @@ body::before {
   box-shadow: 0 6px 20px rgba(45, 90, 39, 0.35);
 }
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: #ffffff;
   color: var(--text-dark);
-  border-color: rgba(45, 90, 39, 0.2);
+  border-color: var(--border-light);
 }
 .btn-secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--surface-dim);
   border-color: var(--primary-color);
 }
 .btn-danger {
@@ -605,12 +604,12 @@ body::before {
 
 .form-input {
   width: 100%;
-  padding: 9px 12px;
-  border: 1.5px solid rgba(45, 90, 39, 0.15);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  padding: 10px 14px;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  background: #ffffff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   font-size: 13.5px;
   color: var(--text-dark);
   font-family: inherit;

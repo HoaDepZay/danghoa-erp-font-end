@@ -153,8 +153,8 @@ const EditProjectModal: React.FC<any> = ({
         NGAY_KET_THUC: project.NGAY_KET_THUC  ?? "",
         TRANG_THAI:   project.TRANG_THAI    ?? "Đang thực hiện",
       });
-      if (form.NGAY_BAT_DAU)  form.NGAY_BAT_DAU  = form.NGAY_BAT_DAU.slice(0, 10);
-      if (form.NGAY_KET_THUC) form.NGAY_KET_THUC = form.NGAY_KET_THUC.slice(0, 10);
+      if (form.NGAY_BAT_DAU)  form.NGAY_BAT_DAU  = String(form.NGAY_BAT_DAU).slice(0, 10) as any;
+      if (form.NGAY_KET_THUC) form.NGAY_KET_THUC = String(form.NGAY_KET_THUC).slice(0, 10) as any;
     }
   }, [isOpen, project]);
 

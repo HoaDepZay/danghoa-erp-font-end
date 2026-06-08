@@ -61,14 +61,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onForgotPassword,
         </div>
       )}
 
-      {/* Email */}
+      {/* EMAIL */}
       <div style={S.fieldWrap}>
         <span style={S.iconLeft}>
           <User size={16} />
         </span>
         <input
           type="EMAIL"
-          placeholder="Email đăng nhập"
+          placeholder="EMAIL đăng nhập"
           value={form.EMAIL}
           onChange={set("EMAIL")}
           style={S.input}

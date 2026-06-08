@@ -15,7 +15,7 @@ export const useRegister = () => {
       toast.success("Mã OTP đã gửi đến EMAIL của bạn!");
       setStep(2);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Email đã tồn tại hoặc có lỗi xảy ra!");
+      toast.error(err.response?.data?.message || "EMAIL đã tồn tại hoặc có lỗi xảy ra!");
     } finally {
       setLoading(false);
     }

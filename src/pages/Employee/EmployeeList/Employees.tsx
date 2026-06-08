@@ -12,6 +12,11 @@ export const Employees: React.FC<{ user: any; onNavigate: (page: string) => void
     modal, setModal, userLevel, fetchEmployees, handleExport
   } = useEmployees(user);
 
+  const handleViewDetail = (maNv: string) => {
+    localStorage.setItem("selectedEmployeeId", maNv);
+    onNavigate("employee_profile");
+  };
+
   return (
     <div className="animate-fade-in">
       <SectionHeader
@@ -41,7 +46,7 @@ export const Employees: React.FC<{ user: any; onNavigate: (page: string) => void
        </Card>
 
       <Card padding={false}>
-         <EmployeeTable loading={loading} employees={employees} userLevel={userLevel} setModal={setModal} onNavigate={onNavigate} />
+         <EmployeeTable loading={loading} employees={employees} userLevel={userLevel} setModal={setModal} onNavigate={onNavigate} onViewDetail={handleViewDetail} />
         <div style={{ padding: "8px 16px", borderTop: "1px solid #f5f5f5" }}>
           <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
@@ -54,12 +59,6 @@ export const Employees: React.FC<{ user: any; onNavigate: (page: string) => void
          departments={departments}
         onSuccess={fetchEmployees}
       />
-       <EmployeeDetails
-        isOpen={modal.type === "detail"}
-        onClose={() => setModal({ type: "", data: null })}
-        employeeId={modal.data}
-        onNavigate={onNavigate}
-       />
     </div>
   );
 };

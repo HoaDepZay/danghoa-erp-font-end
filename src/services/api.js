@@ -222,11 +222,11 @@ export const api = {
   // GET  /api/admin/phong-ban
   adminGetDepartments: () => axiosInstance.get("/admin/phong-ban"),
 
-  // POST /api/admin/phong-ban/create   { tenpb }
+  // POST /api/admin/phong-ban/create   { TEN_PB }
   adminCreateDepartment: (data) =>
     axiosInstance.post("/admin/phong-ban/create", data),
 
-  // PUT  /api/admin/phong-ban/edit     { MA_PHG, tenpb }
+  // PUT  /api/admin/phong-ban/edit     { MA_PHG, TEN_PB }
   adminUpdateDepartment: (data) =>
     axiosInstance.put("/admin/phong-ban/edit", data),
 
@@ -235,16 +235,16 @@ export const api = {
     axiosInstance.delete(`/admin/phong-ban/${MA_PHG}`),
 
   // ───── DEPARTMENTS ───────────────────────────────────────────────────────────
-  // GET  /api/departments  → { success, data: [{ MAPHG, TENPB, NG_THANHLAP, MaTruongPhg, TenTruongPhong }] }
+  // GET  /api/departments  → { success, data: [{ MA_PHG, TEN_PB, NG_THANHLAP, MaTruongPhg, TenTruongPhong }] }
   getDepartments: () => axiosInstance.get("/departments"),
 
   // GET  /api/departments/:id  → { success, data: { ...dept, nhanVien: [] } }
   getDepartment: (id) => axiosInstance.get(`/departments/${id}`),
 
-  // POST /api/departments  body: { MA_PHG?, tenpb, matruongphg?, ng_thanhlap? }
+  // POST /api/departments  body: { MA_PHG?, TEN_PB, matruongphg?, ng_thanhlap? }
   createDepartment: (data) => axiosInstance.post("/departments", data),
 
-  // PUT  /api/departments/:id  body: { tenpb?, matruongphg? }
+  // PUT  /api/departments/:id  body: { TEN_PB?, matruongphg? }
   updateDepartment: (id, data) => axiosInstance.put(`/departments/${id}`, data),
 
   // DELETE /api/departments/:id
@@ -267,7 +267,6 @@ export const api = {
   deleteProject: (id) => axiosInstance.delete(`/projects/${id}`),
 
   // GET  /api/projects/employee/:id
-  getMyProjects: (id) => axiosInstance.get(`/projects/employee/${id}`),
 
   // POST /api/projects/:id/members   { MA_NV, VAI_TRO_DU_AN }
   addProjectMember: (id, data) =>
@@ -292,10 +291,10 @@ export const api = {
     axiosInstance.put(`/projects/${id}/tasks/${taskId}`, data),
 
   // ───── PAYROLL ───────────────────────────────────────────────────────────────
-  // GET  /api/payroll/:year/:month  → { success, data: [{ MaNV, Thang, Nam, GiolamViec, Thuong, BHXH, PhuCap, ThueTNCN, ThucLanh }] }
+  // GET  /api/payroll/:year/:month  → { success, data: [{ MA_NV, Thang, Nam, GiolamViec, Thuong, BHXH, PhuCap, ThueTNCN, ThucLanh }] }
   getPayroll: (year, month) => axiosInstance.get(`/payroll/${year}/${month}`),
 
-  // GET  /api/payroll/employee/:id?month=...&year=...  → { success, data: { MaNV, Thang, Nam, GiolamViec, Thuong, BHXH, PhuCap, ThueTNCN, ThucLanh } }
+  // GET  /api/payroll/employee/:id?month=...&year=...  → { success, data: { MA_NV, Thang, Nam, GiolamViec, Thuong, BHXH, PhuCap, ThueTNCN, ThucLanh } }
   getMyPayroll: (id, year, month) =>
     axiosInstance.get(`/payroll/employee/${id}`, { params: { year, month } }),
 

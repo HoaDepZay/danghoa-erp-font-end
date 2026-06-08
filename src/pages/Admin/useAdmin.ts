@@ -118,11 +118,11 @@ export const useAdmin = (user: any) => {
     }
   };
 
-  const handleDeleteDepartment = async (MA_PHG: string | number, tenpb: string) => {
-    if (!window.confirm(`Xóa phòng ban "${tenpb}"?\nChỉ xóa được nếu không còn nhân viên.`)) return;
+  const handleDeleteDepartment = async (MA_PHG: string | number, TEN_PB: string) => {
+    if (!window.confirm(`Xóa phòng ban "${TEN_PB}"?\nChỉ xóa được nếu không còn nhân viên.`)) return;
     try {
       await api.adminDeleteDepartment(MA_PHG);
-      toast.success(`Đã xóa phòng ban "${tenpb}"!`);
+      toast.success(`Đã xóa phòng ban "${TEN_PB}"!`);
       fetchDepartments();
     } catch (err: any) { toast.error(err.response?.data?.message || "Không thể xóa phòng ban!"); }
   };

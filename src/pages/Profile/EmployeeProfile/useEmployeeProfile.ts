@@ -100,8 +100,8 @@ export const useEmployeeProfile = (user: any) => {
   const handleCreateDepartment = async () => {
     setLoading(true);
     try {
-      // POST /api/departments  body: { tenpb, matruongphg? }
-      await api.createDepartment({ tenpb: modal.data.tenpb, matruongphg: modal.data.matruongphg || undefined });
+      // POST /api/departments  body: { TEN_PB, matruongphg? }
+      await api.createDepartment({ TEN_PB: modal.data.TEN_PB, matruongphg: modal.data.matruongphg || undefined });
       const depts = await api.getDepartments();
       const d = depts.data;
       setDepartments(Array.isArray(d) ? d : Array.isArray(d?.data) ? d.data : []);
@@ -115,9 +115,9 @@ export const useEmployeeProfile = (user: any) => {
   const handleUpdateDepartment = async () => {
     setLoading(true);
     try {
-      // PUT /api/departments/:id  body: { tenpb, matruongphg? }
+      // PUT /api/departments/:id  body: { TEN_PB, matruongphg? }
       await api.updateDepartment(modal.data.MA_PHG, {
-        tenpb: modal.data.tenpb,
+        TEN_PB: modal.data.TEN_PB,
         matruongphg: modal.data.matruongphg || undefined,
       });
       const depts = await api.getDepartments();
@@ -167,7 +167,7 @@ export const useEmployeeProfile = (user: any) => {
 
    const exportCoworkersToCsv = () => {
     if (coworkers.length === 0) return alert("Không có dữ liệu để xuất!");
-    const headers = ["MANV", "HOTEN", "CHUCVU", "MAPHG"];
+    const headers = ["MA_NV", "HO_TEN", "CHUC_VU", "MA_PHG"];
     const rows = coworkers.map(m => [m.MA_NV, m.HO_TEN, m.CHUC_VU, m.MA_PHG]);
     const csvContent = [headers.join(","), ...rows.map(r => r.map(c => String(c).includes(",") ? `"${c}"` : c).join(","))].join("\n");
     const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
@@ -179,8 +179,8 @@ export const useEmployeeProfile = (user: any) => {
 
   const exportDepartmentsToCsv = () => {
     if (departments.length === 0) return alert("Không có dữ liệu để xuất!");
-    const headers = ["MAPHG", "TENPB"];
-    const rows = departments.map(d => [d.MA_PHG, d.tenpb]);
+    const headers = ["MA_PHG", "TEN_PB"];
+    const rows = departments.map(d => [d.MA_PHG, d.TEN_PB]);
     const csvContent = [headers.join(","), ...rows.map(r => r.map(c => String(c).includes(",") ? `"${c}"` : c).join(","))].join("\n");
     const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
@@ -199,8 +199,8 @@ export const useEmployeeProfile = (user: any) => {
         const lines = content.trim().split("\n").filter(l => l.trim());
         if (lines.length < 2) return alert("File CSV không hợp lệ!");
         const headers = lines[0].split(",").map(h => h.trim().toUpperCase());
-        const [mIdx, hIdx, cIdx, pIdx] = ["MANV", "HOTEN", "CHUCVU", "MAPHG"].map(k => headers.indexOf(k));
-        if (mIdx === -1 || hIdx === -1) return alert("Thiếu cột MANV hoặc HOTEN!");
+        const [mIdx, hIdx, cIdx, pIdx] = ["MA_NV", "HO_TEN", "CHUC_VU", "MA_PHG"].map(k => headers.indexOf(k));
+        if (mIdx === -1 || hIdx === -1) return alert("Thiếu cột MA_NV hoặc HO_TEN!");
         
         let success = 0;
         for (let i = 1; i < lines.length; i++) {
@@ -235,15 +235,15 @@ export const useEmployeeProfile = (user: any) => {
         const lines = content.trim().split("\n").filter(l => l.trim());
         if (lines.length < 2) return alert("File CSV không hợp lệ!");
         const headers = lines[0].split(",").map(h => h.trim().toUpperCase());
-        const tIdx = headers.indexOf("TENPB");
-        if (tIdx === -1) return alert("Thiếu cột TENPB!");
+        const tIdx = headers.indexOf("TEN_PB");
+        if (tIdx === -1) return alert("Thiếu cột TEN_PB!");
         
         let success = 0;
         for (let i = 1; i < lines.length; i++) {
           const vals = lines[i].split(",").map(v => v.trim().replace(/"/g, ""));
           if (!vals[tIdx]) continue;
           try {
-            await api.createDepartment({ tenpb: vals[tIdx] });
+            await api.createDepartment({ TEN_PB: vals[tIdx] });
              success++;
           } catch (err) {}
         }

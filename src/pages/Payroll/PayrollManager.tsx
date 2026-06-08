@@ -19,7 +19,7 @@ interface Employee {
   HO_TEN: string;
   EMAIL: string;
   CHUC_VU?: string;
-  tenpb?: string;
+  TEN_PB?: string;
   LUONG?: number;
   [key: string]: any;
 }
@@ -38,7 +38,7 @@ const getManv = (e: Employee) => e?.MA_NV || "";
 const getHoTen = (e: Employee) => e?.HO_TEN || "";
 const getEmail = (e: Employee) => e?.EMAIL || "";
 const getChucVu = (e: Employee) => e?.CHUC_VU || "";
-const getPhongBan = (e: Employee) => e?.tenpb || "";
+const getPhongBan = (e: Employee) => e?.TEN_PB || "";
 const getLuong = (e: Employee) => e?.LUONG || 0;
 
 const getCI = (r: AttendanceRecord) => r?.giovao || "";
@@ -458,7 +458,7 @@ const EmployeeCard: React.FC<{
 }> = ({ employee, onClick, isClosed }) => {
   const name = getHoTen(employee);
   const maNV = getManv(employee);
-  const chucVu = getChucVu(employee);
+  const CHUC_VU = getChucVu(employee);
   const phongBan = getPhongBan(employee);
   const LUONG = getLuong(employee);
 
@@ -479,7 +479,7 @@ const EmployeeCard: React.FC<{
         </div>
         <div style={{ display: "flex", gap: 8, marginTop: 3, alignItems: "center", flexWrap: "wrap" }}>
           <span style={{ fontSize: 11, color: "#888", fontWeight: 600 }}>{maNV}</span>
-          {chucVu && <span style={{ fontSize: 11, color: "#555" }}>· {chucVu}</span>}
+          {CHUC_VU && <span style={{ fontSize: 11, color: "#555" }}>· {CHUC_VU}</span>}
         </div>
         {phongBan && (
           <span style={{

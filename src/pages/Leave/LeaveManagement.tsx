@@ -88,7 +88,7 @@ const LeaveManagement = ({ user }: { user: any }) => {
                 const maDon = getProp(lv, 'madon') ?? getProp(lv, 'id');
                 const tenNv = getProp(lv, 'tennhanvien') ?? "";
                 const MA_NV = getProp(lv, 'MA_NV') ?? "";
-                const maPhg = getProp(lv, 'MA_PHG') ?? "";
+                const MA_PHG = getProp(lv, 'MA_PHG') ?? "";
                 const tuNgay = getProp(lv, 'tungay');
                 const denNgay = getProp(lv, 'denngay');
                 const lyDo = getProp(lv, 'lydo') ?? "";
@@ -100,7 +100,7 @@ const LeaveManagement = ({ user }: { user: any }) => {
                     <span style={{ fontWeight: 600 }}>{tenNv}</span>
                     <br/><small className="text-gray">{MA_NV}</small>
                   </td>
-                  <td>{maPhg}</td>
+                  <td>{MA_PHG}</td>
                   <td>{formatDate(tuNgay)}</td>
                   <td>{formatDate(denNgay)}</td>
                   <td>{getProp(lv, 'tenloainghi') || "Khác"}</td>

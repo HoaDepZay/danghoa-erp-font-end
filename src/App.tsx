@@ -8,6 +8,7 @@ import ForgotPassword from "./pages/Auth/ForgotPassword/ForgotPassword";
 
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Employees from "./pages/Employee/EmployeeList/Employees";
+import EmployeeProfile from "./pages/Employee/EmployeeProfile/EmployeeProfile";
 import Departments from "./pages/Department/Departments";
 import Projects from "./pages/Projects/Projects";
 import Payroll from "./pages/Payroll/Payroll";
@@ -83,6 +84,7 @@ const PAGES: Record<string, React.FC<any>> = {
   contracts: ContractManager,
   analytics: Analytics,
   project_details: ProjectDetails,
+  employee_profile: EmployeeProfile,
 };
 
 const PAGE_MIN_LEVEL: Record<string, number> = {
@@ -101,6 +103,7 @@ const PAGE_MIN_LEVEL: Record<string, number> = {
   contracts: 3,
   analytics: 3, // HR Analytics - Manager level
   project_details: 1,
+  employee_profile: 1,
 };
 
 function App() {

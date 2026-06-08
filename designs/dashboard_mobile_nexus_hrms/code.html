@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nexus HRMS Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#00174b",
+                        "primary": "#004ac6",
+                        "surface-dim": "#d9d9e5",
+                        "tertiary-container": "#bc4800",
+                        "surface-container-low": "#f3f3fe",
+                        "background": "#faf8ff",
+                        "tertiary": "#943700",
+                        "secondary": "#006b5f",
+                        "on-primary-container": "#eeefff",
+                        "inverse-on-surface": "#f0f0fb",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e1e2ed",
+                        "surface-tint": "#0053db",
+                        "outline": "#737686",
+                        "on-secondary-container": "#006f64",
+                        "on-secondary-fixed": "#00201c",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#2563eb",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#2e3039",
+                        "on-primary": "#ffffff",
+                        "on-background": "#191b23",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "surface-container": "#ededf9",
+                        "surface-container-high": "#e7e7f3",
+                        "surface": "#faf8ff",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed-variant": "#005048",
+                        "on-tertiary-container": "#ffede6",
+                        "primary-fixed": "#dbe1ff",
+                        "outline-variant": "#c3c6d7",
+                        "secondary-container": "#6df5e1",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#71f8e4",
+                        "on-surface-variant": "#434655",
+                        "tertiary-fixed": "#ffdbcd",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "on-surface": "#191b23",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "inverse-primary": "#b4c5ff",
+                        "secondary-fixed-dim": "#4fdbc8",
+                        "on-tertiary-fixed": "#360f00",
+                        "surface-bright": "#faf8ff",
+                        "surface-variant": "#e1e2ed"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "xs": "4px",
+                        "margin-desktop": "32px",
+                        "margin-mobile": "16px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "max-width": "1440px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "code": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "code": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden">
+<!-- Top Navigation Shell -->
+<header class="h-16 w-full sticky top-0 z-40 bg-surface-container-lowest flex items-center justify-between px-md shadow-sm">
+<div class="flex items-center gap-md">
+<button class="hover:bg-surface-container rounded-full p-2 transition-all duration-200">
+<span class="material-symbols-outlined text-on-surface-variant">menu</span>
+</button>
+<span class="font-headline-md text-headline-md font-bold text-on-surface">Nexus</span>
+</div>
+<div class="flex items-center gap-sm">
+<button class="hover:bg-surface-container rounded-full p-2 transition-all duration-200">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary-fixed-dim overflow-hidden border border-outline-variant">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="A professional close-up portrait of a female HR executive with a friendly expression. She is in a brightly lit, modern office environment with soft bokeh background. The lighting is warm and natural, following a clean corporate aesthetic with soft blues and whites in the periphery. High-resolution digital photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpUWQx9bqfTmdO8Xq9CNFqpdeV35zz0uKpeRE-j5tTQmsmWcbZdFpegrWAiF8lHuFDp79r_jVq1c3SPZGSwJeVkhomLrl4KcghL62cEkMZc-ggr-DeLT1jMDwbqBOp2UO_E8kUWPZYr8q6tzxySb_Jho9qtpdegrqCre78fOpG21IolHXlybf7GtwoUzGaNysemGpr6fHCGdks2RSqaWs_39ejCxHyg2ejT9jYGe2WwxiJqgOmJpA9185LQDgG3Gcsyu38N9-GYX72"/>
+</div>
+</div>
+</header>
+<main class="px-md py-md pb-32 space-y-lg max-w-full">
+<!-- Dashboard Greeting -->
+<section>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Good Morning, Alex</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Your enterprise summary for today.</p>
+</section>
+<!-- KPI Vertical Stack -->
+<section class="space-y-md">
+<!-- KPI 1 -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant flex items-center justify-between transition-all active:scale-95 cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">group</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Total Employees</p>
+<p class="font-headline-sm text-headline-sm font-bold">1,284</p>
+</div>
+</div>
+<div class="text-secondary flex items-center font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span>+2.4%</span>
+</div>
+</div>
+<!-- KPI 2 -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant flex items-center justify-between transition-all active:scale-95 cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-tertiary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary">event_busy</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">On Leave Today</p>
+<p class="font-headline-sm text-headline-sm font-bold">28</p>
+</div>
+</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm">
+<span>Stable</span>
+</div>
+</div>
+<!-- KPI 3 -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant flex items-center justify-between transition-all active:scale-95 cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary">person_add</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Open Positions</p>
+<p class="font-headline-sm text-headline-sm font-bold">14</p>
+</div>
+</div>
+<div class="text-secondary flex items-center font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-sm">add_circle</span>
+<span>3 New</span>
+</div>
+</div>
+</section>
+<!-- Headcount Growth Chart Placeholder -->
+<section class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-label-md text-label-md font-bold">Headcount Growth</h3>
+<span class="material-symbols-outlined text-on-surface-variant text-md">more_vert</span>
+</div>
+<div class="h-48 w-full relative overflow-hidden rounded-lg bg-surface-container-low">
+<!-- Simple CSS Graph representation for mobile performance -->
+<div class="absolute inset-0 flex items-end justify-around px-sm pb-sm pt-md">
+<div class="w-4 bg-primary/20 rounded-t-sm" style="height: 40%;"></div>
+<div class="w-4 bg-primary/30 rounded-t-sm" style="height: 55%;"></div>
+<div class="w-4 bg-primary/40 rounded-t-sm" style="height: 45%;"></div>
+<div class="w-4 bg-primary/60 rounded-t-sm" style="height: 70%;"></div>
+<div class="w-4 bg-primary/80 rounded-t-sm" style="height: 85%;"></div>
+<div class="w-4 bg-primary rounded-t-sm" style="height: 100%;"></div>
+</div>
+<div class="absolute top-2 right-2 text-xs font-code text-primary font-bold">
+                    Target: 1,300
+                </div>
+</div>
+<div class="mt-md flex justify-around font-label-sm text-label-sm text-on-surface-variant">
+<span>JAN</span><span>FEB</span><span>MAR</span><span>APR</span><span>MAY</span><span>JUN</span>
+</div>
+</section>
+<!-- Quick Actions Grid -->
+<section>
+<h3 class="font-label-md text-label-md font-bold mb-md">Quick Actions</h3>
+<div class="grid grid-cols-2 gap-md">
+<button class="bg-primary text-on-primary p-md rounded-xl flex flex-col items-center gap-sm active:scale-95 transition-all">
+<span class="material-symbols-outlined">person_add</span>
+<span class="font-label-sm text-label-sm">Hire New</span>
+</button>
+<button class="bg-secondary-container text-on-secondary-container p-md rounded-xl flex flex-col items-center gap-sm active:scale-95 transition-all">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-label-sm text-label-sm">Run Payroll</span>
+</button>
+</div>
+</section>
+<!-- Recent Activities List -->
+<section>
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-label-md text-label-md font-bold">Recent Activities</h3>
+<button class="text-primary font-label-sm text-label-sm">View All</button>
+</div>
+<div class="space-y-sm">
+<!-- Activity 1 -->
+<div class="flex gap-md p-sm border-b border-outline-variant last:border-none">
+<div class="mt-1 w-2 h-2 rounded-full bg-primary flex-shrink-0"></div>
+<div class="flex-grow">
+<p class="font-body-sm text-body-sm"><strong>Sarah Miller</strong> updated her bank details for direct deposit.</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">2 hours ago</p>
+</div>
+</div>
+<!-- Activity 2 -->
+<div class="flex gap-md p-sm border-b border-outline-variant last:border-none">
+<div class="mt-1 w-2 h-2 rounded-full bg-tertiary flex-shrink-0"></div>
+<div class="flex-grow">
+<p class="font-body-sm text-body-sm"><strong>Leave Request</strong> from John Doe for June 12-14.</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">4 hours ago</p>
+</div>
+</div>
+<!-- Activity 3 -->
+<div class="flex gap-md p-sm border-b border-outline-variant last:border-none">
+<div class="mt-1 w-2 h-2 rounded-full bg-secondary flex-shrink-0"></div>
+<div class="flex-grow">
+<p class="font-body-sm text-body-sm"><strong>New Asset</strong> assigned: MacBook Pro to Emily Chen.</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">Yesterday</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-24 right-md w-14 h-14 rounded-full bg-primary shadow-lg text-on-primary flex items-center justify-center active:scale-90 transition-transform z-50">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+</button>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 left-0 right-0 h-20 bg-surface-container-highest flex items-center justify-around px-sm z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-sm text-label-sm font-bold">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-sm text-label-sm">Employees</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-label-sm text-label-sm">Tasks</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+<!-- Micro-interaction: Active state feedback -->
+<script>
+        document.querySelectorAll('nav a, section div, .grid button').forEach(el => {
+            el.addEventListener('touchstart', function() {
+                this.classList.add('opacity-70');
+            });
+            el.addEventListener('touchend', function() {
+                this.classList.remove('opacity-70');
+            });
+        });
+
+        // Simple mock for "Check In" or similar interactions
+        const fab = document.querySelector('.fixed.bottom-24');
+        fab.addEventListener('click', () => {
+            const originalIcon = fab.innerHTML;
+            fab.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span>';
+            setTimeout(() => {
+                fab.innerHTML = '<span class="material-symbols-outlined">check</span>';
+                fab.classList.replace('bg-primary', 'bg-secondary');
+                setTimeout(() => {
+                    fab.innerHTML = originalIcon;
+                    fab.classList.replace('bg-secondary', 'bg-primary');
+                }, 1500);
+            }, 800);
+        });
+    </script>
+</body></html>

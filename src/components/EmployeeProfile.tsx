@@ -93,9 +93,9 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
     handleAdminEditNV: async () => {
       try {
         await api.adminUpdateEmployee({
-          MA_NV: modal.data.MANV,
-          HO_TEN: modal.data.HOTEN,
-          MA_PHG: modal.data.MAPHG,
+          MA_NV: modal.data.MA_NV,
+          HO_TEN: modal.data.HO_TEN,
+          MA_PHG: modal.data.MA_PHG,
           LUONG: modal.data.LUONG,
           CHUC_VU: modal.data.CHUC_VU,
         });
@@ -108,7 +108,7 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
     handleCreateDepartment: async () => {
       setLoading(true);
       try {
-        await api.createDepartment({ tenpb: modal.data.tenpb });
+        await api.createDepartment({ TEN_PB: modal.data.TEN_PB });
         const depts = await api.getDepartments();
         setDepartments(depts.data);
         setModal({ isOpen: false, type: "", data: {} });
@@ -179,14 +179,14 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
           <div className="grid gap-6 md:grid-cols-3 animate-in fade-in duration-500">
             <div className="col-span-2 rounded-[2.5rem] bg-white p-8 shadow-sm border border-slate-100 flex items-center gap-8">
               <div className="h-32 w-32 rounded-3xl bg-gradient-to-tr from-red-600 to-yellow-500 text-4xl font-black text-white flex items-center justify-center">
-                {profile.HOTEN.split(" ").pop().charAt(0)}
+                {profile.HO_TEN.split(" ").pop().charAt(0)}
               </div>
               <div>
-                <h1 className="text-3xl font-black">{profile.HOTEN}</h1>
+                <h1 className="text-3xl font-black">{profile.HO_TEN}</h1>
                 <p className="text-lg font-medium text-red-500 uppercase tracking-tighter">
                   {getDisplayRole(user)}
                 </p>
-                <p className="text-slate-400 font-bold">{profile.TENPB}</p>
+                <p className="text-slate-400 font-bold">{profile.TEN_PB}</p>
               </div>
             </div>
             <Card
@@ -194,8 +194,8 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
               icon={<Activity className="text-red-600" size={20} />}
             >
               <div className="space-y-3">
-                <InfoItem label="Mã NV" value={profile.MANV} />
-                <InfoItem label="Email" value={profile.EMAIL} />
+                <InfoItem label="Mã NV" value={profile.MA_NV} />
+                <InfoItem label="EMAIL" value={profile.EMAIL} />
                 <div className="pt-4 flex gap-2">
                   <button
                     onClick={() =>
@@ -227,17 +227,17 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
           <div className="grid gap-4 md:grid-cols-3 animate-in slide-in-from-right-4">
             {coworkers.map((member) => (
               <div
-                key={member.MANV}
+                key={member.MA_NV}
                 className="rounded-3xl bg-white p-5 border border-slate-100 flex items-center justify-between"
               >
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold">
-                    {member.HOTEN.charAt(0)}
+                    {member.HO_TEN.charAt(0)}
                   </div>
                   <div>
-                    <p className="font-bold text-sm">{member.HOTEN}</p>
+                    <p className="font-bold text-sm">{member.HO_TEN}</p>
                     <p className="text-[10px] uppercase font-black text-slate-400">
-                      {member.CHUCVU}
+                      {member.CHUC_VU}
                     </p>
                   </div>
                 </div>
@@ -290,9 +290,9 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
                     {myProjects.map((p, i) => (
                       <tr key={i} className="border-t border-slate-50">
                         <td className="p-4 font-bold text-slate-700">
-                          {p.TENDA}
+                          {p.TEN_DA}
                         </td>
-                        <td className="p-4 text-slate-600">{p.THOIGIAN} giờ</td>
+                        <td className="p-4 text-slate-600">{p.THOI_GIAN} giờ</td>
                       </tr>
                     ))}
                   </tbody>
@@ -308,7 +308,7 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
                       setModal({
                         isOpen: true,
                         type: "dept_create",
-                        data: { tenpb: "" },
+                        data: { TEN_PB: "" },
                       }),
                     )
                   }
@@ -328,12 +328,12 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
                   </thead>
                   <tbody>
                     {departments.map((dept) => (
-                      <tr key={dept.MAPHG} className="border-t border-slate-50">
+                      <tr key={dept.MA_PHG} className="border-t border-slate-50">
                         <td className="p-4 font-bold text-xs text-slate-400">
-                          {dept.MAPHG}
+                          {dept.MA_PHG}
                         </td>
                         <td className="p-4 font-bold text-slate-700">
-                          {dept.TENPB}
+                          {dept.TEN_PB}
                         </td>
                         <td className="p-4 flex gap-2">
                           <button

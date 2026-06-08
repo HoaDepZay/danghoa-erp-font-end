@@ -18,8 +18,8 @@ export interface RealtimeData {
     TotalDepartments: number;
     GeneratedAt: string;
   };
-  departmentHeadcount: { MAPHG: number; TENPB: string; EmployeeCount: number; AvgSalary: number }[];
-  projectStatus: { TrangThai: string; SoLuong: number }[];
+  departmentHeadcount: { MA_PHG: number; TEN_PB: string; EmployeeCount: number; AvgSalary: number }[];
+  projectStatus: { TRANG_THAI: string; SoLuong: number }[];
   attendanceToday: { CheckedInToday: number; TotalEmployees: number; AttendanceRate: number };
 }
 

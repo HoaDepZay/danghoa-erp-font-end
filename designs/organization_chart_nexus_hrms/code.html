@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Organization Chart | Nexus HRMS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .org-connector {
+      position: absolute;
+      background-color: #c3c6d7; /* outline-variant */
+    }
+    .zoom-container {
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-origin: top center;
+    }
+    /* Custom Scrollbar for the chart canvas */
+    .chart-canvas::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .chart-canvas::-webkit-scrollbar-thumb {
+      background: #c3c6d7;
+      border-radius: 10px;
+    }
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+  </style>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-lowest": "#ffffff",
+            "on-surface": "#191b23",
+            "on-tertiary-fixed-variant": "#7d2d00",
+            "primary-fixed": "#dbe1ff",
+            "on-secondary-fixed-variant": "#005048",
+            "on-tertiary": "#ffffff",
+            "tertiary-fixed-dim": "#ffb596",
+            "on-primary-fixed": "#00174b",
+            "tertiary": "#943700",
+            "surface-dim": "#d9d9e5",
+            "on-secondary-container": "#006f64",
+            "on-error": "#ffffff",
+            "inverse-primary": "#b4c5ff",
+            "tertiary-fixed": "#ffdbcd",
+            "surface": "#faf8ff",
+            "inverse-on-surface": "#f0f0fb",
+            "surface-variant": "#e1e2ed",
+            "secondary": "#006b5f",
+            "outline": "#737686",
+            "secondary-fixed": "#71f8e4",
+            "on-tertiary-container": "#ffede6",
+            "primary": "#004ac6",
+            "on-error-container": "#93000a",
+            "outline-variant": "#c3c6d7",
+            "on-secondary-fixed": "#00201c",
+            "on-background": "#191b23",
+            "secondary-container": "#6df5e1",
+            "secondary-fixed-dim": "#4fdbc8",
+            "background": "#faf8ff",
+            "primary-fixed-dim": "#b4c5ff",
+            "surface-container": "#ededf9",
+            "on-secondary": "#ffffff",
+            "on-surface-variant": "#434655",
+            "on-primary-fixed-variant": "#003ea8",
+            "error": "#ba1a1a",
+            "tertiary-container": "#bc4800",
+            "error-container": "#ffdad6",
+            "surface-container-low": "#f3f3fe",
+            "primary-container": "#2563eb",
+            "surface-container-high": "#e7e7f3",
+            "inverse-surface": "#2e3039",
+            "surface-tint": "#0053db",
+            "on-tertiary-fixed": "#360f00",
+            "on-primary-container": "#eeefff",
+            "on-primary": "#ffffff",
+            "surface-bright": "#faf8ff",
+            "surface-container-highest": "#e1e2ed"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "lg": "24px",
+            "sm": "8px",
+            "margin-desktop": "32px",
+            "md": "16px",
+            "base": "4px",
+            "margin-mobile": "16px",
+            "max-width": "1440px",
+            "xs": "4px",
+            "xl": "32px",
+            "gutter": "16px"
+          },
+          "fontFamily": {
+            "label-sm": ["Inter"],
+            "headline-md": ["Inter"],
+            "body-sm": ["Inter"],
+            "display-lg": ["Inter"],
+            "body-md": ["Inter"],
+            "body-lg": ["Inter"],
+            "label-md": ["Inter"],
+            "headline-sm": ["Inter"],
+            "headline-lg-mobile": ["Inter"],
+            "code": ["JetBrains Mono"],
+            "headline-lg": ["Inter"]
+          },
+          "fontSize": {
+            "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+            "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+            "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+            "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+            "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+            "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+            "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+            "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+            "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+            "code": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+            "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+          }
+        },
+      },
+    }
+  </script>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen">
+<!-- Side Navigation Shell -->
+<aside class="fixed left-0 top-0 h-full w-[256px] bg-inverse-surface dark:bg-surface-container-low shadow-md flex flex-col overflow-y-auto z-50">
+<div class="p-lg flex flex-col gap-xs">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 bg-primary-fixed-dim rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">corporate_fare</span>
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-surface-bright dark:text-primary-fixed">Nexus HRMS</h1>
+<p class="font-body-sm text-body-sm text-outline-variant">Enterprise HR</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 mt-md">
+<ul class="space-y-1">
+<!-- Dashboard -->
+<li>
+<a class="flex items-center gap-md px-lg py-sm text-on-surface-variant dark:text-outline-variant hover:bg-on-surface-variant/5 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+</li>
+<!-- Employees -->
+<li>
+<a class="flex items-center gap-md px-lg py-sm text-on-surface-variant dark:text-outline-variant hover:bg-on-surface-variant/5 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-md text-label-md">Employees</span>
+</a>
+</li>
+<!-- Organization (ACTIVE) -->
+<li>
+<a class="flex items-center gap-md px-lg py-sm border-l-4 border-primary-fixed-dim bg-on-surface-variant/10 text-primary-fixed-dim font-bold transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">corporate_fare</span>
+<span class="font-label-md text-label-md">Organization</span>
+</a>
+</li>
+<!-- Departments -->
+<li>
+<a class="flex items-center gap-md px-lg py-sm text-on-surface-variant dark:text-outline-variant hover:bg-on-surface-variant/5 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">domain</span>
+<span class="font-label-md text-label-md">Departments</span>
+</a>
+</li>
+<!-- Attendance -->
+<li>
+<a class="flex items-center gap-md px-lg py-sm text-on-surface-variant dark:text-outline-variant hover:bg-on-surface-variant/5 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-label-md text-label-md">Attendance</span>
+</a>
+</li>
+<!-- Leave -->
+<li>
+<a class="flex items-center gap-md px-lg py-sm text-on-surface-variant dark:text-outline-variant hover:bg-on-surface-variant/5 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">event_busy</span>
+<span class="font-label-md text-label-md">Leave</span>
+</a>
+</li>
+<!-- Recruitment -->
+<li>
+<a class="flex items-center gap-md px-lg py-sm text-on-surface-variant dark:text-outline-variant hover:bg-on-surface-variant/5 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">person_search</span>
+<span class="font-label-md text-label-md">Recruitment</span>
+</a>
+</li>
+<!-- Onboarding -->
+<li>
+<a class="flex items-center gap-md px-lg py-sm text-on-surface-variant dark:text-outline-variant hover:bg-on-surface-variant/5 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">hail</span>
+<span class="font-label-md text-label-md">Onboarding</span>
+</a>
+</li>
+<!-- Payroll -->
+<li>
+<a class="flex items-center gap-md px-lg py-sm text-on-surface-variant dark:text-outline-variant hover:bg-on-surface-variant/5 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-label-md text-label-md">Payroll</span>
+</a>
+</li>
+</ul>
+</nav>
+<div class="mt-auto border-t border-outline-variant/10 p-md space-y-1">
+<a class="flex items-center gap-md px-lg py-sm text-on-surface-variant dark:text-outline-variant hover:bg-on-surface-variant/5 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-md text-label-md">Help Center</span>
+</a>
+<a class="flex items-center gap-md px-lg py-sm text-on-surface-variant dark:text-outline-variant hover:bg-on-surface-variant/5 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-error">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[256px] min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 right-0 w-[calc(100%-256px)] h-16 bg-surface dark:bg-surface-container-lowest border-b border-outline-variant dark:border-outline flex items-center justify-between px-lg z-40">
+<div class="flex items-center gap-md flex-1">
+<div class="relative w-full max-w-md group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 font-body-md focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Search employees or departments..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<div class="flex items-center gap-md">
+<button class="p-2 rounded-full hover:bg-surface-container-low transition-all relative">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined text-on-surface-variant">help_outline</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-outline-variant"></div>
+<div class="flex items-center gap-md">
+<button class="px-md py-sm bg-primary-container text-on-primary font-label-md rounded-lg hover:opacity-90 transition-all">Check In</button>
+<div class="flex items-center gap-sm">
+<img alt="HR Administrator Profile" class="w-10 h-10 rounded-full object-cover border border-outline-variant" data-alt="A professional headshot of a middle-aged HR administrator with a warm, confident expression. He is wearing a sharp charcoal suit and a light blue tie. The background is a blurred high-end corporate office with soft, natural lighting. The overall image has a clean, premium, and trustworthy corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfcJW1WZpb_g8uQaLpKfMXFbJ8Zy0uzBC9Q3tJ3MQaGOEXPUSZUm5qiduxDR09x9ltfaFAEM3yrEjOaseTuB1vraxi7frAif_zO8V7XEc95lvfZCeI_sSKdWNgGelNmOnLF2dhvpzyakPNiuK7jQUV-BLUKCOnILgmeoZprXByFRXzI0BssySgEARU2rhRnafaJt_4lvmjjcNdkaqboajKMsdhILLdmWmOdcsyVNws3iwAlsC1fB4tFP8e9COj1hhRyck4fdIx6eiQ"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Canvas Wrapper -->
+<div class="pt-16 flex-1 flex flex-col">
+<!-- Toolbar -->
+<section class="p-lg bg-surface border-b border-outline-variant flex items-center justify-between">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Organization Chart</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Interactive visual map of global company structure</p>
+</div>
+<div class="flex items-center gap-md">
+<!-- Zoom Controls -->
+<div class="flex items-center bg-surface-container rounded-lg p-1">
+<button class="p-1.5 hover:bg-surface-bright rounded transition-colors" onclick="zoomOut()" title="Zoom Out">
+<span class="material-symbols-outlined text-on-surface-variant">remove</span>
+</button>
+<span class="px-4 font-label-md text-on-surface w-16 text-center" id="zoom-level">100%</span>
+<button class="p-1.5 hover:bg-surface-bright rounded transition-colors" onclick="zoomIn()" title="Zoom In">
+<span class="material-symbols-outlined text-on-surface-variant">add</span>
+</button>
+<div class="w-px h-6 bg-outline-variant mx-1"></div>
+<button class="p-1.5 hover:bg-surface-bright rounded transition-colors" onclick="resetZoom()" title="Reset View">
+<span class="material-symbols-outlined text-on-surface-variant">restart_alt</span>
+</button>
+</div>
+<button class="flex items-center gap-sm px-md py-sm border border-primary text-primary font-label-md rounded-lg hover:bg-primary/5 transition-all">
+<span class="material-symbols-outlined text-[20px]">download</span>
+            Export Chart
+          </button>
+</div>
+</section>
+<!-- Chart Canvas -->
+<section class="flex-1 overflow-auto chart-canvas bg-slate-50 relative" id="chart-viewport">
+<div class="zoom-container p-xl min-w-max flex flex-col items-center" id="zoom-target">
+<!-- CEO Level -->
+<div class="flex flex-col items-center mb-16 relative">
+<div class="w-64 bg-surface-container-lowest border-2 border-primary rounded-xl shadow-md p-md text-center hover:scale-105 transition-transform cursor-pointer group relative">
+<img alt="CEO" class="w-16 h-16 rounded-full mx-auto mb-sm border-2 border-primary-fixed shadow-sm object-cover" data-alt="Close up portrait of a senior executive CEO with a visionary gaze. He is dressed in a designer dark navy suit. The lighting is dramatic yet professional, highlighting leadership and wisdom. The backdrop features a luxury executive suite overlooking a futuristic city skyline during twilight." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbEZDs69ZbBRUNZINgkvLRZbCtWeq00tSEQjtbIv43r5ESTZgTaUsFrvIKMd6vvHkq40RTzPT9yA0gBLPQoUBQA17IU2wuOHtY9Yn1G-2BIh10IV_DS8hvWxj0st8xYz2MnuzqIDjYL5btsiP0-MsDyUFbuZ4H0HT03y2PmtRN-r1hxt4r76XIpNL3mtrTx2qVticUnUasmseg9We4ENbSpne7Xo2yOr3jTzJYX_MDxFhGO7lzWbSB8XryBEQ1T04sB7OfAkWxVEZ0"/>
+<h3 class="font-label-md text-label-md text-on-surface group-hover:text-primary transition-colors">Alexander Sterling</h3>
+<p class="font-body-sm text-body-sm text-primary font-semibold">Chief Executive Officer</p>
+<div class="absolute -bottom-8 left-1/2 -translate-x-1/2 h-8 w-px bg-outline-variant"></div>
+</div>
+</div>
+<!-- Connecting line for directors -->
+<div class="relative w-full mb-16">
+<div class="absolute -top-16 left-1/2 -translate-x-1/2 w-[75%] h-[1px] bg-outline-variant"></div>
+<div class="flex justify-around w-full max-w-6xl mx-auto">
+<!-- Director 1 -->
+<div class="flex flex-col items-center relative director-node">
+<div class="absolute -top-16 left-1/2 -translate-x-1/2 h-16 w-px bg-outline-variant"></div>
+<div class="w-56 bg-surface-container-lowest border border-outline-variant rounded-xl shadow p-md text-center hover:shadow-lg transition-all cursor-pointer group">
+<img alt="Director of Product" class="w-14 h-14 rounded-full mx-auto mb-sm object-cover" data-alt="Corporate headshot of a female Director of Product, smiling warmly. She wears professional attire in a neutral tone. The setting is a minimalist, brightly lit design studio. The aesthetic is clean, modern, and highlights a balance of creativity and business expertise." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCE5EEUI7DyVvhsack6H16j19YxwEalkn2_6A4RtBXZkUibREPk_uoJzwcuc1YmfazHfGKPnZHOzFhEkWaJ37rEuq-Ku2fnDNzlR4dDcY0MEep61exbKwddL-3b3dlGvB6GxJExFw3FIkJOg_Wfs5JqXo7EF3froFBYVzpnmoW8JGwcY4Atkse_dz331Ll7BK0VxggXL9MMzfLeNXAuCn45igOrf_aYbTv6VCn-uyNxm4I4QmV1mFF6z06ke9Yy2PcZq0Vl_CBRoqXk"/>
+<h4 class="font-label-md text-label-md text-on-surface">Sarah Jenkins</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Director of Product</p>
+<div class="absolute -bottom-8 left-1/2 -translate-x-1/2 h-8 w-px bg-outline-variant"></div>
+</div>
+<!-- Managers under Director 1 -->
+<div class="mt-16 flex gap-lg">
+<!-- Manager 1.1 -->
+<div class="flex flex-col items-center relative">
+<div class="absolute -top-16 left-1/2 -translate-x-1/2 w-[120%] h-[1px] bg-outline-variant"></div>
+<div class="absolute -top-16 left-1/2 -translate-x-1/2 h-16 w-px bg-outline-variant"></div>
+<div class="w-48 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm p-sm text-center hover:border-primary/40 transition-all cursor-pointer">
+<img alt="Product Manager" class="w-12 h-12 rounded-full mx-auto mb-xs object-cover" data-alt="A male Product Manager with a focused and intelligent look, wearing a casual professional button-down shirt. The background is a clean white office wall with subtle architectural lines. Lighting is crisp and bright, reflecting a focused and efficient corporate culture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoAdISU6ZBcDAqFUQi31_2rFemOBr-SEpuAYRrRwOXmbOtz8t0rumOW7JmQN7qceVgmP_Y37CKFJAJ_h5j4upANmkCRvh9TBQxyCHB4ggADfBGsDDda9xuLKs2EK68jXxZqp0dL4muVnerCNwpMH3R5yp3wJOczFV4g3alsT0e83mC17ISuhpDyAJf2kQZjsyYngkha-ql4m-k4sm0e5h9vqvSq-ZSSzPKrnV9qx4GREb9VkONxdO5A_030jw2IwCwqQrafwtA5c1R"/>
+<h5 class="font-label-md text-label-md text-on-surface">Marcus Chen</h5>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Product Manager</p>
+</div>
+</div>
+<!-- Manager 1.2 -->
+<div class="flex flex-col items-center relative">
+<div class="absolute -top-16 left-1/2 -translate-x-1/2 h-16 w-px bg-outline-variant"></div>
+<div class="w-48 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm p-sm text-center hover:border-primary/40 transition-all cursor-pointer">
+<img alt="Design Lead" class="w-12 h-12 rounded-full mx-auto mb-xs object-cover" data-alt="A portrait of a confident female Design Lead with a stylish and professional appearance. She has a bright smile and is wearing a sleek black blazer. The lighting is soft and artistic, suggesting a creative yet high-level leadership role in a modern tech environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4vPdo6yz6ud601_8Hwwh35WZyWQ_gXwe4HQBv3QdxD47kbiKtAHaXrIRT105cswgfEa5bZfZUvUKA6N5ApbNjSJXso_Zdp2bTUyuOhqH0x-A5Jgh7L4JmK6XdFohiNsv6hpK_JyyzxfWdPIjniYDfvSTKdHBcIBb65SK5-m3CHdexmf_TdPpXqo05rh7TbA7k5bv38FhDtrjPFZ81aHP0nBeuAbK0LsipLL2zjt3UpiZ3svxRp3IlRL5XsBs0uk0CE-iRW8NHGN7I"/>
+<h5 class="font-label-md text-label-md text-on-surface">Elena Rodriguez</h5>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Design Lead</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Director 2 -->
+<div class="flex flex-col items-center relative director-node">
+<div class="absolute -top-16 left-1/2 -translate-x-1/2 h-16 w-px bg-outline-variant"></div>
+<div class="w-56 bg-surface-container-lowest border border-outline-variant rounded-xl shadow p-md text-center hover:shadow-lg transition-all cursor-pointer group">
+<img alt="CTO" class="w-14 h-14 rounded-full mx-auto mb-sm object-cover" data-alt="Professional portrait of a male CTO in his late 30s, exuding technical expertise and leadership. He is wearing a dark polo shirt. The background consists of a sophisticated server room with subtle blue ambient lighting. The mood is high-tech, reliable, and forward-thinking." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQuvuqKdZL1uI2w303bLS-nxU-mZjxDI98qcvZWWcmrDwOJIDhUC-gblq9Ud09yQ3bNZYITfMAQreT_nxqacZfsSrSB5CECwU4LRMZWIFXlASHuwmQ6T2T-jM3ZzHWk-wVgsLy1s_myErlZoz5PPq2P9L6SlGXN9XXNglxpvT--M8YY3K9IcR-T8VPmTshJyxNK69DOxzDUIcQdF22WJSeIfTfB3vJCEFv5RsM7WvkJFXOrbGZt6x_09W02xxm7TVtlBvohkRK2NQ-"/>
+<h4 class="font-label-md text-label-md text-on-surface">David Vance</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Chief Tech Officer</p>
+<div class="absolute -bottom-8 left-1/2 -translate-x-1/2 h-8 w-px bg-outline-variant"></div>
+</div>
+<!-- Managers under Director 2 -->
+<div class="mt-16 flex gap-lg">
+<!-- Manager 2.1 -->
+<div class="flex flex-col items-center relative">
+<div class="absolute -top-16 left-1/2 -translate-x-1/2 w-[120%] h-[1px] bg-outline-variant"></div>
+<div class="absolute -top-16 left-1/2 -translate-x-1/2 h-16 w-px bg-outline-variant"></div>
+<div class="w-48 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm p-sm text-center hover:border-primary/40 transition-all cursor-pointer">
+<img alt="Engineering Manager" class="w-12 h-12 rounded-full mx-auto mb-xs object-cover" data-alt="A focused female Engineering Manager with a calm and analytical expression. She is in a collaborative office space with glass partitions. The lighting is cool and even, emphasizing a high-performance engineering environment within a top-tier tech firm." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1cKE0iC6LpMqYhTUoW15N9xT_8UNdTVSSVTjPbUJHLwoY-8fK0U_p-kPSCg8h71VQU7-nQDB2MclfDEGYJwsqjA0z85665ceHfD_vzBcL3V8rXj1KvpuiDsoQAB81cgR3CoROgpSbk1tHPCJY13ZkjvaqV0SZdEL0oxkoP_Sx6wBAlEQbqTNN6GV3NVl67P9c-WxKonTaS4C84jv9V8uCVRLAy8ZS_gNYstpyV62b8e5ZUhgZEf8tDS9DZsBP2cAianodXeSWZg22"/>
+<h5 class="font-label-md text-label-md text-on-surface">Linda Wu</h5>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Engineering Mgr</p>
+</div>
+</div>
+<!-- Manager 2.2 -->
+<div class="flex flex-col items-center relative">
+<div class="absolute -top-16 left-1/2 -translate-x-1/2 h-16 w-px bg-outline-variant"></div>
+<div class="w-48 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm p-sm text-center hover:border-primary/40 transition-all cursor-pointer">
+<img alt="QA Manager" class="w-12 h-12 rounded-full mx-auto mb-xs object-cover" data-alt="A confident male Quality Assurance Manager with a friendly smile, dressed in a grey sweater. The background is a modern tech hub with plants and soft wood textures. The visual style is approachable, professional, and reflects a modern, healthy workplace culture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSWp6HV3I-16iWQo7jKm3OKo60AKkCQluYWJzJM8yxnlek2xuMZIxFMEL72qZKsrngJEetgpDpZlcdYarC8Nv2s3HjrRbaFCSp3wPN1mWERVxccmzW_bHE6EBn-0KUJpNTrVY97KCSZeyKF6t_if1GGWxCQbazkvz-yjbPkqPXb2mgSNKh4AN7cva5PdAAaOqpA_LMS_NxBi0kl3tYi6He9JYiOqHDHEZARSS4PtoHSG6MqFCp4yB8ptscHkLNWez9PofZnNju5W-N"/>
+<h5 class="font-label-md text-label-md text-on-surface">James Thorne</h5>
+<p class="font-body-sm text-body-sm text-on-surface-variant">QA Manager</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Director 3 -->
+<div class="flex flex-col items-center relative director-node">
+<div class="absolute -top-16 left-1/2 -translate-x-1/2 h-16 w-px bg-outline-variant"></div>
+<div class="w-56 bg-surface-container-lowest border border-outline-variant rounded-xl shadow p-md text-center hover:shadow-lg transition-all cursor-pointer group">
+<img alt="HR Director" class="w-14 h-14 rounded-full mx-auto mb-sm object-cover" data-alt="A professional female HR Director with an approachable and empathetic expression. She is wearing an elegant burgundy dress. The background is a warm, light-filled corporate reception area with subtle wooden accents. The lighting is soft and flattering, emphasizing people-centric leadership." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDM-uCNzkn01ROPZfh_X2WbjgWGovVjQSHRk5zB1CO1kDuX-90COsyqLCuu9iblw5Liqtf7FaIisq0dN20DyYiicqe301pu83HRelpauYmObUEO0baQmdaZPGIHlqXQPPvSOEpl82FRHfsbzk_JCW8aV8P80hj2FP0sF8L94IWZX8c7jo_sFf6SCGdYfj3oEF3WYN5CPUmW9Ov5My31LjwfcibtdqPFIMUytoyS2T42iM6Jp2DPj71ky6kW4lSzQ4jdcMM7cPZ6t-4Y"/>
+<h4 class="font-label-md text-label-md text-on-surface">Rachel Adams</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">HR Director</p>
+<div class="absolute -bottom-8 left-1/2 -translate-x-1/2 h-8 w-px bg-outline-variant"></div>
+</div>
+<!-- Managers under Director 3 -->
+<div class="mt-16 flex gap-lg">
+<!-- Manager 3.1 -->
+<div class="flex flex-col items-center relative">
+<div class="absolute -top-16 left-1/2 -translate-x-1/2 w-[120%] h-[1px] bg-outline-variant"></div>
+<div class="absolute -top-16 left-1/2 -translate-x-1/2 h-16 w-px bg-outline-variant"></div>
+<div class="w-48 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm p-sm text-center hover:border-primary/40 transition-all cursor-pointer">
+<img alt="Recruitment Manager" class="w-12 h-12 rounded-full mx-auto mb-xs object-cover" data-alt="A friendly and professional male Recruitment Manager with a clean-shaven look. He is wearing a light blue dress shirt and is in a modern office lounge. The lighting is natural and bright, creating an inviting and professional atmosphere consistent with talent acquisition roles." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwXl0-bTrkXQrHaOqB6ZzLx8MBKcOYJmtWURoZwzIhMHd1GEEZkCMsjga2_9qvb9diMp3Sfvyd9ly9HLmyLf6agg3dWhkaL0p7cxMp1QlGkhaTYf2JHcZEwuzzWYE73RnL0b3FEhMzlHHPZDHssPhliyctzdvnJ14Iwif7cywEeV1z9T0rUg-fJTDiRA6QIFCq4nZoFdQ-YJktkX-_IxLYc3Qg4GY4rq4oOA8jGxx11GF3B746DPDqB0Usvd3Q8BePEEMCRMypRGuJ"/>
+<h5 class="font-label-md text-label-md text-on-surface">Oscar Kim</h5>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Recruitment Mgr</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Legend / Note -->
+<div class="fixed bottom-lg right-lg bg-surface/80 backdrop-blur-md border border-outline-variant rounded-xl p-md shadow-lg flex flex-col gap-sm">
+<h6 class="font-label-sm text-label-sm text-on-surface">Legend</h6>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-xs">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Executive</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="w-3 h-3 rounded-full bg-outline-variant"></span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Management</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="w-3 h-3 border border-dashed border-outline rounded-full"></span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Vacant</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<script>
+    let currentZoom = 1;
+    const zoomTarget = document.getElementById('zoom-target');
+    const zoomText = document.getElementById('zoom-level');
+
+    function updateZoomDisplay() {
+      zoomTarget.style.transform = `scale(${currentZoom})`;
+      zoomText.textContent = `${Math.round(currentZoom * 100)}%`;
+    }
+
+    function zoomIn() {
+      if (currentZoom < 1.5) {
+        currentZoom += 0.1;
+        updateZoomDisplay();
+      }
+    }
+
+    function zoomOut() {
+      if (currentZoom > 0.5) {
+        currentZoom -= 0.1;
+        updateZoomDisplay();
+      }
+    }
+
+    function resetZoom() {
+      currentZoom = 1;
+      updateZoomDisplay();
+    }
+
+    // Add interactivity to nodes
+    document.querySelectorAll('.zoom-container > div div').forEach(node => {
+      node.addEventListener('click', (e) => {
+        // Prevent trigger from multiple layers
+        e.stopPropagation();
+        
+        // Visual feedback
+        node.classList.add('scale-95');
+        setTimeout(() => node.classList.remove('scale-95'), 150);
+        
+        // Detail notification (simulated)
+        const name = node.querySelector('h3, h4, h5')?.textContent;
+        const role = node.querySelector('p')?.textContent;
+        console.log(`Opening profile for: ${name} (${role})`);
+      });
+    });
+
+    // Handle horizontal scroll with mouse wheel if needed
+    const viewport = document.getElementById('chart-viewport');
+    viewport.addEventListener('wheel', (e) => {
+      if (e.deltaY !== 0 && e.shiftKey) {
+        viewport.scrollLeft += e.deltaY;
+        e.preventDefault();
+      }
+    });
+  </script>
+</body></html>

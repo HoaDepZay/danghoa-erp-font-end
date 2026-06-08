@@ -40,7 +40,7 @@ const fmtPreviewTime = (iso?: string) => {
   return d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
 };
 
-const Chat = ({ user }: { user: any }) => {
+const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomId?: string; embeddedRoom?: any }) => {
   const [rooms, setRooms] = useState<any[]>([]);
   // Map roomId -> latest message object
   const [latestMsgMap, setLatestMsgMap] = useState<Record<number, any>>({});
@@ -51,7 +51,7 @@ const Chat = ({ user }: { user: any }) => {
   const [messageInput, setMessageInput] = useState("");
   const [roomSearchQuery, setRoomSearchQuery] = useState("");
   const [showRoomInfo, setShowRoomInfo] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(true);
+  const [showSidebar, setShowSidebar] = useState(!embeddedRoomId);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   // ─── Search state ───────────────────────────────────────────────────────────
@@ -141,7 +141,7 @@ const Chat = ({ user }: { user: any }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const getRoomId = (r: any) => getProp(r, 'maphong') ?? getProp(r, 'id');
+  const getRoomId = (room: any) => room?.MA_PHONG || room?.MaPhong || room?.maPhong || room?.MAPHONG || room?.maphong || room?.id;
   const getRoomName = (r: any) => getProp(r, 'tenphong') ?? "";
   const getRoomType = (r: any) => getProp(r, 'LOAI_PHONG') ?? 1;
 
@@ -153,18 +153,29 @@ const Chat = ({ user }: { user: any }) => {
       const roomsData = toArray(res.data);
       setRooms(roomsData);
       
-      const activeRoomId = localStorage.getItem("activeRoomId") || localStorage.getItem("pendingChatRoomId");
-      if (activeRoomId) {
-        const found = roomsData.find((r: any) => String(getRoomId(r)) === String(activeRoomId));
+      if (embeddedRoomId) {
+        let found = roomsData.find((r: any) => String(getRoomId(r)) === String(embeddedRoomId));
+        if (!found && embeddedRoom) {
+          found = embeddedRoom;
+          setRooms((prev) => [...prev, embeddedRoom]);
+        }
         if (found) {
           setSelectedRoom(found);
+        }
+      } else {
+        const activeRoomId = localStorage.getItem("activeRoomId") || localStorage.getItem("pendingChatRoomId");
+        if (activeRoomId) {
+          const found = roomsData.find((r: any) => String(getRoomId(r)) === String(activeRoomId));
+          if (found) {
+            setSelectedRoom(found);
+          } else {
+            if (roomsData.length > 0 && !selectedRoom) setSelectedRoom(roomsData[0]);
+          }
+          localStorage.removeItem("activeRoomId");
+          localStorage.removeItem("pendingChatRoomId");
         } else {
           if (roomsData.length > 0 && !selectedRoom) setSelectedRoom(roomsData[0]);
         }
-        localStorage.removeItem("activeRoomId");
-        localStorage.removeItem("pendingChatRoomId");
-      } else {
-        if (roomsData.length > 0 && !selectedRoom) setSelectedRoom(roomsData[0]);
       }
 
       // Fetch latest message song song cho tất cả phòng
@@ -289,20 +300,19 @@ const Chat = ({ user }: { user: any }) => {
 
   const getDisplayName = (room: any) => {
     if (!room) return "";
-    const type = getRoomType(room);
-    const name = getRoomName(room);
-    if (type !== 1) return name;
-    const myName = getUserName(user).trim().toLowerCase().normalize("NFC");
-    let names = name.split(" - ");
-    if (names.length < 2) names = name.split("-");
-    if (names.length >= 2) {
-      const name0 = names[0].trim().normalize("NFC");
-      const name1 = names[1].trim().normalize("NFC");
-      if (name0.toLowerCase() === myName) return name1;
-      if (name1.toLowerCase() === myName) return name0;
-      return name0.toLowerCase().includes(myName) ? name1 : name0;
+    let name = getRoomName(room);
+    
+    // Nếu tên phòng trống (có thể xảy ra khi vừa tạo phòng mới),
+    // cố gắng lấy từ thông tin thành viên (thanhVien) nếu có.
+    if (!name && getRoomType(room) === 1 && room.thanhVien && Array.isArray(room.thanhVien)) {
+      const myMaNv = getManv(user);
+      const other = room.thanhVien.find((tv: any) => getManv(tv) !== myMaNv);
+      if (other) {
+        name = getProp(other, 'TENNV') || getProp(other, 'HO_TEN') || getProp(other, 'name') || "User";
+      }
     }
-    return name;
+    
+    return name || "User";
   };
 
   const getRoomIcon = (type: number) => {
@@ -332,9 +342,10 @@ const Chat = ({ user }: { user: any }) => {
     <div
       className={`chat-page ${showSidebar ? "show-sidebar" : "show-chat"}`}
       style={{
-        height: "calc(100vh - 120px)", display: "flex", background: "#fff",
+        height: embeddedRoomId ? "100%" : "calc(100vh - 120px)", display: "flex", background: "#fff",
         borderRadius: "20px", overflow: "hidden",
-        boxShadow: "0 10px 40px rgba(0,0,0,0.05)", border: "1px solid #f1f5f9",
+        boxShadow: embeddedRoomId ? "none" : "0 10px 40px rgba(0,0,0,0.05)", 
+        border: embeddedRoomId ? "none" : "1px solid #f1f5f9",
         position: "relative", width: "100%", minWidth: 0,
       }}
     >
@@ -342,7 +353,7 @@ const Chat = ({ user }: { user: any }) => {
         className="chat-sidebar"
         style={{
           width: isMobile ? "100%" : "320px", borderRight: "1px solid #f1f5f9",
-          display: isMobile && !showSidebar ? "none" : "flex",
+          display: embeddedRoomId ? "none" : (isMobile && !showSidebar ? "none" : "flex"),
           flexDirection: "column", background: "#fdfdff", flexShrink: 0,
         }}
       >
@@ -377,7 +388,7 @@ const Chat = ({ user }: { user: any }) => {
               const rId = getRoomId(room);
               const latest = latestMsgMap[rId];
               const latestContent = getProp(latest, 'noidung') ?? "";
-              const latestTime = getProp(latest, 'thoigiangui') ?? getProp(latest, 'thoigian') ?? "";
+              const latestTime = getProp(latest, 'thoigiangui') ?? getProp(latest, 'THOI_GIAN') ?? "";
               const isSelected = getRoomId(selectedRoom) === rId;
 
               return (
@@ -434,7 +445,7 @@ const Chat = ({ user }: { user: any }) => {
                     }}>
                       {latestContent
                         ? truncate(latestContent)
-                        : getProp(room, 'MoTa') || "Bắt đầu trò chuyện..."}
+                        : getProp(room, 'MO_TA') || "Bắt đầu trò chuyện..."}
                     </p>
                   </div>
                 </div>
@@ -582,7 +593,7 @@ const Chat = ({ user }: { user: any }) => {
                           const maNvGui = getProp(msg, 'manv_gui') ?? getProp(msg, 'manvgui') ?? getProp(msg, 'MA_NV');
                           const isMine = maNvGui === myMaNv;
                           const content = getProp(msg, 'noidung') ?? "";
-                          const time = getProp(msg, 'thoigiangui') ?? getProp(msg, 'thoigian');
+                          const time = getProp(msg, 'thoigiangui') ?? getProp(msg, 'THOI_GIAN');
                           // Highlight từ khoá
                           const idx = content.toLowerCase().indexOf(searchKeyword.toLowerCase());
                           let display: React.ReactNode = content;
@@ -652,7 +663,7 @@ const Chat = ({ user }: { user: any }) => {
                   const maNvGui = getProp(msg, 'manv_gui') ?? getProp(msg, 'manvgui') ?? getProp(msg, 'MA_NV');
                   const isMine = maNvGui === myMaNv;
                   const noiDung = getProp(msg, 'noidung') ?? "";
-                  const thoiGian = getProp(msg, 'thoigiangui') ?? getProp(msg, 'thoigian');
+                  const THOI_GIAN = getProp(msg, 'thoigiangui') ?? getProp(msg, 'THOI_GIAN');
                   let tenNv = getProp(msg, 'tennguoigui') ?? getProp(msg, 'tennhanvien');
                   if (!tenNv) {
                     if (isMine) tenNv = getUserName(user) || "Tôi";
@@ -692,7 +703,7 @@ const Chat = ({ user }: { user: any }) => {
                           {noiDung}
                         </div>
                         <span style={{ fontSize: "10px", color: "#94a3b8", marginTop: "4px", padding: "0 4px" }}>
-                          {formatDate(thoiGian)}
+                          {formatDate(THOI_GIAN)}
                         </span>
                       </div>
                     </div>
@@ -801,7 +812,7 @@ const Chat = ({ user }: { user: any }) => {
           <div style={{ marginBottom: "24px" }}>
             <p style={{ fontSize: "11px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", marginBottom: "12px", letterSpacing: "0.05em" }}>Thông tin</p>
             <div style={{ fontSize: "13px", color: "#475569", lineHeight: "1.6" }}>
-              {getProp(selectedRoom, 'MoTa') || "Không có mô tả chi tiết."}
+              {getProp(selectedRoom, 'MO_TA') || "Không có mô tả chi tiết."}
             </div>
           </div>
           <div>

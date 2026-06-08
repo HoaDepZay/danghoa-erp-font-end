@@ -67,7 +67,7 @@ export const StepInfo: React.FC<{ form: any; setForm: any; onNext: () => void; l
     e.preventDefault();
     if (!form.HO_TEN || !form.EMAIL || !form.password) return toast.error("Vui lòng điền đầy đủ!");
     if (form.password.length < 6) return toast.error("Mật khẩu phải ít nhất 6 ký tự!");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.EMAIL)) return toast.error("Email không hợp lệ!");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.EMAIL)) return toast.error("EMAIL không hợp lệ!");
     onNext();
   };
 
@@ -79,7 +79,7 @@ export const StepInfo: React.FC<{ form: any; setForm: any; onNext: () => void; l
       </div>
       <div style={S.inputWrap}>
         <span style={S.iconL}><Mail size={16} /></span>
-        <input type="EMAIL" style={S.input} placeholder="Email (nhận OTP)" value={form.EMAIL} onChange={set("EMAIL")} onFocus={inputFocus} onBlur={inputBlur} />
+        <input type="EMAIL" style={S.input} placeholder="EMAIL (nhận OTP)" value={form.EMAIL} onChange={set("EMAIL")} onFocus={inputFocus} onBlur={inputBlur} />
       </div>
       <div style={{ ...S.inputWrap, marginBottom: 0 }}>
         <span style={S.iconL}><Lock size={16} /></span>

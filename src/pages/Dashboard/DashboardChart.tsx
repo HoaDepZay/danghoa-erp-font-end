@@ -117,7 +117,7 @@ export const DashboardChart: React.FC<DashboardChartProps> = ({
             </div>
             {deptData.length === 0
               ? <p style={{ textAlign: "center", color: "#bbb", fontSize: 13, padding: "20px 0" }}>Không có dữ liệu</p>
-              : <BarChart data={deptData.map((d) => ({ label: getProp(d, 'TENPB'), value: getProp(d, 'EmployeeCount') ?? 0, max: maxEmp, color: "#111" }))} />
+              : <BarChart data={deptData.map((d) => ({ label: getProp(d, 'TEN_PB'), value: getProp(d, 'EmployeeCount') ?? 0, max: maxEmp, color: "#111" }))} />
             }
           </Card>
 
@@ -129,7 +129,7 @@ export const DashboardChart: React.FC<DashboardChartProps> = ({
             </div>
             <DonutSlice
               data={projStatus.map((p) => {
-                const status = getProp(p, 'TrangThai');
+                const status = getProp(p, 'TRANG_THAI');
                 return {
                   label: status,
                   value: getProp(p, 'SoLuong') ?? 0,
@@ -155,7 +155,7 @@ export const DashboardChart: React.FC<DashboardChartProps> = ({
               const MA_DA = getProp(p, 'MA_DA') ?? getProp(p, 'id') ?? i;
               const TEN_DA = getProp(p, 'TEN_DA') ?? getProp(p, 'ten') ?? "Dự án";
               const vaiTro = getProp(p, 'VAI_TRO_DU_AN') ?? getProp(p, 'vaitro') ?? "Thành viên";
-              const thoiGian = getProp(p, 'thoigian') ?? 0;
+              const THOI_GIAN = getProp(p, 'THOI_GIAN') ?? 0;
               return (
               <div key={MA_DA} style={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -168,7 +168,7 @@ export const DashboardChart: React.FC<DashboardChartProps> = ({
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#aaa", fontSize: 12 }}>
                   <Clock size={12} />
-                  <span>{thoiGian}h</span>
+                  <span>{THOI_GIAN}h</span>
                 </div>
               </div>
             )})}

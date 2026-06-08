@@ -25,20 +25,19 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
     );
   }
 
-  const role = user?.chuc_vu || user?.CHUCVU || user?.role || "";
+  const role = user?.chuc_vu || user?.CHUC_VU || user?.role || "";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }} className="animate-fade-in">
 
       {/* Welcome banner */}
-      <div className="dashboard-banner">
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 10 }}>
         <div>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", margin: 0 }}>Chào mừng trở lại 👋</p>
-          <h2 style={{ fontSize: 22, fontWeight: 800, margin: "6px 0 4px", color: "#fff" }}>
-            {getUserName(user)}
-          </h2>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", margin: 0 }}>
-            {role} · Tháng {month}/{year}
+          <h3 style={{ fontSize: 28, fontWeight: 700, color: "var(--text-dark)", marginBottom: 6 }}>
+            Tổng quan hệ thống
+          </h3>
+          <p style={{ fontSize: 16, color: "var(--text-muted)", margin: 0 }}>
+            Chào mừng trở lại, {getUserName(user)}! Dưới đây là tình hình hoạt động tháng {month}/{year}.
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -48,25 +47,19 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
               onClick={fetchRealtime}
               disabled={realtimeLoading}
               title="Làm mới dữ liệu realtime"
-              style={{
-                background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)",
-                borderRadius: 10, width: 38, height: 38, display: "flex",
-                alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#fff",
-              }}
+              className="btn btn-secondary"
+              style={{ padding: "10px", borderRadius: 10 }}
             >
               <RefreshCw
-                size={16}
+                size={18}
                 style={{ animation: realtimeLoading ? "spin 0.8s linear infinite" : "none" }}
               />
             </button>
           )}
-          <div style={{
-            width: 52, height: 52, borderRadius: 14,
-            background: "rgba(255,255,255,0.1)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <TrendingUp size={24} color="#fff" />
-          </div>
+          <button className="btn btn-primary" style={{ height: 40 }}>
+            <TrendingUp size={18} />
+            Báo cáo chi tiết
+          </button>
         </div>
       </div>
 

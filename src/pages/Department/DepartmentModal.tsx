@@ -22,26 +22,26 @@ export const DeptModal: React.FC<DeptModalProps> = ({
   onSuccess,
 }) => {
   const isEdit = !!editData;
-  const [form, setForm] = useState({ tenpb: "", matruongphg: "" });
+  const [form, setForm] = useState({ TEN_PB: "", matruongphg: "" });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setForm(
       editData
         ? {
-            tenpb: editData.tenpb || "",
+            TEN_PB: editData.TEN_PB || "",
             matruongphg: editData.matruongphg || "",
           }
-        : { tenpb: "", matruongphg: "" }
+        : { TEN_PB: "", matruongphg: "" }
     );
   }, [editData, isOpen]);
 
   const handleSubmit = async () => {
-    if (!form.tenpb.trim()) return toast.error("Tên phòng ban không được trống");
+    if (!form.TEN_PB.trim()) return toast.error("Tên phòng ban không được trống");
     setLoading(true);
     try {
       const payload: any = {
-        tenpb: form.tenpb.trim(),
+        TEN_PB: form.TEN_PB.trim(),
         matruongphg: form.matruongphg || undefined,
       };
       if (isEdit) {
@@ -84,8 +84,8 @@ export const DeptModal: React.FC<DeptModalProps> = ({
           <input
             className="form-input"
             placeholder="VD: Phòng Kỹ thuật"
-            value={form.tenpb}
-            onChange={(e) => setForm((f) => ({ ...f, tenpb: e.target.value }))}
+            value={form.TEN_PB}
+            onChange={(e) => setForm((f) => ({ ...f, TEN_PB: e.target.value }))}
           />
         </FormField>
         <FormField label="Trưởng phòng">
@@ -230,7 +230,7 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
     <Drawer
       isOpen={isOpen}
       onClose={onClose}
-      title={data ? (data.tenpb || "Chi tiết phòng ban") : "Chi tiết phòng ban"}
+      title={data ? (data.TEN_PB || "Chi tiết phòng ban") : "Chi tiết phòng ban"}
       subtitle={data ? `Mã phòng: ${data.MA_PHG} · ${members.length} thành viên` : undefined}
       icon={<Building2 size={18} />}
       size="lg"
@@ -250,7 +250,7 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
                 <Building2 size={22} color="#fff" />
               </div>
               <div>
-                <p style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>{data.tenpb}</p>
+                <p style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>{data.TEN_PB}</p>
                 <p style={{ fontSize: 12, color: "#888", margin: "2px 0 0" }}>Mã: {data.MA_PHG}</p>
                 {data.ngthanhlap && (
                   <p style={{ fontSize: 11, color: "#aaa", margin: "2px 0 0" }}>

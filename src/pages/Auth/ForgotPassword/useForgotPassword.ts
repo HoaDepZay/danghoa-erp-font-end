@@ -19,7 +19,7 @@ export const useForgotPassword = () => {
   const handleSendEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!EMAIL) { toast.error("Vui lòng nhập địa chỉ EMAIL!"); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(EMAIL)) { toast.error("Email không hợp lệ!"); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(EMAIL)) { toast.error("EMAIL không hợp lệ!"); return; }
     setLoading(true);
     try {
       await api.forgotPassword({ EMAIL });
