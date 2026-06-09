@@ -27,12 +27,10 @@ const LeaveManagement = ({ user }: { user: any }) => {
     }
   };
 
-  const handleApprove = async (id: number, currentStatus: string) => {
+  const handleApprove = async (id: number) => {
     try {
-      const isLevel1 = currentStatus.includes("Chờ duyệt");
-      const capDuyet = isLevel1 && !currentStatus.includes("Cấp 2") ? 1 : 2;
-      await api.approveLeave({ maDon: id, capDuyet, TRANG_THAI: "Đã duyệt" });
-      toast.success("Duyệt đơn thành công");
+      await api.approveLeave({ maDon: id, TRANG_THAI: "Đã duyệt" });
+      toast.success("Duyệt đơn thành công!");
       fetchLeaves();
     } catch (error) {
       toast.error("Lỗi duyệt đơn");
@@ -46,9 +44,9 @@ const LeaveManagement = ({ user }: { user: any }) => {
   };
 
   const handleReject = async () => {
-    if (!rejectReason) return toast.error("Vui lòng nhập lý do từ chối");
+    if (!rejectReason.trim()) return toast.error("Vui lòng nhập lý do từ chối");
     try {
-      await api.approveLeave({ maDon: selectedLeaveId, capDuyet: 1, TRANG_THAI: "Từ chối", lyDoTuChoi: rejectReason });
+      await api.approveLeave({ maDon: selectedLeaveId, TRANG_THAI: "Từ chối", lyDoTuChoi: rejectReason.trim() });
       toast.success("Đã từ chối đơn");
       setRejectModalOpen(false);
       fetchLeaves();
@@ -62,7 +60,7 @@ const LeaveManagement = ({ user }: { user: any }) => {
       <div className="section-header">
         <div>
           <h2>Quản lý nghỉ phép</h2>
-          <p>Duyệt đơn từ nghỉ phép đa cấp</p>
+          <p>Duyệt hoặc từ chối đơn xin nghỉ phép của nhân viên</p>
         </div>
       </div>
 
@@ -115,7 +113,7 @@ const LeaveManagement = ({ user }: { user: any }) => {
                   <td>
                     {(TRANG_THAI !== "Đã duyệt" && TRANG_THAI !== "Từ chối") && (
                       <div style={{ display: "flex", gap: "8px" }}>
-                        <Btn variant="primary" onClick={() => handleApprove(maDon, TRANG_THAI)} icon={<CheckCircle2 size={14}/>}>Duyệt</Btn>
+                        <Btn variant="primary" onClick={() => handleApprove(maDon)} icon={<CheckCircle2 size={14}/>}>Duyệt</Btn>
                         <Btn variant="danger" onClick={() => openRejectModal(maDon)} icon={<XCircle size={14}/>}>Từ chối</Btn>
                       </div>
                     )}

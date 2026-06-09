@@ -10,10 +10,9 @@ interface LeaveRequestProps {
 }
 
 const STATUS_COLOR: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
-  "Chờ duyệt":          { bg: "#fef9c3", text: "#92400e", icon: <Clock size={13} /> },
-  "Chờ duyệt (Cấp 2)":  { bg: "#dbeafe", text: "#1e40af", icon: <Clock size={13} /> },
-  "Đã duyệt":           { bg: "#dcfce7", text: "#166534", icon: <CheckCircle size={13} /> },
-  "Từ chối":            { bg: "#fee2e2", text: "#991b1b", icon: <AlertCircle size={13} /> },
+  "Chờ duyệt": { bg: "#fef9c3", text: "#92400e", icon: <Clock size={13} /> },
+  "Đã duyệt":  { bg: "#dcfce7", text: "#166534", icon: <CheckCircle size={13} /> },
+  "Từ chối":   { bg: "#fee2e2", text: "#991b1b", icon: <AlertCircle size={13} /> },
 };
 
 const LeaveRequest = ({ user }: LeaveRequestProps) => {
@@ -129,21 +128,21 @@ const LeaveRequest = ({ user }: LeaveRequestProps) => {
               </thead>
               <tbody>
                 {myLeaves.map((leave: any) => {
-                  const tu  = leave.TUNGAY  || leave.tuNgay || leave.tungay;
-                  const den = leave.DENNGAY || leave.denNgay || leave.denngay;
-                  const status = leave.TRANGTHAIDUYET || leave.trangThaiDuyet || leave.trangthaiduyet || "Chờ duyệt";
+                  const tu  = leave.TU_NGAY  || leave.TUNGAY  || leave.tuNgay;
+                  const den = leave.DEN_NGAY || leave.DENNGAY || leave.denNgay;
+                  const status = leave.TRANG_THAI_DUYET || leave.TRANGTHAIDUYET || leave.trangThaiDuyet || "Chờ duyệt";
                   const style = STATUS_COLOR[status] || STATUS_COLOR["Chờ duyệt"];
                   const days = tu && den
                     ? Math.ceil((new Date(den).getTime() - new Date(tu).getTime()) / 86400000) + 1
                     : "—";
                   return (
-                    <tr key={leave.MADON || leave.maDon}>
+                    <tr key={leave.MA_DON || leave.MADON || leave.maDon}>
                       <td>{formatDate(tu)}</td>
                       <td>{formatDate(den)}</td>
                       <td><b>{days}</b> ngày</td>
-                      <td>{leave.TenLoaiNghi || leave.tenLoaiNghi || leave.tenloainghi || "Khác"}</td>
+                      <td>{leave.TEN_LOAI_NGHI || leave.TenLoaiNghi || leave.tenLoaiNghi || "Khác"}</td>
                       <td style={{ maxWidth: 200, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {leave.LYDO || leave.lyDo || leave.lydo || "—"}
+                        {leave.LY_DO || leave.LYDO || leave.lyDo || "—"}
                       </td>
                       <td>
                         <span style={{
@@ -155,7 +154,7 @@ const LeaveRequest = ({ user }: LeaveRequestProps) => {
                         </span>
                       </td>
                       <td style={{ color: "#ef4444", fontSize: 12 }}>
-                        {leave.LyDoTuChoi || leave.lyDoTuChoi || leave.lydotuchoi || "—"}
+                        {leave.LY_DO_TU_CHOI || leave.LyDoTuChoi || leave.lyDoTuChoi || "—"}
                       </td>
                     </tr>
                   );
