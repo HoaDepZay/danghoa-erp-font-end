@@ -45,7 +45,9 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
   const [employees, setEmployees] = useState<any[]>([]);
 
   const userLevel = getUserLevel(user);
-  const isAdmin = userLevel >= 3;
+  const myId = user?.userInfo?.MA_NV || user?.MA_NV || "";
+  // isAdmin được xác định ban đầu bởi level hệ thống. Ta sẽ kết hợp với quyền trong dự án khi render
+  const isSystemAdmin = userLevel >= 3;
 
   const fetchDetail = useCallback(async () => {
     if (!id) return;
@@ -72,10 +74,19 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
 
   useEffect(() => {
     fetchDetail();
-    if (isAdmin) {
-      api.getEmployees().then((res) => setEmployees(res.data?.data || []));
+  }, [fetchDetail]);
+
+  useEffect(() => {
+    // Nếu là admin hệ thống, hoặc nếu data đã tải xong và phát hiện là quản lý dự án
+    const currentProjectRole = data?.THANH_VIEN?.find((m: any) => (m.MA_NV || m.MANV) === myId)?.VAI_TRO_DU_AN;
+    const isProjManager = currentProjectRole === "Quản lý" || currentProjectRole === "Phó dự án";
+    
+    if (isSystemAdmin || isProjManager) {
+      if (employees.length === 0) {
+        api.getEmployees().then((res) => setEmployees(res.data?.data || []));
+      }
     }
-  }, [fetchDetail, isAdmin]);
+  }, [fetchDetail, isSystemAdmin, data, myId, employees.length]);
 
   const handleAddMember = async () => {
     if (!addMember.MA_NV) return toast.error("Vui lòng chọn nhân viên!");
@@ -135,6 +146,11 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
 
   const project = data;
   const members = data?.THANH_VIEN || [];
+  
+  // Xác định quyền quản lý của user hiện tại trên dự án này
+  const myProjectRole = members.find((m: any) => (m.MA_NV || m.MANV) === myId)?.VAI_TRO_DU_AN;
+  const isProjectManager = myProjectRole === "Quản lý" || myProjectRole === "Phó dự án";
+  const isAdmin = isSystemAdmin || isProjectManager;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
