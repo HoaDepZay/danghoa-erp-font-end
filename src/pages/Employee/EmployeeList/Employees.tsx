@@ -1,5 +1,5 @@
 import React from "react";
-import { UserPlus, Search, Download } from "lucide-react";
+import { UserPlus, Search, Download, Users, UserCheck, UserX } from "lucide-react";
 import { Btn, Card, SectionHeader, Pagination } from "../../../components/UI/index";
 import { useEmployees } from "./useEmployees";
 import { EmployeeModal } from "./EmployeeModal";
@@ -9,7 +9,8 @@ import { EmployeeDetails } from "../EmployeeDetails/EmployeeDetails";
 export const Employees: React.FC<{ user: any; onNavigate: (page: string) => void }> = ({ user, onNavigate }) => {
   const {
     employees, departments, loading, search, setSearch, page, setPage, totalPages, total,
-    modal, setModal, userLevel, fetchEmployees, handleExport
+    modal, setModal, userLevel, fetchEmployees, handleExport,
+    filterDept, setFilterDept, filterRole, setFilterRole, filterStatus, setFilterStatus, stats
   } = useEmployees(user);
 
   const handleViewDetail = (maNv: string) => {
@@ -32,18 +33,76 @@ export const Employees: React.FC<{ user: any; onNavigate: (page: string) => void
         }
       />
 
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 16, marginBottom: 24 }}>
+        <Card padding={true}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#e0f2fe", display: "flex", alignItems: "center", justifyContent: "center", color: "#0284c7" }}>
+              <Users size={24} />
+            </div>
+            <div>
+              <p style={{ margin: 0, fontSize: 13, color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>Tổng nhân viên</p>
+              <h3 style={{ margin: "4px 0 0", fontSize: 24, fontWeight: 700, color: "#0f172a" }}>{stats.totalEmployees}</h3>
+            </div>
+          </div>
+        </Card>
+        <Card padding={true}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#dcfce7", display: "flex", alignItems: "center", justifyContent: "center", color: "#16a34a" }}>
+              <UserCheck size={24} />
+            </div>
+            <div>
+              <p style={{ margin: 0, fontSize: 13, color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>Đang làm việc</p>
+              <h3 style={{ margin: "4px 0 0", fontSize: 24, fontWeight: 700, color: "#0f172a" }}>{stats.workingCount}</h3>
+            </div>
+          </div>
+        </Card>
+        <Card padding={true}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#fee2e2", display: "flex", alignItems: "center", justifyContent: "center", color: "#dc2626" }}>
+              <UserX size={24} />
+            </div>
+            <div>
+              <p style={{ margin: 0, fontSize: 13, color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>Nghỉ việc / Off</p>
+              <h3 style={{ margin: "4px 0 0", fontSize: 24, fontWeight: 700, color: "#0f172a" }}>{stats.offCount}</h3>
+            </div>
+          </div>
+        </Card>
+      </div>
+
       <Card className="mb-4">
-        <div style={{ position: "relative" }}>
-           <Search size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#aaa" }} />
-          <input
-            className="form-input"
-            style={{ paddingLeft: 36 }}
-            placeholder="Tìm theo tên, mã NV, EMAIL..."
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          />
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
+          <div style={{ position: "relative", flex: "1 1 300px" }}>
+            <Search size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#aaa" }} />
+            <input
+              className="form-input"
+              style={{ paddingLeft: 36, width: "100%" }}
+              placeholder="Tìm theo tên, mã NV, EMAIL..."
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            />
+          </div>
+          <select className="form-input" style={{ flex: "1 1 150px" }} value={filterDept} onChange={(e) => { setFilterDept(e.target.value); setPage(1); }}>
+            <option value="all">Tất cả phòng ban</option>
+            {departments.map((d: any) => (
+              <option key={d.MA_PHG} value={d.TEN_PHG}>{d.TEN_PHG}</option>
+            ))}
+          </select>
+          <select className="form-input" style={{ flex: "1 1 150px" }} value={filterRole} onChange={(e) => { setFilterRole(e.target.value); setPage(1); }}>
+            <option value="all">Tất cả chức vụ</option>
+            <option value="Admin">Admin</option>
+            <option value="Giám đốc">Giám đốc</option>
+            <option value="Quản lý">Quản lý</option>
+            <option value="Nhân viên">Nhân viên</option>
+            <option value="Cộng tác viên">Cộng tác viên</option>
+          </select>
+          <select className="form-input" style={{ flex: "1 1 150px" }} value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value); setPage(1); }}>
+            <option value="all">Tất cả trạng thái</option>
+            <option value="working">Đang làm việc</option>
+            <option value="off">Nghỉ việc / Off</option>
+            <option value="other">Khác</option>
+          </select>
         </div>
-       </Card>
+      </Card>
 
       <Card padding={false}>
          <EmployeeTable loading={loading} employees={employees} userLevel={userLevel} setModal={setModal} onNavigate={onNavigate} onViewDetail={handleViewDetail} />

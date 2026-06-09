@@ -7,12 +7,17 @@ export const ROLE_COLORS: Record<string, string> = { "Quản lý": "black", "Nh�
 export const PAGE_SIZE = 10;
 
 export const useEmployees = (user: any) => {
-  const [employees, setEmployees] = useState<any[]>([]);
+  const [allEmployees, setAllEmployees] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  
+  // Filters
+  const [filterDept, setFilterDept] = useState("all");
+  const [filterRole, setFilterRole] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
+
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
   const [modal, setModal] = useState({ type: "", data: null as any });
 
   const ROLE_LEVELS: Record<string, number> = { "Cộng tác viên": 1, "Nhân viên": 2, "Quản lý": 3, "Admin": 4 };
@@ -21,17 +26,17 @@ export const useEmployees = (user: any) => {
   const fetchEmployees = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.getEmployees({ page, pageSize: PAGE_SIZE, search: search || undefined });
+      // Lấy toàn bộ nhân viên để tính toán stats và filter ở client
+      const res = await api.getEmployees({ page: 1, pageSize: 10000 });
       const d = res.data;
       const arr = toArray(d);
-      setEmployees(arr);
-      setTotal(d?.pagination?.totalRecords ?? d?.total ?? arr.length);
+      setAllEmployees(arr);
     } catch {
       toast.error("Không thể tải danh sách nhân viên!");
     } finally {
       setLoading(false);
     }
-  }, [page, search]);
+  }, []);
 
   useEffect(() => { fetchEmployees(); }, [fetchEmployees]);
   useEffect(() => {
@@ -42,16 +47,50 @@ export const useEmployees = (user: any) => {
   }, []);
 
   const handleExport = () => {
-    exportToCsv("nhan_vien", ["Mã NV", "Họ tên", "EMAIL", "SĐT", "Chức vụ", "Phòng ban"],
-      employees.map((e) => [e.MA_NV, e.HO_TEN, e.EMAIL, e.SDT || e.SDT, e.CHUC_VU, e.TEN_PB]));
+    exportToCsv("nhan_vien", ["Mã NV", "Họ tên", "EMAIL", "SĐT", "Chức vụ", "Phòng ban", "Trạng thái"],
+      filteredEmployees.map((e) => [e.MA_NV, e.HO_TEN, e.EMAIL, e.SDT || e.SDT, e.CHUC_VU, e.TEN_PB, e.trangthailamviec || "—"]));
     toast.success("Xuất CSV thành công!");
   };
 
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+  // Client-side filtering
+  const filteredEmployees = allEmployees.filter(emp => {
+    // Search
+    if (search) {
+      const kw = search.toLowerCase();
+      const matchSearch = (emp.HO_TEN?.toLowerCase().includes(kw)) ||
+                          (emp.MA_NV?.toLowerCase().includes(kw)) ||
+                          (emp.EMAIL?.toLowerCase().includes(kw));
+      if (!matchSearch) return false;
+    }
+    // Filters
+    if (filterDept !== "all" && emp.TEN_PB !== filterDept) return false;
+    if (filterRole !== "all" && emp.CHUC_VU !== filterRole) return false;
+    
+    const statusText = emp.trangthailamviec || "—";
+    if (filterStatus !== "all") {
+      if (filterStatus === "working" && statusText !== "Đang làm việc" && statusText !== "Chính thức") return false;
+      if (filterStatus === "off" && statusText !== "Nghỉ việc" && statusText !== "Đang nghỉ") return false;
+      if (filterStatus === "other" && statusText === "Đang làm việc" && statusText === "Chính thức" && statusText === "Nghỉ việc" && statusText === "Đang nghỉ") return false;
+    }
+    
+    return true;
+  });
+
+  // Client-side pagination
+  const total = filteredEmployees.length;
+  const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+  const employees = filteredEmployees.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  // Stats
+  const totalEmployees = allEmployees.length;
+  const workingCount = allEmployees.filter(e => e.trangthailamviec === "Đang làm việc" || e.trangthailamviec === "Chính thức").length;
+  const offCount = allEmployees.filter(e => e.trangthailamviec === "Nghỉ việc" || e.trangthailamviec === "Đang nghỉ").length;
 
   return {
     employees, departments, loading, search, setSearch, page, setPage, total, totalPages,
-    modal, setModal, userLevel, fetchEmployees, handleExport
+    modal, setModal, userLevel, fetchEmployees, handleExport,
+    filterDept, setFilterDept, filterRole, setFilterRole, filterStatus, setFilterStatus,
+    stats: { totalEmployees, workingCount, offCount }
   };
 };
 
