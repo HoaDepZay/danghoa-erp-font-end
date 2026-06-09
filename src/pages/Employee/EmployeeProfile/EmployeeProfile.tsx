@@ -4,6 +4,8 @@ import { useEmployeeDetails } from "../EmployeeDetails/useEmployeeDetails";
 import { formatDate } from "../../../utils/helpers";
 import { api } from "../../../services/api";
 import { Btn, Card, Avatar, Badge, EmptyState } from "../../../components/UI/index";
+import { getUserLevel } from "../../../utils/user";
+import { toast } from "../../../utils/helpers";
 
 const GENDER_MAP: Record<number | string, string> = { 1: "Nam", 2: "Nữ", 3: "Khác" };
 const formatGender = (val: number | string | null | undefined): string => {
@@ -16,6 +18,15 @@ const EmployeeProfile = ({ user, onNavigate }: { user: any; onNavigate: (page: s
   const { data, loading } = useEmployeeDetails(employeeId);
   const [activeTab, setActiveTab] = useState("personal");
   const [chatLoading, setChatLoading] = useState(false);
+  const userLevel = getUserLevel(user);
+
+  const handleEditClick = () => {
+    if (userLevel < 3) {
+      toast.error("Bạn không có quyền chỉnh sửa");
+      return;
+    }
+    toast.info("Chức năng chỉnh sửa tại trang chi tiết đang được phát triển. Vui lòng quay lại danh sách để sửa.");
+  };
 
   const handleBack = () => {
     localStorage.removeItem("selectedEmployeeId");
@@ -110,7 +121,7 @@ const EmployeeProfile = ({ user, onNavigate }: { user: any; onNavigate: (page: s
           </div>
           
           <div style={{ display: "flex", gap: 12, paddingTop: 48 }}>
-            <Btn variant="secondary" icon={<Edit size={16} />}>Chỉnh sửa</Btn>
+            <Btn variant="secondary" icon={<Edit size={16} />} onClick={handleEditClick}>Chỉnh sửa</Btn>
             <Btn 
               onClick={handleStartChat} 
               loading={chatLoading} 
