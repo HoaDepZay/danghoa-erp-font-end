@@ -1,4 +1,4 @@
-import { Edit3, Search, MessageSquare } from "lucide-react";
+import { Edit3, Search } from "lucide-react";
 import { Badge, Avatar, SkeletonRows, EmptyState, Btn } from "../../../components/UI/index";
 import { ROLE_COLORS } from "./useEmployees";
 import { api } from "../../../services/api";
@@ -14,14 +14,7 @@ interface EmployeeTableProps {
 }
 
 export const EmployeeTable: React.FC<EmployeeTableProps> = ({ loading, employees, userLevel, setModal, onNavigate, onViewDetail }) => {
-  const handleChat = async (emp: any) => {
-    try {
-      await api.createDirectRoom({ targetMaNv: emp.MA_NV });
-      onNavigate("chat");
-    } catch (err) {
-      toast.error("Lỗi tạo phòng chat!");
-    }
-  };
+  // Xóa hàm handleChat theo yêu cầu
   return (
     <div className="overflow-x-auto">
       <table className="data-table">
@@ -41,13 +34,12 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ loading, employees
               const statusText = emp.trangthailamviec || "—";
               const isOnline = statusText === "Đang làm việc";
               return (
-                 <tr key={emp.MA_NV}>
+                 <tr key={emp.MA_NV} onClick={() => onViewDetail(emp.MA_NV)} style={{ cursor: "pointer", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f8fafc'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
                   <td><span style={{ fontWeight: 600, fontSize: 11, background: "#f0f0f0", padding: "3px 8px", borderRadius: 5 }}>{emp.MA_NV}</span></td>
                   <td>
                     <div 
-                      style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} 
-                      onClick={() => handleChat(emp)}
-                      title={`Nhắn tin với ${emp.HO_TEN}`}
+                      style={{ display: "flex", alignItems: "center", gap: 10 }} 
+                      title={`Chi tiết nhân viên ${emp.HO_TEN}`}
                     >
                       <div style={{ position: "relative", display: "inline-block" }}>
                         <Avatar name={emp.HO_TEN} size="sm" />
@@ -87,10 +79,9 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ loading, employees
                   </td>
                   <td>
                     <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                      <Btn variant="secondary" size="sm" onClick={() => onViewDetail(emp.MA_NV)}>Chi tiết</Btn>
-                      <Btn variant="primary" size="sm" onClick={() => handleChat(emp)} icon={<MessageSquare size={14} />}>Nhắn tin</Btn>
+                      <Btn variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); onViewDetail(emp.MA_NV); }}>Chi tiết</Btn>
                       {userLevel >= 3 && (
-                        <Btn variant="ghost" size="sm" onClick={() => setModal({ type: "edit", data: emp })} icon={<Edit3 size={14} />}>Sửa</Btn>
+                        <Btn variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setModal({ type: "edit", data: emp }); }} icon={<Edit3 size={14} />}>Sửa</Btn>
                       )}
                     </div>
                   </td>
