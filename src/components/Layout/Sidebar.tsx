@@ -19,6 +19,7 @@ import {
   Network,
 } from "lucide-react";
 import { getDisplayRole, getUserLevel, getUserName } from "../../utils/user";
+import { useEffect, useState } from "react";
 
 const NAV_ITEMS = [
   { key: "dashboard", label: "Tổng quan", icon: LayoutDashboard, minLevel: 1 },
@@ -51,8 +52,15 @@ const Sidebar = ({
   const userName = getUserName(user);
   const visibleItems = NAV_ITEMS.filter((item) => userLevel >= item.minLevel);
 
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 1024);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth <= 1024);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+
   return (
-    <aside className={`sidebar${collapsed ? " collapsed" : ""}`} style={{ position: "sticky", top: 0, height: "100vh" }}>
+    <aside className={`sidebar${collapsed ? " collapsed" : ""}`} style={isMobile ? {} : { position: "sticky", top: 0, height: "100vh" }}>
       {/* Logo */}
       <div className="sidebar-logo">
         <div className="sidebar-logo-icon">

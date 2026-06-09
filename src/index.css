@@ -75,8 +75,10 @@ body::before {
   display: flex;
   min-height: 100vh;
   width: 100%;
+  min-width: 360px;
   position: relative;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .app-main {
@@ -985,6 +987,7 @@ select.form-input {
   border: 1px solid #ebebeb;
   padding: 16px;
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 12px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
@@ -1543,6 +1546,13 @@ select.form-input {
 @media (max-width: 640px) {
   .app-content {
     padding: 12px;
+  }
+
+  .dashboard-title {
+    font-size: 22px !important;
+  }
+  .dashboard-subtitle {
+    font-size: 13px !important;
   }
 
   .topbar-title h1 {

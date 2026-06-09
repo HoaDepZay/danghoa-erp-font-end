@@ -31,16 +31,16 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }} className="animate-fade-in">
 
       {/* Welcome banner */}
-      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 10 }}>
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 10, flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h3 style={{ fontSize: 28, fontWeight: 700, color: "var(--text-dark)", marginBottom: 6 }}>
+          <h3 className="dashboard-title" style={{ fontSize: 28, fontWeight: 700, color: "var(--text-dark)", marginBottom: 6 }}>
             Tổng quan hệ thống
           </h3>
-          <p style={{ fontSize: 16, color: "var(--text-muted)", margin: 0 }}>
+          <p className="dashboard-subtitle" style={{ fontSize: 16, color: "var(--text-muted)", margin: 0 }}>
             Chào mừng trở lại, {getUserName(user)}! Dưới đây là tình hình hoạt động tháng {month}/{year}.
           </p>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           {/* Nút refresh realtime */}
           {userLevel >= 2 && (
             <button

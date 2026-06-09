@@ -489,12 +489,12 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                     {getDisplayName(selectedRoom)}
                   </h3>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10b981" }} />
-                    <span style={{ fontSize: "12px", color: "#64748b" }}>Đang hoạt động</span>
+                    <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10b981", flexShrink: 0 }} />
+                    <span style={{ fontSize: "12px", color: "#64748b", whiteSpace: "nowrap" }}>Đang hoạt động</span>
                   </div>
                 </div>
               </div>
-              <div style={{ display: "flex", gap: "8px" }}>
+              <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
                 {/* ← Nút tìm kiếm tin nhắn */}
                 <button
                   className="chat-action-btn"
@@ -504,8 +504,12 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                 >
                   <Search size={18} />
                 </button>
-                <button className="chat-action-btn" onClick={() => toast.info("Tính năng cuộc gọi đang được phát triển")}><Phone size={18} /></button>
-                <button className="chat-action-btn" onClick={() => toast.info("Tính năng cuộc gọi video đang được phát triển")}><Video size={18} /></button>
+                {(!isMobile && !embeddedRoomId) && (
+                  <>
+                    <button className="chat-action-btn" onClick={() => toast.info("Tính năng cuộc gọi đang được phát triển")}><Phone size={18} /></button>
+                    <button className="chat-action-btn" onClick={() => toast.info("Tính năng cuộc gọi video đang được phát triển")}><Video size={18} /></button>
+                  </>
+                )}
                 <button
                   className="chat-action-btn"
                   onClick={() => setShowRoomInfo(!showRoomInfo)}
@@ -732,22 +736,26 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                 }}
               >
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} style={{ display: 'none' }} />
-                <button type="button" className="input-action-btn" onClick={() => toast.info("Tính năng gửi icon đang được phát triển")}><Smile size={20} /></button>
-                <button type="button" className="input-action-btn" onClick={() => fileInputRef.current?.click()}>
+                {(!isMobile && !embeddedRoomId) && (
+                  <button type="button" className="input-action-btn" onClick={() => toast.info("Tính năng gửi icon đang được phát triển")}><Smile size={20} /></button>
+                )}
+                <button type="button" className="input-action-btn" onClick={() => fileInputRef.current?.click()} style={{ flexShrink: 0 }}>
                   {uploading ? <Spinner size={20} color="#64748b" /> : <Paperclip size={20} />}
                 </button>
                 <input
                   placeholder="Viết tin nhắn..."
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
-                  style={{ flex: 1, border: "none", background: "none", outline: "none", padding: "10px 0", fontSize: "14px", minWidth: 0 }}
+                  style={{ flex: 1, border: "none", background: "none", outline: "none", padding: "10px 0", fontSize: "14px", minWidth: "60px" }}
                 />
-                <button type="button" className="input-action-btn" onClick={() => toast.info("Tính năng gửi hình ảnh đang được phát triển")}><ImageIcon size={20} /></button>
+                {(!isMobile && !embeddedRoomId) && (
+                  <button type="button" className="input-action-btn" onClick={() => toast.info("Tính năng gửi hình ảnh đang được phát triển")}><ImageIcon size={20} /></button>
+                )}
                 <button
                   type="submit"
                   disabled={(!messageInput.trim() && !attachedFile) || uploading}
                   style={{
-                    width: "40px", height: "40px", borderRadius: "12px", background: "#111",
+                    width: "40px", height: "40px", borderRadius: "12px", background: "#111", flexShrink: 0,
                     color: "#fff", border: "none", cursor: "pointer", display: "flex",
                     alignItems: "center", justifyContent: "center", transition: "all 0.2s",
                     opacity: (messageInput.trim() || attachedFile) && !uploading ? 1 : 0.5,
