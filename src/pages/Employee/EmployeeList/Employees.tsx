@@ -84,7 +84,7 @@ export const Employees: React.FC<{ user: any; onNavigate: (page: string) => void
           <select className="form-input" style={{ flex: "1 1 150px" }} value={filterDept} onChange={(e) => { setFilterDept(e.target.value); setPage(1); }}>
             <option value="all">Tất cả phòng ban</option>
             {departments.map((d: any) => (
-              <option key={d.MA_PHG} value={d.TEN_PHG}>{d.TEN_PHG}</option>
+              <option key={d.MA_PHG || d.id} value={d.TEN_PB || d.TEN_PHG}>{d.TEN_PB || d.TEN_PHG}</option>
             ))}
           </select>
           <select className="form-input" style={{ flex: "1 1 150px" }} value={filterRole} onChange={(e) => { setFilterRole(e.target.value); setPage(1); }}>
@@ -92,6 +92,9 @@ export const Employees: React.FC<{ user: any; onNavigate: (page: string) => void
             <option value="Admin">Admin</option>
             <option value="Giám đốc">Giám đốc</option>
             <option value="Quản lý">Quản lý</option>
+            <option value="Trưởng phòng">Trưởng phòng</option>
+            <option value="Phó phòng">Phó phòng</option>
+            <option value="Phó dự án">Phó dự án</option>
             <option value="Nhân viên">Nhân viên</option>
             <option value="Cộng tác viên">Cộng tác viên</option>
           </select>

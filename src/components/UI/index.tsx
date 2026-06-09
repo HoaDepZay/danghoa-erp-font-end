@@ -149,10 +149,10 @@ export const SkeletonRows = ({ cols = 4, rows = 5 }: { cols?: number, rows?: num
 );
 
 // ── StatCard ──────────────────────────────────────────────────────────────────
-export const StatCard = ({ label, value, icon, trend }: { label: string, value: string | number | null, icon?: ReactNode, trend?: string }) => (
+export const StatCard = ({ label, value, icon, trend, color }: { label: string, value: string | number | null, icon?: ReactNode, trend?: string, color?: string }) => (
   <div className="stat-card">
     <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'flex-start' }}>
-      <div className="stat-icon">{icon}</div>
+      <div className="stat-icon" style={color ? { backgroundColor: `${color}20`, color: color } : {}}>{icon}</div>
       {trend && <div style={{ fontSize: 12, color: "var(--secondary)", fontWeight: 600 }}>{trend}</div>}
     </div>
     <div style={{ marginTop: 4 }}>

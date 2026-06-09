@@ -177,7 +177,9 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, e
           </FormField>
           <FormField label="Chức vụ">
             <select className="form-input" value={form.CHUC_VU} onChange={set("CHUC_VU")}>
-              <option>Cộng tác viên</option><option>Nhân viên</option><option>Quản lý</option>
+              <option>Admin</option><option>Giám đốc</option><option>Quản lý</option>
+              <option>Trưởng phòng</option><option>Phó phòng</option>
+              <option>Phó dự án</option><option>Nhân viên</option><option>Cộng tác viên</option>
             </select>
           </FormField>
           <FormField label="Lương cơ bản (VNĐ)">

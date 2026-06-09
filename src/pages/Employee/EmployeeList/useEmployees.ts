@@ -26,11 +26,27 @@ export const useEmployees = (user: any) => {
   const fetchEmployees = useCallback(async () => {
     setLoading(true);
     try {
-      // Lấy toàn bộ nhân viên để tính toán stats và filter ở client
-      const res = await api.getEmployees({ page: 1, pageSize: 10000 });
-      const d = res.data;
+      // Lấy toàn bộ nhân viên và dữ liệu chấm công hôm nay để tính toán stats
+      const today = new Date().toISOString().split('T')[0];
+      const [empRes, attRes] = await Promise.all([
+        api.getEmployees({ page: 1, pageSize: 10000 }),
+        api.getAttendanceByDate(today).catch(() => ({ data: [] }))
+      ]);
+      const d = empRes.data;
       const arr = toArray(d);
-      setAllEmployees(arr);
+
+      const attendanceData = Array.isArray(attRes.data) ? attRes.data : Array.isArray(attRes.data?.data) ? attRes.data.data : [];
+      const attendanceMap: Record<string, string> = {};
+      attendanceData.forEach((att: any) => {
+        attendanceMap[att.MA_NV] = att.TRANG_THAI;
+      });
+
+      const employeesWithStatus = arr.map(emp => ({
+        ...emp,
+        trang_thai_hom_nay: attendanceMap[emp.MA_NV] || "Chưa check-in"
+      }));
+
+      setAllEmployees(employeesWithStatus);
     } catch {
       toast.error("Không thể tải danh sách nhân viên!");
     } finally {
@@ -47,8 +63,8 @@ export const useEmployees = (user: any) => {
   }, []);
 
   const handleExport = () => {
-    exportToCsv("nhan_vien", ["Mã NV", "Họ tên", "EMAIL", "SĐT", "Chức vụ", "Phòng ban", "Trạng thái"],
-      filteredEmployees.map((e) => [e.MA_NV, e.HO_TEN, e.EMAIL, e.SDT || e.SDT, e.CHUC_VU, e.TEN_PB, e.trangthailamviec || "—"]));
+    exportToCsv("nhan_vien", ["Mã NV", "Họ tên", "EMAIL", "SĐT", "Chức vụ", "Phòng ban", "Trạng thái hôm nay"],
+      filteredEmployees.map((e) => [e.MA_NV, e.HO_TEN, e.EMAIL, e.SDT || e.SDT, e.CHUC_VU, e.TEN_PB, e.trang_thai_hom_nay]));
     toast.success("Xuất CSV thành công!");
   };
 
@@ -66,11 +82,11 @@ export const useEmployees = (user: any) => {
     if (filterDept !== "all" && emp.TEN_PB !== filterDept) return false;
     if (filterRole !== "all" && emp.CHUC_VU !== filterRole) return false;
     
-    const statusText = emp.trangthailamviec || "—";
+    const statusText = emp.trang_thai_hom_nay;
     if (filterStatus !== "all") {
-      if (filterStatus === "working" && statusText !== "Đang làm việc" && statusText !== "Chính thức") return false;
-      if (filterStatus === "off" && statusText !== "Nghỉ việc" && statusText !== "Đang nghỉ") return false;
-      if (filterStatus === "other" && statusText === "Đang làm việc" && statusText === "Chính thức" && statusText === "Nghỉ việc" && statusText === "Đang nghỉ") return false;
+      if (filterStatus === "working" && statusText !== "Đang làm việc") return false;
+      if (filterStatus === "off" && statusText !== "Đang nghỉ" && statusText !== "Vắng mặt" && statusText !== "Nghỉ việc") return false;
+      if (filterStatus === "other" && statusText === "Đang làm việc" && statusText === "Đang nghỉ" && statusText === "Vắng mặt" && statusText === "Nghỉ việc") return false;
     }
     
     return true;
@@ -83,8 +99,8 @@ export const useEmployees = (user: any) => {
 
   // Stats
   const totalEmployees = allEmployees.length;
-  const workingCount = allEmployees.filter(e => e.trangthailamviec === "Đang làm việc" || e.trangthailamviec === "Chính thức").length;
-  const offCount = allEmployees.filter(e => e.trangthailamviec === "Nghỉ việc" || e.trangthailamviec === "Đang nghỉ").length;
+  const workingCount = allEmployees.filter(e => e.trang_thai_hom_nay === "Đang làm việc").length;
+  const offCount = allEmployees.filter(e => e.trang_thai_hom_nay === "Đang nghỉ" || e.trang_thai_hom_nay === "Vắng mặt" || e.trang_thai_hom_nay === "Nghỉ việc").length;
 
   return {
     employees, departments, loading, search, setSearch, page, setPage, total, totalPages,

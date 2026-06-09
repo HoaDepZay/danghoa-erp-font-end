@@ -24,13 +24,12 @@ const NAV_ITEMS = [
   { key: "dashboard", label: "Tổng quan", icon: LayoutDashboard, minLevel: 1 },
   { key: "schedule", label: "Lịch làm việc", icon: CalendarDays, minLevel: 1 },
   { key: "attendance", label: "Chấm công", icon: ScanLine, minLevel: 1 },
-  { key: "profile", label: "Hồ sơ", icon: UserCircle, minLevel: 1 },
   { key: "payroll", label: "Bảng lương", icon: Wallet, minLevel: 1 },
 
   { key: "projects", label: "Dự án", icon: FolderKanban, minLevel: 1 },
   { key: "chat", label: "Tin nhắn", icon: MessageSquare, minLevel: 1 },
   {key: "employees", label: "Nhân viên", icon: Users, minLevel: 1},
-  {key: "departments", label: "Phòng ban", icon: Building2, minLevel: 3},
+  {key: "departments", label: "Phòng ban", icon: Building2, minLevel: 1},
   {key: "org-chart", label: "Sơ đồ tổ chức", icon: Network, minLevel: 1},
   {key: "myLeave",    label: "Nghỉ phép",   icon: FileText,      minLevel: 1}, // Mọi NV nộp đơn
   {key: "leave",      label: "Quản lý đơn",  icon: FileText,      minLevel: 3}, // Manager duyệt
@@ -53,7 +52,7 @@ const Sidebar = ({
   const visibleItems = NAV_ITEMS.filter((item) => userLevel >= item.minLevel);
 
   return (
-    <aside className={`sidebar${collapsed ? " collapsed" : ""}`}>
+    <aside className={`sidebar${collapsed ? " collapsed" : ""}`} style={{ position: "sticky", top: 0, height: "100vh" }}>
       {/* Logo */}
       <div className="sidebar-logo">
         <div className="sidebar-logo-icon">

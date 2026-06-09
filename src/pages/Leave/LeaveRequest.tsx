@@ -206,7 +206,7 @@ const LeaveRequest = ({ user }: LeaveRequestProps) => {
                 <select className="form-input" value={form.maLoaiNghi} onChange={set("maLoaiNghi")} required>
                   <option value="">-- Chọn loại nghỉ phép --</option>
                   {leaveTypes.map(t => (
-                    <option key={t.MALOAINGHI || t.maLoaiNghi || t.maloainghi} value={t.MALOAINGHI || t.maLoaiNghi || t.maloainghi}>{t.TENLOAINGHI || t.tenLoaiNghi || t.tenloainghi}</option>
+                    <option key={t.MA_LOAI_NGHI || t.MALOAINGHI || t.maLoaiNghi || t.maloainghi} value={t.MA_LOAI_NGHI || t.MALOAINGHI || t.maLoaiNghi || t.maloainghi}>{t.TEN_LOAI_NGHI || t.TENLOAINGHI || t.tenLoaiNghi || t.tenloainghi}</option>
                   ))}
                 </select>
               </div>

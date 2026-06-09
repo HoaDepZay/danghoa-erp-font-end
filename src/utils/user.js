@@ -58,6 +58,9 @@ export const ROLE_LEVELS = {
   "Nhân viên": 2,
   "Nhân viên mới": 1,  // alias
   "Quản lý": 3,
+  "Trưởng phòng": 3,
+  "Phó phòng": 3,
+  "Phó dự án": 3,
   Admin: 4,
   admin: 4,  // lowercase từ backend login
   "Giám đốc": 4,
@@ -76,6 +79,9 @@ const ROLE_LEVELS_NORMALIZED = {
   "nhan vien": 2,
   "nhan vien moi": 1,
   "quan ly": 3,
+  "truong phong": 3,
+  "pho phong": 3,
+  "pho du an": 3,
   admin: 4,
   giamdoc: 4,
 };
@@ -84,6 +90,9 @@ const ROLE_LABELS = {
   "cong tac vien": "Cộng tác viên",
   "nhan vien": "Nhân viên",
   "quan ly": "Quản lý",
+  "truong phong": "Trưởng phòng",
+  "pho phong": "Phó phòng",
+  "pho du an": "Phó dự án",
   admin: "Admin",
   giamdoc: "Giám đốc",
 };

@@ -31,7 +31,7 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ loading, employees
             <tr><td colSpan={7}><EmptyState icon={<Search size={40} />} title="Không tìm thấy nhân viên" /></td></tr>
           ) : (
             employees.map((emp) => {
-              const statusText = emp.trangthailamviec || "—";
+              const statusText = emp.trang_thai_hom_nay || "—";
               const isOnline = statusText === "Đang làm việc";
               return (
                  <tr key={emp.MA_NV} onClick={() => onViewDetail(emp.MA_NV)} style={{ cursor: "pointer", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f8fafc'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
@@ -65,7 +65,13 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ loading, employees
                   </td>
                   <td style={{ color: "#666" }}>{emp.EMAIL || "—"}</td>
                   <td><Badge color={ROLE_COLORS[emp.CHUC_VU] || "gray"}>{emp.CHUC_VU}</Badge></td>
-                  <td style={{ color: "#666" }}>{emp.TEN_PB || "—"}</td>
+                  <td style={{ color: "#666" }}>
+                    {emp.TEN_PB ? (
+                      <span style={{ padding: "4px 10px", background: "#f1f5f9", borderRadius: 20, fontSize: 12, fontWeight: 500, color: "#334155", display: "inline-block" }}>
+                        {emp.TEN_PB}
+                      </span>
+                    ) : "—"}
+                  </td>
                   <td>
                     <Badge 
                       color={
@@ -79,7 +85,6 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ loading, employees
                   </td>
                   <td>
                     <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                      <Btn variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); onViewDetail(emp.MA_NV); }}>Chi tiết</Btn>
                       {userLevel >= 3 && (
                         <Btn variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setModal({ type: "edit", data: emp }); }} icon={<Edit3 size={14} />}>Sửa</Btn>
                       )}

@@ -16,6 +16,7 @@ const ContractManager = ({ user }: { user: any }) => {
   const [contracts, setContracts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [employees, setEmployees] = useState<any[]>([]);
   const [selectedMaNv, setSelectedMaNv] = useState("");
 
   // 🌟 ĐÃ CHUẨN HÓA STATE FORM SANG ĐỊNH DẠNG TEN_TRUONG
@@ -32,6 +33,10 @@ const ContractManager = ({ user }: { user: any }) => {
 
   useEffect(() => {
     fetchContracts();
+    api.getEmployees({ pageSize: 200 }).then((res: any) => {
+      const data = res.data?.data || res.data?.employees || res.data;
+      setEmployees(Array.isArray(data) ? data : data?.data || []);
+    }).catch(e => console.error(e));
   }, []);
 
   const fetchContracts = async () => {
@@ -229,13 +234,17 @@ const ContractManager = ({ user }: { user: any }) => {
                 gap: 16,
               }}
             >
-              <FormField label="Mã nhân viên *">
-                <input
+              <FormField label="Nhân viên *">
+                <select
                   className="form-input"
                   value={form.MA_NV}
                   onChange={set("MA_NV")}
-                  placeholder="VD: NV001"
-                />
+                >
+                  <option value="">-- Chọn nhân viên --</option>
+                  {employees.map(emp => (
+                    <option key={emp.MA_NV} value={emp.MA_NV}>{emp.HO_TEN} ({emp.MA_NV})</option>
+                  ))}
+                </select>
               </FormField>
               <FormField label="Loại hợp đồng *">
                 <select

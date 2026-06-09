@@ -22,7 +22,7 @@ export const DeptModal: React.FC<DeptModalProps> = ({
   onSuccess,
 }) => {
   const isEdit = !!editData;
-  const [form, setForm] = useState({ TEN_PB: "", matruongphg: "" });
+  const [form, setForm] = useState({ TEN_PB: "", matruongphg: "", maphophg: "" });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -30,9 +30,10 @@ export const DeptModal: React.FC<DeptModalProps> = ({
       editData
         ? {
             TEN_PB: editData.TEN_PB || "",
-            matruongphg: editData.matruongphg || "",
+            matruongphg: editData.matruongphg || editData.MA_TRUONG_PHG || "",
+            maphophg: editData.maphophg || editData.MA_PHO_PHG || "",
           }
-        : { TEN_PB: "", matruongphg: "" }
+        : { TEN_PB: "", matruongphg: "", maphophg: "" }
     );
   }, [editData, isOpen]);
 
@@ -43,6 +44,7 @@ export const DeptModal: React.FC<DeptModalProps> = ({
       const payload: any = {
         TEN_PB: form.TEN_PB.trim(),
         matruongphg: form.matruongphg || undefined,
+        maphophg: form.maphophg || undefined,
       };
       if (isEdit) {
         await api.updateDepartment(editData.MA_PHG, payload);
@@ -93,6 +95,20 @@ export const DeptModal: React.FC<DeptModalProps> = ({
             className="form-input"
             value={form.matruongphg}
             onChange={(e) => setForm((f) => ({ ...f, matruongphg: e.target.value }))}
+          >
+            <option value="">— Chưa chọn —</option>
+            {employees.map((emp) => (
+              <option key={emp.MA_NV} value={emp.MA_NV}>
+                {emp.HO_TEN} ({emp.MA_NV})
+              </option>
+            ))}
+          </select>
+        </FormField>
+        <FormField label="Phó phòng">
+          <select
+            className="form-input"
+            value={form.maphophg}
+            onChange={(e) => setForm((f) => ({ ...f, maphophg: e.target.value }))}
           >
             <option value="">— Chưa chọn —</option>
             {employees.map((emp) => (

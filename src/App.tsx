@@ -95,7 +95,7 @@ const PAGE_MIN_LEVEL: Record<string, number> = {
   payroll: 1,
   projects: 1,
   employees: 1,
-  departments: 3,
+  departments: 1,
   admin: 4,
   schedule: 1,
   chat: 1,

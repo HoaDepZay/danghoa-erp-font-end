@@ -400,16 +400,6 @@ const ProjectDetailModal: React.FC<any> = ({
         >
           Nhiệm vụ
         </button>
-        <button
-          onClick={() => setActiveTab("timesheet")}
-          style={{
-            padding: "8px 4px", fontSize: 13, fontWeight: 700, border: "none", background: "none", cursor: "pointer",
-            color: activeTab === "timesheet" ? "#111" : "#94a3b8",
-            borderBottom: `2.5px solid ${activeTab === "timesheet" ? "#111" : "transparent"}`,
-          }}
-        >
-          Timesheet
-        </button>
       </div>
 
       {loading ? (
@@ -461,7 +451,7 @@ const ProjectDetailModal: React.FC<any> = ({
                     {employees.map((emp: any) => (<option key={emp.MA_NV} value={emp.MA_NV}>{emp.HO_TEN}</option>))}
                   </select>
                   <select className="form-input" value={addMember.VAI_TRO_DU_AN} onChange={(e) => setAddMember({ ...addMember, VAI_TRO_DU_AN: e.target.value })}>
-                    <option>Thành viên</option><option>Trưởng dự án</option><option>Backend Developer</option><option>Frontend Developer</option>
+                    <option>Thành viên</option><option>Trưởng dự án</option><option>Phó dự án</option><option>Backend Developer</option><option>Frontend Developer</option>
                   </select>
                 </div>
                 <Btn loading={addingMember} size="sm" icon={<UserPlus size={14} />} onClick={handleAddMember} style={{ width: "100%", marginTop: 10, justifyContent: "center" }}>Phân công</Btn>
@@ -470,9 +460,7 @@ const ProjectDetailModal: React.FC<any> = ({
           </div>
         ) : activeTab === "tasks" ? (
           <ProjectTasks projectId={projectId} members={members} isAdmin={isAdmin} />
-        ) : (
-          <ProjectTimesheet projectId={projectId} user={user} />
-        )
+        ) : null
       ) : null}
     </Drawer>
   );
@@ -527,9 +515,13 @@ export const Projects: React.FC<{ user: any; onNavigate: (page: string) => void 
                   color: layoutView === v.id ? "#fff" : "#666",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center"
+                  justifyContent: "center",
+                  gap: "6px",
+                  fontSize: "13px",
+                  fontWeight: 500
                 }}>
                 {v.icon}
+                <span>{v.label}</span>
               </button>
             ))}
           </div>

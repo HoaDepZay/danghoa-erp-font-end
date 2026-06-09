@@ -142,7 +142,7 @@ const Header = ({ activePage, user, onToggleMenu, onNavigate }: any) => {
           )}
         </div>
 
-        <div className="topbar-avatar-wrap">
+        <div className="topbar-avatar-wrap" onClick={() => onNavigate("profile")} style={{ cursor: "pointer" }} title="Xem hồ sơ">
           <Avatar name={getUserName(user)} size="sm" />
           <div className="topbar-avatar-info">
             <div className="user-name">{getUserName(user)}</div>
