@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { FolderKanban, Plus, UserPlus, Trash2, Pencil, MessageSquare } from "lucide-react";
+import { FolderKanban, Plus, UserPlus, Trash2, Pencil, MessageSquare, LayoutGrid, List, Kanban, CalendarDays } from "lucide-react";
 import { api } from "../../services/api";
 import { toast, formatDate, checkOverdue } from "../../utils/helpers";
 import {
@@ -20,6 +20,7 @@ import Modal from "../../components/UI/Modal";
 import { Drawer } from "../../components/UI/index";
 import { STATUS_COLOR, STATUS_OPTIONS, useProjects } from "./useProjects";
 import { ProjectCard } from "./ProjectCard";
+import { ProjectListView, ProjectKanbanView, ProjectCalendarView } from "./ProjectViews";
 
 import ProjectTasks from "../../components/ProjectTasks";
 import ProjectTimesheet from "../../components/ProjectTimesheet";
@@ -480,6 +481,7 @@ const ProjectDetailModal: React.FC<any> = ({
 // ─── Trang chính ─────────────────────────────────────────────────────────────
 export const Projects: React.FC<{ user: any; onNavigate: (page: string) => void }> = ({ user, onNavigate }) => {
   const { displayList, employees, loading, modal, setModal, viewMode, setViewMode, isAdmin, fetchProjects } = useProjects(user);
+  const [layoutView, setLayoutView] = useState<"grid" | "list" | "kanban" | "calendar">("grid");
 
   const handleDelete = async (project: any) => {
     const id = project.MA_DA;
@@ -506,6 +508,31 @@ export const Projects: React.FC<{ user: any; onNavigate: (page: string) => void 
               ))}
             </div>
           )}
+          <div style={{ display: "flex", borderRadius: 10, border: "1.5px solid #e0e0e0", overflow: "hidden", marginLeft: 4 }}>
+            {[
+              { id: "grid", icon: <LayoutGrid size={14} />, label: "Grid" },
+              { id: "list", icon: <List size={14} />, label: "Danh sách" },
+              { id: "kanban", icon: <Kanban size={14} />, label: "Kanban" },
+              { id: "calendar", icon: <CalendarDays size={14} />, label: "Lịch" },
+            ].map((v) => (
+              <button 
+                key={v.id} 
+                onClick={() => setLayoutView(v.id as any)} 
+                title={v.label}
+                style={{ 
+                  padding: "6px 12px", 
+                  border: "none", 
+                  cursor: "pointer", 
+                  background: layoutView === v.id ? "#111" : "#fff", 
+                  color: layoutView === v.id ? "#fff" : "#666",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}>
+                {v.icon}
+              </button>
+            ))}
+          </div>
           {isAdmin && <Btn size="sm" icon={<Plus size={14} />} onClick={() => setModal({ type: "create", data: null })}>Tạo dự án</Btn>}
         </>
       } />
@@ -517,18 +544,49 @@ export const Projects: React.FC<{ user: any; onNavigate: (page: string) => void 
       ) : displayList.length === 0 ? (
         <Card><EmptyState icon={<FolderKanban size={48} />} title="Chưa có dự án" description={isAdmin ? "Tạo dự án đầu tiên" : "Chưa được phân công"} /></Card>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
-          {displayList.map((project) => (
-            <ProjectCard 
-              key={project.MA_DA} 
-              project={project} 
-              onClick={() => {
+        <>
+          {layoutView === "grid" && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+              {displayList.map((project) => (
+                <ProjectCard 
+                  key={project.MA_DA} 
+                  project={project} 
+                  onClick={() => {
+                    localStorage.setItem("selectedProjectId", String(project.MA_DA));
+                    onNavigate("project_details");
+                  }} 
+                />
+              ))}
+            </div>
+          )}
+          {layoutView === "list" && (
+            <ProjectListView 
+              projects={displayList} 
+              onClick={(project) => {
                 localStorage.setItem("selectedProjectId", String(project.MA_DA));
                 onNavigate("project_details");
               }} 
             />
-          ))}
-        </div>
+          )}
+          {layoutView === "kanban" && (
+            <ProjectKanbanView 
+              projects={displayList} 
+              onClick={(project) => {
+                localStorage.setItem("selectedProjectId", String(project.MA_DA));
+                onNavigate("project_details");
+              }} 
+            />
+          )}
+          {layoutView === "calendar" && (
+            <ProjectCalendarView 
+              projects={displayList} 
+              onClick={(project) => {
+                localStorage.setItem("selectedProjectId", String(project.MA_DA));
+                onNavigate("project_details");
+              }} 
+            />
+          )}
+        </>
       )}
 
       <CreateProjectModal isOpen={modal.type === "create"} onClose={() => setModal({ type: "", data: null })} onSuccess={fetchProjects} />
