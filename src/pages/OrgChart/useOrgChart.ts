@@ -50,14 +50,14 @@ export const useOrgChart = () => {
         // Find employees in this department
         const deptEmployees = allEmployees.filter(emp => emp.MA_PHG === dept.MA_PHG);
         
-        // Find the manager of this department (usually Chức vụ = Quản lý, or using matruongphg)
-        const manager = deptEmployees.find(emp => emp.MA_NV === dept.MATRUONGPHG || emp.CHUC_VU === "Quản lý");
+        // Find the manager of this department (usually Chức vụ = Quản lý, or using MA_TRUONG_PHG)
+        const manager = deptEmployees.find(emp => emp.MA_NV === dept.MA_TRUONG_PHG || emp.MA_NV === dept.MATRUONGPHG || emp.CHUC_VU === "Quản lý");
         const managerName = manager ? manager.HO_TEN : "Chưa có trưởng phòng";
 
         const deptNode: OrgNodeData = {
           id: `dept_${dept.MA_PHG}`,
           type: "department",
-          title: dept.TEN_PHG || "Phòng ban không tên",
+          title: dept.TEN_PB || dept.TEN_PHG || "Phòng ban không tên",
           subtitle: `Trưởng phòng: ${managerName}`,
           count: deptEmployees.length,
           employees: deptEmployees,

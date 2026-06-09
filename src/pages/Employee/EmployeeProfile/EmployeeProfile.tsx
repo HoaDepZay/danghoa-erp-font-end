@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { ArrowLeft, Edit, MessageSquare, CalendarDays, FileText, Wallet, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Edit, MessageSquare, CalendarDays, FileText, Wallet, ShieldAlert, Building2, FolderKanban, Clock, Users } from "lucide-react";
 import { useEmployeeDetails } from "../EmployeeDetails/useEmployeeDetails";
+import { useEmployeeExtra } from "./useEmployeeExtra";
 import { formatDate } from "../../../utils/helpers";
 import { api } from "../../../services/api";
 import { Btn, Card, Avatar, Badge, EmptyState } from "../../../components/UI/index";
@@ -19,6 +20,8 @@ const EmployeeProfile = ({ user, onNavigate }: { user: any; onNavigate: (page: s
   const [activeTab, setActiveTab] = useState("personal");
   const [chatLoading, setChatLoading] = useState(false);
   const userLevel = getUserLevel(user);
+
+  const { departmentInfo, projects, leaves, loadingExtra } = useEmployeeExtra(employeeId, activeTab, user, userLevel);
 
   const handleEditClick = () => {
     if (userLevel < 3) {
@@ -301,6 +304,115 @@ const EmployeeProfile = ({ user, onNavigate }: { user: any; onNavigate: (page: s
             </Card>
 
           </div>
+        </div>
+      ) : activeTab === "employment" ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          {loadingExtra ? (
+            <div style={{ padding: 40, textAlign: "center" }}>
+              <div className="spinner" style={{ width: 32, height: 32, color: "var(--primary-color)" }}></div>
+              <p style={{ marginTop: 16, color: "var(--text-muted)" }}>Đang tải thông tin công việc...</p>
+            </div>
+          ) : (
+            <>
+              {/* Department Info */}
+              <Card>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 8, background: "var(--primary-light)", color: "var(--primary-color)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Building2 size={20} />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Phòng ban: {departmentInfo?.TEN_PB || departmentInfo?.TEN_PHG || emp.TEN_PB}</h3>
+                    <p style={{ fontSize: 14, color: "var(--text-muted)", margin: "4px 0 0" }}>
+                      Trưởng phòng: {
+                        departmentInfo?.nhanVien?.find((nv: any) => nv.MA_NV === departmentInfo.MA_TRUONG_PHG || nv.MA_NV === departmentInfo.MATRUONGPHG)?.HO_TEN 
+                        || "Chưa có trưởng phòng"
+                      }
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 16 }}>
+                  {departmentInfo?.nhanVien?.map((nv: any) => (
+                    <div key={nv.MA_NV} style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, border: "1px solid var(--border-light)", borderRadius: 8 }}>
+                      <Avatar name={nv.HO_TEN} size="md" />
+                      <div style={{ flex: 1, overflow: "hidden" }}>
+                        <p style={{ fontSize: 14, fontWeight: 600, margin: 0, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{nv.HO_TEN}</p>
+                        <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "4px 0 0" }}>{nv.CHUC_VU}</p>
+                      </div>
+                      {nv.MA_NV === employeeId && <Badge color="blue">Đang xem</Badge>}
+                    </div>
+                  ))}
+                  {(!departmentInfo?.nhanVien || departmentInfo.nhanVien.length === 0) && (
+                    <p style={{ color: "var(--text-muted)", fontSize: 14 }}>Không có nhân sự nào cùng phòng.</p>
+                  )}
+                </div>
+              </Card>
+
+              {/* Projects */}
+              <Card>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 8, background: "#fef3c7", color: "#d97706", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <FolderKanban size={20} />
+                  </div>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Dự án đang tham gia ({projects.length})</h3>
+                </div>
+
+                {projects.length > 0 ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    {projects.map((proj: any) => (
+                      <div key={proj.MA_DU_AN} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 16, border: "1px solid var(--border-light)", borderRadius: 8 }}>
+                        <div>
+                          <p style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>{proj.TEN_DU_AN}</p>
+                          <p style={{ fontSize: 13, color: "var(--text-muted)", margin: "4px 0 0" }}>Vai trò: {proj.VAI_TRO || "Thành viên"}</p>
+                        </div>
+                        <Badge color={proj.TRANG_THAI === "Đang thực hiện" ? "green" : proj.TRANG_THAI === "Tạm dừng" ? "yellow" : "gray"}>
+                          {proj.TRANG_THAI}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ color: "var(--text-muted)", fontSize: 14 }}>Chưa tham gia dự án nào.</p>
+                )}
+              </Card>
+
+              {/* Leaves */}
+              {(userLevel >= 4 || user?.CHUC_VU === "Giám đốc" || user?.MA_NV === employeeId || user?.MA_NV === departmentInfo?.MA_TRUONG_PHG || user?.MA_NV === departmentInfo?.MATRUONGPHG) && (
+                <Card>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 8, background: "#fee2e2", color: "#ef4444", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <CalendarDays size={20} />
+                    </div>
+                    <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Đơn xin nghỉ phép ({leaves.length})</h3>
+                  </div>
+
+                  {leaves.length > 0 ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      {leaves.map((leave: any) => (
+                        <div key={leave.MA_DON} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 16, border: "1px solid var(--border-light)", borderRadius: 8 }}>
+                          <div>
+                            <p style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>
+                              Từ: {formatDate(leave.TU_NGAY)} - Đến: {formatDate(leave.DEN_NGAY)}
+                            </p>
+                            <p style={{ fontSize: 13, color: "var(--text-muted)", margin: "4px 0 0" }}>Lý do: {leave.LY_DO}</p>
+                          </div>
+                          <Badge color={
+                            leave.TRANG_THAI_DUYET === "Đã duyệt" ? "green" 
+                            : leave.TRANG_THAI_DUYET === "Từ chối" ? "red" 
+                            : "yellow"
+                          }>
+                            {leave.TRANG_THAI_DUYET}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p style={{ color: "var(--text-muted)", fontSize: 14 }}>Chưa có đơn xin nghỉ nào.</p>
+                  )}
+                </Card>
+              )}
+            </>
+          )}
         </div>
       ) : (
         <Card>

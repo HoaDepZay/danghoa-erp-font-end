@@ -85,7 +85,7 @@ export const OrgChart: React.FC = () => {
             <h4 style={{ margin: "0 0 12px 0", fontSize: 14 }}>Thông tin phòng ban</h4>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, fontSize: 13 }}>
               <div><span style={{ color: "#64748b" }}>Mã phòng:</span> {selectedNode.departmentData.MA_PHG}</div>
-              <div><span style={{ color: "#64748b" }}>Ngày thành lập:</span> {new Date(selectedNode.departmentData.NG_THANHLAP).toLocaleDateString("vi-VN")}</div>
+              <div><span style={{ color: "#64748b" }}>Ngày thành lập:</span> {new Date(selectedNode.departmentData.NGAY_THANH_LAP || selectedNode.departmentData.NG_THANHLAP).toLocaleDateString("vi-VN")}</div>
             </div>
           </div>
         )}
