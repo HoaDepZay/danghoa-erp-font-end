@@ -13,7 +13,7 @@ import { toast, formatDate, checkOverdue } from "../../utils/helpers";
 import { Btn, Badge, Card, Avatar, Spinner } from "../../components/UI/index";
 import { STATUS_COLOR } from "./useProjects";
 import ProjectTasks from "../../components/ProjectTasks";
-import ProjectTimesheet from "../../components/ProjectTimesheet";
+// ProjectTimesheet removed: timesheet tab no longer shown
 import Chat from "../Chat/Chat";
 import { getDisplayRole, getUserLevel } from "../../utils/user";
 import ProjectAnalysis from "../../components/ProjectAnalysis";
@@ -32,9 +32,9 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
   const id = localStorage.getItem("selectedProjectId");
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<
-    "overview" | "tasks" | "timesheet" | "chat"
-  >("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "tasks" | "chat">(
+    "overview",
+  );
   const [projectChatRoomId, setProjectChatRoomId] = useState<string>("");
   const [projectChatRoom, setProjectChatRoom] = useState<any>(null);
   const [addingMember, setAddingMember] = useState(false);
@@ -58,7 +58,13 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
       try {
         const cRes = await api.getProjectChatRoom(id);
         const room = cRes.data?.data || cRes.data;
-        const roomIdValue = room?.MA_PHONG || room?.MaPhong || room?.maPhong || room?.MAPHONG || room?.maphong || room?.id;
+        const roomIdValue =
+          room?.MA_PHONG ||
+          room?.MaPhong ||
+          room?.maPhong ||
+          room?.MAPHONG ||
+          room?.maphong ||
+          room?.id;
         if (roomIdValue) {
           setProjectChatRoomId(String(roomIdValue));
           setProjectChatRoom(room);
@@ -78,9 +84,12 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
 
   useEffect(() => {
     // Nếu là admin hệ thống, hoặc nếu data đã tải xong và phát hiện là quản lý dự án
-    const currentProjectRole = data?.THANH_VIEN?.find((m: any) => (m.MA_NV || m.MANV) === myId)?.VAI_TRO_DU_AN;
-    const isProjManager = currentProjectRole === "Quản lý" || currentProjectRole === "Phó dự án";
-    
+    const currentProjectRole = data?.THANH_VIEN?.find(
+      (m: any) => (m.MA_NV || m.MANV) === myId,
+    )?.VAI_TRO_DU_AN;
+    const isProjManager =
+      currentProjectRole === "Quản lý" || currentProjectRole === "Phó dự án";
+
     if (isSystemAdmin || isProjManager) {
       if (employees.length === 0) {
         api.getEmployees().then((res) => setEmployees(res.data?.data || []));
@@ -119,7 +128,13 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
     try {
       const res = await api.getProjectChatRoom(id);
       const room = res.data?.data || res.data;
-      const roomIdValue = room?.MA_PHONG || room?.MaPhong || room?.maPhong || room?.MAPHONG || room?.maphong || room?.id;
+      const roomIdValue =
+        room?.MA_PHONG ||
+        room?.MaPhong ||
+        room?.maPhong ||
+        room?.MAPHONG ||
+        room?.maphong ||
+        room?.id;
       if (room && roomIdValue) {
         localStorage.setItem("pendingChatRoomId", String(roomIdValue));
         if (onNavigate) onNavigate("chat");
@@ -146,17 +161,36 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
 
   const project = data;
   const members = data?.THANH_VIEN || [];
-  
+
   // Xác định quyền quản lý của user hiện tại trên dự án này
-  const myProjectRole = members.find((m: any) => (m.MA_NV || m.MANV) === myId)?.VAI_TRO_DU_AN;
-  const isProjectManager = myProjectRole === "Quản lý" || myProjectRole === "Phó dự án";
+  const myProjectRole = members.find(
+    (m: any) => (m.MA_NV || m.MANV) === myId,
+  )?.VAI_TRO_DU_AN;
+  const isProjectManager =
+    myProjectRole === "Quản lý" || myProjectRole === "Phó dự án";
   const isAdmin = isSystemAdmin || isProjectManager;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       {/* Header */}
-      <div className="section-header" style={{ marginBottom: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: 12,
+          marginBottom: 0,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            minWidth: 0,
+          }}
+        >
           <button
             onClick={() => onNavigate && onNavigate("projects")}
             style={{
@@ -169,13 +203,24 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
               padding: 8,
               borderRadius: 8,
               backgroundColor: "#f1f5f9",
+              flexShrink: 0,
             }}
           >
             <ArrowLeft size={18} />
           </button>
-          <div>
-            <h2 style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              {project.TEN_DA}
+          <div style={{ minWidth: 0 }}>
+            <h2
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                flexWrap: "wrap",
+                fontSize: "clamp(16px, 4vw, 22px)",
+                margin: 0,
+                marginBottom: 4,
+              }}
+            >
+              <span style={{ wordBreak: "break-word" }}>{project.TEN_DA}</span>
               {checkOverdue(project.NGAY_KET_THUC, project.TRANG_THAI) && (
                 <Badge color="red">Quá hạn</Badge>
               )}
@@ -183,91 +228,59 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
                 {project.TRANG_THAI}
               </Badge>
             </h2>
-            <p>Mã dự án: {project.MA_DA}</p>
+            <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>
+              Mã dự án: {project.MA_DA}
+            </p>
           </div>
         </div>
-        <div className="section-header-actions">
+        <div style={{ flexShrink: 0 }}>
           <Btn
             variant="primary"
             icon={<MessageSquare size={16} />}
             onClick={handleProjectChat}
           >
-            Chat nhóm dự án
+            Chat nhóm
           </Btn>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div
-        style={{ display: "flex", borderBottom: "1px solid #f1f5f9", gap: 24 }}
-      >
-        <button
-          onClick={() => setActiveTab("overview")}
-          style={{
-            padding: "12px 4px",
-            fontSize: 14,
-            fontWeight: 700,
-            border: "none",
-            background: "none",
-            cursor: "pointer",
-            color: activeTab === "overview" ? "#111" : "#94a3b8",
-            borderBottom: `3px solid ${activeTab === "overview" ? "#111" : "transparent"}`,
-          }}
-        >
-          Tổng quan
-        </button>
-        <button
-          onClick={() => setActiveTab("tasks")}
-          style={{
-            padding: "12px 4px",
-            fontSize: 14,
-            fontWeight: 700,
-            border: "none",
-            background: "none",
-            cursor: "pointer",
-            color: activeTab === "tasks" ? "#111" : "#94a3b8",
-            borderBottom: `3px solid ${activeTab === "tasks" ? "#111" : "transparent"}`,
-          }}
-        >
-          Nhiệm vụ
-        </button>
-
-        <button
-          onClick={() => setActiveTab("timesheet")}
-          style={{
-            padding: "12px 4px",
-            fontSize: 14,
-            fontWeight: 700,
-            border: "none",
-            background: "none",
-            cursor: "pointer",
-            color: activeTab === "timesheet" ? "#111" : "#94a3b8",
-            borderBottom: `3px solid ${activeTab === "timesheet" ? "#111" : "transparent"}`,
-          }}
-        >
-          Timesheet
-        </button>
-
-        <button
-          onClick={() => setActiveTab("chat")}
-          style={{
-            padding: "12px 4px",
-            fontSize: 14,
-            fontWeight: 700,
-            border: "none",
-            background: "none",
-            cursor: "pointer",
-            color: activeTab === "chat" ? "#111" : "#94a3b8",
-            borderBottom: `3px solid ${activeTab === "chat" ? "#111" : "transparent"}`,
-          }}
-        >
-          Tin nhắn
-        </button>
+      {/* Tabs - scrollable trên mobile */}
+      <div style={{ overflowX: "auto", borderBottom: "1px solid #f1f5f9" }}>
+        <div style={{ display: "flex", gap: 8, minWidth: "max-content" }}>
+          {(["overview", "tasks", "chat"] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              style={{
+                padding: "12px 16px",
+                fontSize: 14,
+                fontWeight: 700,
+                border: "none",
+                background: "none",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                color: activeTab === tab ? "#111" : "#94a3b8",
+                borderBottom: `3px solid ${activeTab === tab ? "#111" : "transparent"}`,
+              }}
+            >
+              {
+                { overview: "Tổng quan", tasks: "Nhiệm vụ", chat: "Tin nhắn" }[
+                  tab
+                ]
+              }
+            </button>
+          ))}
+        </div>
       </div>
 
       {activeTab === "overview" ? (
         <div
-          style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 24 }}
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
+            gap: 24,
+          }}
         >
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             <Card>
@@ -280,13 +293,14 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
               <div
                 style={{
                   display: "flex",
-                  gap: 32,
+                  flexWrap: "wrap",
+                  gap: 20,
                   marginTop: 16,
                   paddingTop: 16,
                   borderTop: "1px solid #f1f5f9",
                 }}
               >
-                <div>
+                <div style={{ minWidth: 120 }}>
                   <p
                     style={{
                       fontSize: 12,
@@ -297,11 +311,11 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
                   >
                     NGÀY BẮT ĐẦU
                   </p>
-                  <p style={{ fontWeight: 600 }}>
+                  <p style={{ fontWeight: 600, margin: 0 }}>
                     {formatDate(project.NGAY_BAT_DAU)}
                   </p>
                 </div>
-                <div>
+                <div style={{ minWidth: 120 }}>
                   <p
                     style={{
                       fontSize: 12,
@@ -312,7 +326,7 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
                   >
                     NGÀY KẾT THÚC
                   </p>
-                  <p style={{ fontWeight: 600 }}>
+                  <p style={{ fontWeight: 600, margin: 0 }}>
                     {formatDate(project.NGAY_KET_THUC)}
                   </p>
                 </div>
@@ -409,28 +423,25 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
                   >
                     Thêm thành viên
                   </h4>
-                  <div style={{ display: "flex", gap: 8 }}>
+                  <div
+                    style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                  >
                     <select
                       className="form-input"
-                      style={{ flex: 1 }}
                       value={addMember.MA_NV}
                       onChange={(e) =>
                         setAddMember((p) => ({ ...p, MA_NV: e.target.value }))
                       }
                     >
-                      <option value="">-- Chọn NV --</option>
+                      <option value="">-- Chọn nhân viên --</option>
                       {employees.map((e) => (
-                        <option
-                          key={e.MA_NV || e.MA_NV || e.MA_NV}
-                          value={e.MA_NV || e.MA_NV || e.MA_NV}
-                        >
-                          {e.HO_TEN || e.HO_TEN || e.HO_TEN}
+                        <option key={e.MA_NV} value={e.MA_NV}>
+                          {e.HO_TEN}
                         </option>
                       ))}
                     </select>
                     <select
                       className="form-input"
-                      style={{ width: 120 }}
                       value={addMember.VAI_TRO_DU_AN}
                       onChange={(e) =>
                         setAddMember((p) => ({
@@ -470,20 +481,28 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
           />
         </Card>
       ) : activeTab === "chat" ? (
-        <div style={{ height: "calc(100vh - 250px)", background: "#fff", borderRadius: 16, border: "1px solid #f1f5f9", overflow: "hidden" }}>
+        <div
+          style={{
+            height: "calc(100vh - 250px)",
+            background: "#fff",
+            borderRadius: 16,
+            border: "1px solid #f1f5f9",
+            overflow: "hidden",
+          }}
+        >
           {projectChatRoomId ? (
-            <Chat user={user} embeddedRoomId={projectChatRoomId} embeddedRoom={projectChatRoom} />
+            <Chat
+              user={user}
+              embeddedRoomId={projectChatRoomId}
+              embeddedRoom={projectChatRoom}
+            />
           ) : (
             <div style={{ padding: 40, textAlign: "center", color: "#64748b" }}>
               Đang tải phòng chat hoặc dự án này chưa có phòng chat.
             </div>
           )}
         </div>
-      ) : (
-        <Card>
-          <ProjectTimesheet projectId={project.MA_DA} user={user} />
-        </Card>
-      )}
+      ) : null}
     </div>
   );
 };
