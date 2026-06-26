@@ -1,3 +1,4 @@
+import { Btn } from '../../components/UI';
 import { useState, useEffect } from "react";
 import { Calendar as CalendarIcon, Info, CalendarDays, User, Clock, ChevronRight, X, Users, CheckCircle2, AlertCircle, MessageSquare } from "lucide-react";
 import { api } from "../../services/api";
@@ -5,7 +6,6 @@ import { toArray, getUserLevel, getManv } from "../../utils/user";
 import { toast, formatDate, checkOverdue, getProp } from "../../utils/helpers";
 import ProjectTasks from "../../components/ProjectTasks";
 import { SharedCalendar } from "../../components/UI";
-
 const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) => void }) => {
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -120,10 +120,10 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
           <p>Dự án bạn đang tham gia và tiến độ thực hiện</p>
         </div>
         <div className="section-header-actions">
-          <button className="btn btn-secondary" onClick={fetchMyProjectsAndShifts} disabled={loading}>
+          <Btn className="btn btn-secondary" onClick={fetchMyProjectsAndShifts} disabled={loading}>
             <CalendarDays size={16} />
             Làm mới
-          </button>
+          </Btn>
         </div>
       </div>
 
@@ -173,15 +173,15 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
                   </div>
                 </div>
               </div>
-              <button className="modal-close" onClick={() => setShowModal(false)}>
+              <Btn className="modal-close" onClick={() => setShowModal(false)}>
                 <X size={20} />
-              </button>
+              </Btn>
             </div>
             
             <div className="modal-body" style={{ padding: "0 24px 24px 24px" }}>
               {/* Tabs Navigation */}
                <div style={{ display: "flex", borderBottom: "1px solid #f1f5f9", gap: "24px", marginBottom: "20px" }}>
-                <button 
+                <Btn 
                   onClick={() => setActiveTab("overview")}
                   style={{
                     padding: "12px 4px", fontSize: "14px", fontWeight: 700, border: "none", background: "none", cursor: "pointer",
@@ -191,8 +191,8 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
                   }}
                 >
                   Thông tin chung
-                </button>
-                <button 
+                </Btn>
+                <Btn 
                   onClick={() => setActiveTab("tasks")}
                   style={{
                     padding: "12px 4px", fontSize: "14px", fontWeight: 700, border: "none", background: "none", cursor: "pointer",
@@ -202,7 +202,7 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
                   }}
                 >
                   Nhiệm vụ & Công việc
-                </button>
+                </Btn>
               </div>
 
               {activeTab === "overview" ? (
@@ -314,10 +314,10 @@ const Schedule = ({ user, onNavigate }: { user: any; onNavigate: (page: string) 
 
 
             <div className="modal-footer" style={{ padding: "16px 24px", background: "#f8fafc", borderBottomLeftRadius: "20px", borderBottomRightRadius: "20px", display: "flex", gap: "10px", justifyContent: "flex-end" }}>
-              <button className="btn btn-primary" style={{ display: "flex", alignItems: "center", gap: "6px" }} onClick={handleProjectChat}>
+              <Btn className="btn btn-primary" style={{ display: "flex", alignItems: "center", gap: "6px" }} onClick={handleProjectChat}>
                 <MessageSquare size={14} /> Chat dự án
-              </button>
-              <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Đóng</button>
+              </Btn>
+              <Btn className="btn btn-secondary" onClick={() => setShowModal(false)}>Đóng</Btn>
             </div>
           </div>
         </div>

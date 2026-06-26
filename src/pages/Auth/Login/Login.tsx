@@ -1,7 +1,7 @@
+import { Btn } from '../../../components/UI';
 import React from "react";
 import { ShieldCheck } from "lucide-react";
 import { LoginForm } from "./LoginForm";
-
 interface LoginProps {
   onLogin: (userData: any) => void;
   onSwitchToRegister: () => void;
@@ -176,18 +176,18 @@ const Login: React.FC<LoginProps> = ({
         <div style={S.divider}>
           <p style={S.footer}>
             Chưa có tài khoản?{" "}
-            <button
+            <Btn
               type="button"
               onClick={onSwitchToRegister}
               style={S.footerLink}
             >
               Đăng ký ngay
-            </button>
+            </Btn>
           </p>
         </div>
       </div>
 
-      <p style={S.copy}>Đại học Công Thương TP.HCM · HUIT ERP v2.0</p>
+      <p style={S.copy}>Đại học Công Thương TP.HCM · DANGHOA-ERP v2.0</p>
     </div>
   );
 };

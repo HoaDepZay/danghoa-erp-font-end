@@ -17,7 +17,6 @@ import ProjectTasks from "../../components/ProjectTasks";
 import Chat from "../Chat/Chat";
 import { getDisplayRole, getUserLevel } from "../../utils/user";
 import ProjectAnalysis from "../../components/ProjectAnalysis";
-
 const normalizeRole = (role: string) =>
   String(role || "")
     .normalize("NFD")
@@ -92,7 +91,7 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
 
     if (isSystemAdmin || isProjManager) {
       if (employees.length === 0) {
-        api.getEmployees().then((res) => setEmployees(res.data?.data || []));
+        api.getEmployees({ pageSize: 1000 }).then((res) => setEmployees(res.data?.data || []));
       }
     }
   }, [fetchDetail, isSystemAdmin, data, myId, employees.length]);
@@ -191,7 +190,7 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
             minWidth: 0,
           }}
         >
-          <button
+          <Btn
             onClick={() => onNavigate && onNavigate("projects")}
             style={{
               background: "none",
@@ -207,7 +206,7 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
             }}
           >
             <ArrowLeft size={18} />
-          </button>
+          </Btn>
           <div style={{ minWidth: 0 }}>
             <h2
               style={{
@@ -248,7 +247,7 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
       <div style={{ overflowX: "auto", borderBottom: "1px solid #f1f5f9" }}>
         <div style={{ display: "flex", gap: 8, minWidth: "max-content" }}>
           {(["overview", "tasks", "chat"] as const).map((tab) => (
-            <button
+            <Btn
               key={tab}
               onClick={() => setActiveTab(tab)}
               style={{
@@ -268,7 +267,7 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
                   tab
                 ]
               }
-            </button>
+            </Btn>
           ))}
         </div>
       </div>
@@ -367,7 +366,7 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
                     <div
                       style={{ display: "flex", alignItems: "center", gap: 12 }}
                     >
-                      <Avatar name={m.TENNV} size="md" />
+                      <Avatar name={m.HO_TEN || m.EMAIL || m.MA_NV} size="md" />
                       <div>
                         <p
                           style={{
@@ -377,7 +376,7 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
                             color: "#1e293b",
                           }}
                         >
-                          {m.TENNV}
+                          {m.HO_TEN || m.EMAIL || m.MA_NV}
                         </p>
                         <p
                           style={{ fontSize: 12, color: "#64748b", margin: 0 }}
@@ -387,7 +386,7 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
                       </div>
                     </div>
                     {isAdmin && (
-                      <button
+                      <Btn
                         onClick={() => handleRemoveMember(m.MA_NV)}
                         style={{
                           color: "#ef4444",
@@ -399,7 +398,7 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
                         }}
                       >
                         <Trash2 size={14} />
-                      </button>
+                      </Btn>
                     )}
                   </div>
                 ))}
@@ -436,7 +435,7 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
                       <option value="">-- Chọn nhân viên --</option>
                       {employees.map((e) => (
                         <option key={e.MA_NV} value={e.MA_NV}>
-                          {e.HO_TEN}
+                          {e.HO_TEN || e.EMAIL || e.MA_NV}
                         </option>
                       ))}
                     </select>

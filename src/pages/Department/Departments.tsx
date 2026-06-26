@@ -30,7 +30,7 @@ export const Departments: React.FC<{ user: any, onNavigate: (page: string) => vo
       ) : departments.length === 0 ? (
         <Card><EmptyState icon={<Building2 size={48} />} title="Chưa có phòng ban nào" description="Thêm phòng ban đầu tiên" /></Card>
       ) : (
-        <DepartmentTable departments={departments} userLevel={isAdmin ? 4 : 1} setModal={setModal} />
+        <DepartmentTable departments={departments} userLevel={isAdmin ? 4 : 1} setModal={setModal} onNavigate={onNavigate} />
       )}
 
       <DeptModal
@@ -40,16 +40,6 @@ export const Departments: React.FC<{ user: any, onNavigate: (page: string) => vo
          employees={employees}
         onSuccess={fetchDepts}
       />
-      <DeptDetailModal
-        isOpen={modal.type === "detail"}
-        onClose={() => setModal({ type: "", data: null })}
-        deptId={modal.data}
-        allEmployees={employees}
-        isAdmin={isAdmin}
-        onRefresh={fetchDepts}
-        onNavigate={onNavigate}
-        user={user}
-       />
     </div>
   );
 };

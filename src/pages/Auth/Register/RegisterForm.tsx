@@ -1,7 +1,7 @@
+import { Btn } from '../../../components/UI';
 import React, { useState, useRef } from "react";
 import { User, Mail, Lock, Eye, EyeOff, Clock, CheckCircle } from "lucide-react";
 import { toast } from "../../../utils/helpers";
-
 const S: Record<string, React.CSSProperties> = {
   input: {
     width: "100%", boxSizing: "border-box",
@@ -84,14 +84,14 @@ export const StepInfo: React.FC<{ form: any; setForm: any; onNext: () => void; l
       <div style={{ ...S.inputWrap, marginBottom: 0 }}>
         <span style={S.iconL}><Lock size={16} /></span>
         <input type={showPass ? "text" : "password"} style={{ ...S.input, paddingRight: 42 }} placeholder="Mật khẩu (ít nhất 6 ký tự)" value={form.password} onChange={set("password")} onFocus={inputFocus} onBlur={inputBlur} />
-        <button type="button" tabIndex={-1} onClick={() => setShowPass((v) => !v)} style={S.iconR}>
+        <Btn type="button" tabIndex={-1} onClick={() => setShowPass((v) => !v)} style={S.iconR}>
           {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-        </button>
+        </Btn>
       </div>
-      <button type="submit" disabled={loading} style={{ ...S.btn, ...(loading ? S.btnDisabled : {}) }}>
+      <Btn type="submit" disabled={loading} style={{ ...S.btn, ...(loading ? S.btnDisabled : {}) }}>
         {loading && <span style={S.spinner} />}
         {loading ? "Đang xử lý..." : "Tiếp tục →"}
-      </button>
+      </Btn>
     </form>
   );
 };
@@ -144,12 +144,12 @@ export const StepOtp: React.FC<{ EMAIL: string; onVerify: (otp: string) => void;
           />
         ))}
       </div>
-      <button type="button" disabled={loading || otp.some((d) => !d)} onClick={() => onVerify(otp.join(""))} style={{ ...S.btn, ...(loading || otp.some((d) => !d) ? S.btnDisabled : {}) }}>
+      <Btn type="button" disabled={loading || otp.some((d) => !d)} onClick={() => onVerify(otp.join(""))} style={{ ...S.btn, ...(loading || otp.some((d) => !d) ? S.btnDisabled : {}) }}>
         {loading && <span style={S.spinner} />}
         {loading ? "Đang xác thực..." : "Xác thực OTP"}
-      </button>
+      </Btn>
       <p style={{ textAlign: "center", fontSize: 13, color: "#999", marginTop: 14 }}>
-        Không nhận được mã? <button type="button" onClick={onResend} style={S.ghostBtn}>Gửi lại</button>
+        Không nhận được mã? <Btn type="button" onClick={onResend} style={S.ghostBtn}>Gửi lại</Btn>
       </p>
     </div>
   );
@@ -217,9 +217,9 @@ export const StepPending: React.FC<{ EMAIL: string; onGoLogin: () => void }> = (
       Bạn sẽ nhận EMAIL thông báo khi được phê duyệt.
     </p>
 
-    <button onClick={onGoLogin} style={{ ...S.btn, background: "#f0f0f0", color: "#555" }}>
+    <Btn onClick={onGoLogin} style={{ ...S.btn, background: "#f0f0f0", color: "#555" }}>
       Về trang đăng nhập
-    </button>
+    </Btn>
   </div>
 );
 
@@ -231,6 +231,6 @@ export const StepSuccess: React.FC<{ onGoLogin: () => void }> = ({ onGoLogin }) 
     </div>
     <p style={{ fontWeight: 700, fontSize: 18, color: "#111", margin: "12px 0 4px" }}>Đăng ký thành công!</p>
     <p style={{ fontSize: 13, color: "#999", marginBottom: 24 }}>Tài khoản đã được kích hoạt. Hãy đăng nhập để tiếp tục.</p>
-    <button onClick={onGoLogin} style={S.btn}>Đăng nhập ngay</button>
+    <Btn onClick={onGoLogin} style={S.btn}>Đăng nhập ngay</Btn>
   </div>
 );

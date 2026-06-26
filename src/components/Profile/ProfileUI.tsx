@@ -52,7 +52,7 @@ export const LoadingScreen = () => (
   <div className="flex h-screen w-screen flex-col items-center justify-center bg-white gap-4">
     <div className="h-12 w-12 animate-spin rounded-2xl border-[5px] border-red-600 border-t-transparent shadow-xl"></div>
     <p className="text-xs font-black uppercase tracking-[0.2em] text-red-600 animate-pulse">
-      HUIT ERP SYSTEM
+      DANGHOA-ERP SYSTEM
     </p>
   </div>
 );

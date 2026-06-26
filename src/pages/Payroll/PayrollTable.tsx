@@ -1,7 +1,7 @@
+import { Btn } from '../../components/UI';
 import React from "react";
 import { formatCurrency } from "../../utils/helpers";
 import { SkeletonRows } from "../../components/UI/index";
-
 interface PayrollTableProps {
   loading: boolean;
   payroll: any[];
@@ -16,11 +16,12 @@ export const PayrollTable: React.FC<PayrollTableProps> = ({ loading, payroll, to
         <thead>
           <tr>
             <th>Mã NV</th>
+            <th>Họ tên</th>
             <th>Tháng / Năm</th>
-            <th>Giờ làm việc</th>
+            <th>Ngày công</th>
             <th>Phụ cấp</th>
             <th>Thưởng</th>
-            <th>BHXH</th>
+            <th>Khấu trừ BHXH</th>
             <th>Thuế TNCN</th>
             <th style={{ textAlign: "right" }}>Thực lãnh</th>
             <th></th>
@@ -28,30 +29,31 @@ export const PayrollTable: React.FC<PayrollTableProps> = ({ loading, payroll, to
         </thead>
         <tbody>
           {loading ? (
-            <SkeletonRows cols={9} rows={8} />
+            <SkeletonRows cols={10} rows={8} />
           ) : (
             payroll.map((r, idx) => (
-              <tr key={r.MA_NV ?? idx}>
+              <tr key={r.MA_BL ?? r.MA_NV ?? idx}>
                 <td style={{ fontWeight: 600, fontSize: 12 }}>{r.MA_NV}</td>
+                <td style={{ fontWeight: 600 }}>{r.HO_TEN || "—"}</td>
                 <td style={{ color: "#888" }}>
-                  {r.thang}/{r.nam}
+                  {r.THANG ?? r.thang}/{r.NAM ?? r.nam}
                 </td>
                 <td>
-                  <span style={{ fontWeight: 600 }}>{r.giolamViec ?? 0}</span>
-                  <span style={{ fontSize: 11, color: "#aaa", marginLeft: 4 }}>giờ</span>
+                  <span style={{ fontWeight: 600 }}>{r.SO_NGAY_CONG_THUC_TE ?? r.giolamViec ?? 0}</span>
+                  <span style={{ fontSize: 11, color: "#aaa", marginLeft: 4 }}>ngày</span>
                 </td>
-                <td style={{ color: "#555" }}>{formatCurrency(r.phucap ?? 0)}</td>
-                <td style={{ color: "#10b981" }}>{formatCurrency(r.thuong ?? 0)}</td>
-                <td style={{ color: "#ef4444" }}>{formatCurrency(r.bhxh ?? 0)}</td>
-                <td style={{ color: "#f59e0b" }}>{formatCurrency(r.thueTNCN ?? 0)}</td>
-                <td style={{ textAlign: "right", fontWeight: 700 }}>{formatCurrency(r.thucLanh ?? 0)}</td>
+                <td style={{ color: "#555" }}>{formatCurrency(r.PHU_CAP ?? r.phucap ?? 0)}</td>
+                <td style={{ color: "#10b981" }}>{formatCurrency(r.THUONG ?? r.thuong ?? 0)}</td>
+                <td style={{ color: "#ef4444" }}>{formatCurrency(r.KHAU_TRU_BHXH ?? r.bhxh ?? 0)}</td>
+                <td style={{ color: "#f59e0b" }}>{formatCurrency(r.THUE_TNCN ?? r.thueTNCN ?? 0)}</td>
+                <td style={{ textAlign: "right", fontWeight: 700 }}>{formatCurrency(r.THUC_LANH ?? r.thucLanh ?? 0)}</td>
                 <td>
-                  <button
+                  <Btn
                     onClick={() => onViewDetail(r)}
                     style={{ fontSize: 11, color: "#888", background: "none", border: "none", cursor: "pointer" }}
                   >
                     Xem
-                  </button>
+                  </Btn>
                 </td>
               </tr>
             ))
@@ -60,7 +62,7 @@ export const PayrollTable: React.FC<PayrollTableProps> = ({ loading, payroll, to
         {!loading && payroll.length > 0 && (
           <tfoot>
             <tr style={{ background: "#111" }}>
-              <td colSpan={7} style={{ padding: "14px 16px", fontSize: 13, fontWeight: 700, color: "#fff" }}>
+              <td colSpan={8} style={{ padding: "14px 16px", fontSize: 13, fontWeight: 700, color: "#fff" }}>
                 Tổng thực lãnh tháng
               </td>
               <td style={{ padding: "14px 16px", textAlign: "right", fontWeight: 800, color: "#fff" }}>

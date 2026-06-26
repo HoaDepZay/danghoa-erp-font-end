@@ -1,8 +1,8 @@
+import { Btn } from '../../../components/UI';
 import React from "react";
 import { ShieldCheck, ArrowLeft } from "lucide-react";
 import { StepInfo, StepOtp, StepPending } from "./RegisterForm";
 import { useRegister } from "./useRegister";
-
 interface RegisterProps {
   onSwitchToLogin: () => void;
 }
@@ -87,13 +87,13 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
           <div style={S.divider}>
             <div style={{ textAlign: "center" }}>
               {step === 2 ? (
-                <button onClick={() => setStep(1)} style={S.backBtn}>
+                <Btn onClick={() => setStep(1)} style={S.backBtn}>
                   <ArrowLeft size={14} /> Quay lại
-                </button>
+                </Btn>
               ) : (
                 <p style={{ fontSize: 13, color: "#999", margin: 0 }}>
                   Đã có tài khoản?{" "}
-                  <button onClick={onSwitchToLogin} style={S.ghostBtn}>Đăng nhập</button>
+                  <Btn onClick={onSwitchToLogin} style={S.ghostBtn}>Đăng nhập</Btn>
                 </p>
               )}
             </div>

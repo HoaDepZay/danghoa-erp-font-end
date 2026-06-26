@@ -61,6 +61,9 @@ export const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({ isOpen, 
       SDT: source.SDT || "",
       fullAddress: currentAddress || "",
       detail: "",
+      MA_SO_THUE: source.MA_SO_THUE || "",
+      SO_TAI_KHOAN: source.SO_TAI_KHOAN || "",
+      NGAN_HANG: source.NGAN_HANG || "",
     });
 
     fetchProvinces().then(setProvinces);
@@ -121,6 +124,9 @@ export const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({ isOpen, 
     }
     if (finalAddress) payload.DIA_CHI = finalAddress;
     if (form.SDT.trim()) payload.SDT = form.SDT.trim();
+    if (form.MA_SO_THUE?.trim()) payload.MA_SO_THUE = form.MA_SO_THUE.trim();
+    if (form.SO_TAI_KHOAN?.trim()) payload.SO_TAI_KHOAN = form.SO_TAI_KHOAN.trim();
+    if (form.NGAN_HANG?.trim()) payload.NGAN_HANG = form.NGAN_HANG.trim();
 
     setLoading(true);
     try {
@@ -132,6 +138,9 @@ export const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({ isOpen, 
         GIOI_TINH: payload.GIOI_TINH,
         DIA_CHI: payload.DIA_CHI,
         SDT: payload.SDT,
+        MA_SO_THUE: payload.MA_SO_THUE,
+        SO_TAI_KHOAN: payload.SO_TAI_KHOAN,
+        NGAN_HANG: payload.NGAN_HANG,
       });
       onClose();
     } catch (err: any) {
@@ -215,6 +224,21 @@ export const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({ isOpen, 
         <div style={{ gridColumn: "1 / -1" }}>
           <FormField label="Số nhà, tên đường">
               <input className="form-input" placeholder="Ví dụ: 123 Đường ABC..." value={form.detail} onChange={set("detail")} />
+          </FormField>
+        </div>
+
+        <div style={{ gridColumn: "1 / -1", marginTop: 10, paddingBottom: 10, borderBottom: "1px solid #eee" }}>
+          <h4 style={{ margin: 0, fontSize: 14, color: "#444" }}>Thông tin tài chính</h4>
+        </div>
+        <FormField label="Mã số thuế">
+          <input className="form-input" placeholder="Nhập mã số thuế" value={form.MA_SO_THUE} onChange={set("MA_SO_THUE")} />
+        </FormField>
+        <FormField label="Số tài khoản">
+          <input className="form-input" placeholder="Nhập số tài khoản" value={form.SO_TAI_KHOAN} onChange={set("SO_TAI_KHOAN")} />
+        </FormField>
+        <div style={{ gridColumn: "1 / -1" }}>
+          <FormField label="Ngân hàng">
+            <input className="form-input" placeholder="Tên ngân hàng (VD: Vietcombank)" value={form.NGAN_HANG} onChange={set("NGAN_HANG")} />
           </FormField>
         </div>
       </div>

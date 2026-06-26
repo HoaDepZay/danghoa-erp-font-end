@@ -14,6 +14,7 @@ const PAGE_TITLES: Record<string, string> = {
   projects: "Dự án",
   payroll: "Bảng lương",
   admin: "Quản trị hệ thống",
+  developer: "Developer Portal",
 };
 
 const Header = ({ activePage, user, onToggleMenu, onNavigate }: any) => {
@@ -28,7 +29,7 @@ const Header = ({ activePage, user, onToggleMenu, onNavigate }: any) => {
 
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
-  const unreadCount = notifications.filter((n) => !n.DaDoc && !n.daDoc).length;
+  const unreadCount = notifications.filter((n) => n.DA_DOC === false || n.DA_DOC === 0 || n.daDoc === false).length;
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -47,7 +48,7 @@ const Header = ({ activePage, user, onToggleMenu, onNavigate }: any) => {
       socket.emit("join_notification", MA_NV);
       socket.on("new_notification", (notif: any) => {
         setNotifications((prev) => [notif, ...prev]);
-        toast.info(notif.TieuDe || notif.tieuDe);
+        toast.info(notif.TIEU_DE || notif.TieuDe || notif.tieuDe);
       });
       return () => {
         socket.disconnect();
@@ -69,7 +70,7 @@ const Header = ({ activePage, user, onToggleMenu, onNavigate }: any) => {
     try {
       await api.markAsRead(id);
       setNotifications((prev) =>
-        prev.map((n) => (n.MaTB === id || n.maTB === id ? { ...n, DaDoc: true, daDoc: true } : n))
+        prev.map((n) => (n.MA_TB === id || n.maTB === id || n.MaTB === id ? { ...n, DA_DOC: true, daDoc: true } : n))
       );
     } catch (e) {
       console.error(e);
@@ -86,7 +87,7 @@ const Header = ({ activePage, user, onToggleMenu, onNavigate }: any) => {
         <Menu size={18} />
       </button>
       <div className="topbar-title">
-        <h1>{PAGE_TITLES[activePage] || "HUIT ERP"}</h1>
+        <h1>{PAGE_TITLES[activePage] || "DANGHOA-ERP"}</h1>
         <p>{dateStr}</p>
       </div>
 
@@ -108,16 +109,16 @@ const Header = ({ activePage, user, onToggleMenu, onNavigate }: any) => {
                 <h3 style={{ margin: 0, fontSize: 14, fontWeight: 700 }}>Thông báo mới ({unreadCount})</h3>
               </div>
               <div style={{ maxHeight: 350, overflowY: "auto" }}>
-                {notifications.length === 0 ? (
-                  <p style={{ padding: 20, textAlign: "center", color: "#94a3b8", fontSize: 13, margin: 0 }}>Không có thông báo nào.</p>
+                {notifications.filter(n => n.DA_DOC === false || n.DA_DOC === 0 || n.daDoc === false).length === 0 ? (
+                  <p style={{ padding: 20, textAlign: "center", color: "#94a3b8", fontSize: 13, margin: 0 }}>Không có thông báo mới nào.</p>
                 ) : (
-                  notifications.map((n) => {
-                    const isUnread = !n.DaDoc && !n.daDoc;
-                    const id = n.MaTB || n.maTB;
-                    const title = n.TieuDe || n.tieuDe;
-                    const body = n.NoiDung || n.noiDung;
-                    const date = n.NgayTao || n.ngayTao;
-                    const type = n.LoaiThongBao || n.loaiThongBao;
+                  notifications.filter(n => n.DA_DOC === false || n.DA_DOC === 0 || n.daDoc === false).map((n) => {
+                    const isUnread = true; // All displayed are unread
+                    const id = n.MA_TB || n.maTB || n.MaTB;
+                    const title = n.TIEU_DE || n.tieuDe || n.TieuDe;
+                    const body = n.NOI_DUNG || n.noiDung || n.NoiDung;
+                    const date = n.NGAY_TAO || n.ngayTao || n.NgayTao;
+                    const type = n.LOAI || n.loai || n.Loai;
                     return (
                       <div key={id} onClick={() => { 
                         if (isUnread) handleRead(id); 
@@ -130,9 +131,26 @@ const Header = ({ activePage, user, onToggleMenu, onNavigate }: any) => {
                           <p style={{ margin: "4px 0 6px", fontSize: 12, color: "#64748b", lineHeight: 1.4 }}>{body}</p>
                           <p style={{ margin: 0, fontSize: 10, color: "#94a3b8" }}>{formatDate(date)}</p>
                         </div>
-                        {isUnread && (
-                          <div style={{ alignSelf: "center", width: 8, height: 8, borderRadius: "50%", background: "#22c55e" }} />
-                        )}
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRead(id);
+                            }}
+                            style={{ 
+                              background: "none", border: "none", cursor: "pointer", 
+                              color: "#10b981", padding: 4, display: "flex", alignItems: "center",
+                              borderRadius: "50%"
+                            }}
+                            title="Đánh dấu đã đọc"
+                            onMouseEnter={(e) => e.currentTarget.style.background = "#dcfce7"}
+                            onMouseLeave={(e) => e.currentTarget.style.background = "none"}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                          </button>
+                        </div>
                       </div>
                     );
                   })

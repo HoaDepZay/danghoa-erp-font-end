@@ -1,3 +1,4 @@
+import { Btn } from '../../../components/UI';
 import React, { useState, useRef } from "react";
 import {
   ShieldCheck,
@@ -9,7 +10,6 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useForgotPassword, STEP } from "./useForgotPassword";
-
 interface ForgotPasswordProps {
   onBack: () => void;
 }
@@ -299,7 +299,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
             <ShieldCheck size={28} color="#fff" />
           </div>
           <h1 style={S.title}>Quên Mật Khẩu</h1>
-          <p style={S.subtitle}>Khôi phục tài khoản HUIT ERP của bạn</p>
+          <p style={S.subtitle}>Khôi phục tài khoản DANGHOA-ERP của bạn</p>
         </div>
 
         {/* Step bar */}
@@ -313,9 +313,9 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
         {/* ── BƯỚC 1: Nhập EMAIL ───────────────────────────────────────── */}
         {step === STEP.EMAIL && (
           <>
-            <button style={S.backBtn} onClick={onBack}>
+            <Btn style={S.backBtn} onClick={onBack}>
               <ArrowLeft size={14} /> Quay lại đăng nhập
-            </button>
+            </Btn>
             <form onSubmit={handleSendEmail} style={S.fields}>
               <p style={S.hint}>
                 Nhập địa chỉ EMAIL đã đăng ký. Hệ thống sẽ gửi mã OTP để đặt lại
@@ -337,14 +337,14 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
                   onBlur={blurBorder}
                 />
               </div>
-              <button
+              <Btn
                 type="submit"
                 disabled={loading}
                 style={{ ...S.btn, ...(loading ? S.btnDisabled : {}) }}
               >
                 {loading && <span style={S.spinner} />}
                 {loading ? "Đang gửi OTP..." : "Gửi mã OTP →"}
-              </button>
+              </Btn>
             </form>
           </>
         )}
@@ -352,9 +352,9 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
         {/* ── BƯỚC 2: Nhập OTP + mật khẩu mới ───────────────────────── */}
         {step === STEP.RESET && (
           <>
-            <button style={S.backBtn} onClick={() => setStep(STEP.EMAIL)}>
+            <Btn style={S.backBtn} onClick={() => setStep(STEP.EMAIL)}>
               <ArrowLeft size={14} /> Thay đổi EMAIL
-            </button>
+            </Btn>
             <form onSubmit={handleResetPassword} style={S.fields}>
               {/* Banner EMAIL */}
               <p style={S.hint}>
@@ -397,7 +397,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
                   }}
                 >
                   Không nhận được?{" "}
-                  <button
+                  <Btn
                     type="button"
                     disabled={loading}
                     onClick={handleResendOtp}
@@ -414,7 +414,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
                     }}
                   >
                     Gửi lại OTP
-                  </button>
+                  </Btn>
                 </p>
               </div>
 
@@ -438,14 +438,14 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
                       onFocus={focusBorder}
                       onBlur={blurBorder}
                     />
-                    <button
+                    <Btn
                       type="button"
                       tabIndex={-1}
                       onClick={() => setShowPass((v) => !v)}
                       style={S.iconRight}
                     >
                       {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
+                    </Btn>
                   </div>
                   <div style={S.fieldWrap}>
                     <span style={S.iconLeft}>
@@ -461,14 +461,14 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
                       onFocus={focusBorder}
                       onBlur={blurBorder}
                     />
-                    <button
+                    <Btn
                       type="button"
                       tabIndex={-1}
                       onClick={() => setShowConfirm((v) => !v)}
                       style={S.iconRight}
                     >
                       {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
+                    </Btn>
                   </div>
 
                   {/* Password strength hints */}
@@ -506,14 +506,14 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
                 </div>
               </div>
 
-              <button
+              <Btn
                 type="submit"
                 disabled={loading}
                 style={{ ...S.btn, ...(loading ? S.btnDisabled : {}) }}
               >
                 {loading && <span style={S.spinner} />}
                 {loading ? "Đang đặt lại..." : "Đặt lại mật khẩu"}
-              </button>
+              </Btn>
             </form>
           </>
         )}
@@ -530,9 +530,9 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
               <br />
               Vui lòng đăng nhập bằng mật khẩu mới.
             </p>
-            <button onClick={onBack} style={{ ...S.btn, marginTop: 24 }}>
+            <Btn onClick={onBack} style={{ ...S.btn, marginTop: 24 }}>
               Đăng nhập ngay
-            </button>
+            </Btn>
           </div>
         )}
 
@@ -541,14 +541,14 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onBack }) => {
           <div style={S.divider}>
             <p style={S.footer}>
               Nhớ mật khẩu rồi?{" "}
-              <button type="button" onClick={onBack} style={S.footerLink}>
+              <Btn type="button" onClick={onBack} style={S.footerLink}>
                 Đăng nhập
-              </button>
+              </Btn>
             </p>
           </div>
         )}
       </div>
-      <p style={S.copy}>Đại học Công Thương TP.HCM · HUIT ERP v2.0</p>
+      <p style={S.copy}>Đại học Công Thương TP.HCM · DANGHOA-ERP v2.0</p>
     </div>
   );
 };

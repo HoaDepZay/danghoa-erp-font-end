@@ -23,8 +23,6 @@ import { ProjectCard } from "./ProjectCard";
 import { ProjectListView, ProjectKanbanView, ProjectCalendarView } from "./ProjectViews";
 
 import ProjectTasks from "../../components/ProjectTasks";
-import ProjectTimesheet from "../../components/ProjectTimesheet";
-
 // ─── Tạo dự án ──────────────────────────────────────────────────────────────
 const CreateProjectModal: React.FC<any> = ({ isOpen, onClose, onSuccess }) => {
   const [form, setForm] = useState({ ...CREATE_PROJECT_INITIAL_FORM });
@@ -380,7 +378,7 @@ const ProjectDetailModal: React.FC<any> = ({
     >
       {/* Tabs */}
       <div style={{ display: "flex", borderBottom: "1px solid #f1f5f9", gap: 24, marginBottom: 16 }}>
-        <button
+        <Btn
           onClick={() => setActiveTab("overview")}
           style={{
             padding: "8px 4px", fontSize: 13, fontWeight: 700, border: "none", background: "none", cursor: "pointer",
@@ -389,8 +387,8 @@ const ProjectDetailModal: React.FC<any> = ({
           }}
         >
           Tổng quan
-        </button>
-        <button
+        </Btn>
+        <Btn
           onClick={() => setActiveTab("tasks")}
           style={{
             padding: "8px 4px", fontSize: 13, fontWeight: 700, border: "none", background: "none", cursor: "pointer",
@@ -399,7 +397,7 @@ const ProjectDetailModal: React.FC<any> = ({
           }}
         >
           Nhiệm vụ
-        </button>
+        </Btn>
       </div>
 
       {loading ? (
@@ -436,7 +434,7 @@ const ProjectDetailModal: React.FC<any> = ({
                         <p style={{ fontSize: 11, color: "#999", margin: 0 }}>{m.VAI_TRO_DU_AN}</p>
                       </div>
                     </div>
-                    {isAdmin && <button onClick={() => handleRemoveMember(m.MA_NV)} style={{ color: "#f87171", background: "none", border: "none", cursor: "pointer", padding: 6, borderRadius: 8 }}><Trash2 size={13} /></button>}
+                    {isAdmin && <Btn onClick={() => handleRemoveMember(m.MA_NV)} style={{ color: "#f87171", background: "none", border: "none", cursor: "pointer", padding: 6, borderRadius: 8 }}><Trash2 size={13} /></Btn>}
                   </div>
                 ))}
               </div>
@@ -448,7 +446,7 @@ const ProjectDetailModal: React.FC<any> = ({
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   <select className="form-input" value={addMember.MA_NV} onChange={(e) => setAddMember({ ...addMember, MA_NV: e.target.value })}>
                     <option value="">-- Chọn nhân viên --</option>
-                    {employees.map((emp: any) => (<option key={emp.MA_NV} value={emp.MA_NV}>{emp.HO_TEN}</option>))}
+                    {employees.map((emp: any) => (<option key={emp.MA_NV} value={emp.MA_NV}>{emp.HO_TEN || emp.EMAIL || emp.MA_NV}</option>))}
                   </select>
                   <select className="form-input" value={addMember.VAI_TRO_DU_AN} onChange={(e) => setAddMember({ ...addMember, VAI_TRO_DU_AN: e.target.value })}>
                     <option>Thành viên</option><option>Trưởng dự án</option><option>Phó dự án</option><option>Backend Developer</option><option>Frontend Developer</option>
@@ -490,9 +488,9 @@ export const Projects: React.FC<{ user: any; onNavigate: (page: string) => void 
           {isAdmin && (
             <div style={{ display: "flex", borderRadius: 10, border: "1.5px solid #e0e0e0", overflow: "hidden" }}>
               {["mine", "all"].map((mode) => (
-                <button key={mode} onClick={() => setViewMode(mode)} style={{ padding: "6px 14px", fontSize: 12, fontWeight: 600, border: "none", cursor: "pointer", background: viewMode === mode ? "#111" : "#fff", color: viewMode === mode ? "#fff" : "#666" }}>
+                <Btn key={mode} onClick={() => setViewMode(mode)} style={{ padding: "6px 14px", fontSize: 12, fontWeight: 600, border: "none", cursor: "pointer", background: viewMode === mode ? "#111" : "#fff", color: viewMode === mode ? "#fff" : "#666" }}>
                   {mode === "mine" ? "Của tôi" : "Tất cả"}
-                </button>
+                </Btn>
               ))}
             </div>
           )}
@@ -503,7 +501,7 @@ export const Projects: React.FC<{ user: any; onNavigate: (page: string) => void 
               { id: "kanban", icon: <Kanban size={14} />, label: "Kanban" },
               { id: "calendar", icon: <CalendarDays size={14} />, label: "Lịch" },
             ].map((v) => (
-              <button 
+              <Btn 
                 key={v.id} 
                 onClick={() => setLayoutView(v.id as any)} 
                 title={v.label}
@@ -522,7 +520,7 @@ export const Projects: React.FC<{ user: any; onNavigate: (page: string) => void 
                 }}>
                 {v.icon}
                 <span>{v.label}</span>
-              </button>
+              </Btn>
             ))}
           </div>
           {isAdmin && <Btn size="sm" icon={<Plus size={14} />} onClick={() => setModal({ type: "create", data: null })}>Tạo dự án</Btn>}

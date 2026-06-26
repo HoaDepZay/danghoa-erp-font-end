@@ -7,7 +7,6 @@ import {
 import { api } from "../../services/api";
 import { getManv, getUserName, getUserLevel } from "../../utils/user";
 import { SectionHeader, Card, Spinner, Badge, Btn, EmptyState } from "../../components/UI/index";
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
@@ -123,7 +122,7 @@ const getCheckIn = (r: AttendanceRecord) => {
   const raw =
     r.checkIn || r.CHECK_IN || r.checkin || r.CheckIn
     || r.thoiGianVao || r.ThoiGianVao || r.THOIGIANVAO || r.thoi_gian_vao
-    || r.gioVao || r.GioVao || r.GIOVAO
+    || r.gioVao || r.GioVao || r.GIOVAO || r.GIO_VAO || r.gio_vao
     || r.timeIn || r.time_in || r.TimeIn || r.TIMEIN
     || (r.loai === "check-in" || r.loai === "vào" || r.type === "in" || r.loaiChamCong === "IN" ? r.timestamp || r.THOI_GIAN || r.THOI_GIAN : undefined)
     || r.vao || r.VAO;
@@ -135,7 +134,7 @@ const getCheckOut = (r: AttendanceRecord) => {
   const raw =
     r.checkOut || r.CHECK_OUT || r.checkout || r.CheckOut
     || r.thoiGianRa || r.ThoiGianRa || r.THOIGIANRA || r.thoi_gian_ra
-    || r.gioRa || r.GioRa || r.GIORA
+    || r.gioRa || r.GioRa || r.GIORA || r.GIO_RA || r.gio_ra
     || r.timeOut || r.time_out || r.TimeOut || r.TIMEOUT
     || (r.loai === "check-out" || r.loai === "ra" || r.type === "out" || r.loaiChamCong === "OUT" ? r.timestamp || r.THOI_GIAN || r.THOI_GIAN : undefined)
     || r.ra || r.RA;
@@ -247,7 +246,7 @@ const RealtimeClock: React.FC = () => {
 const CheckButton: React.FC<{ type: "in" | "out"; loading: boolean; onClick: () => void }> = ({ type, loading, onClick }) => {
   const isIn = type === "in";
   return (
-    <button
+    <Btn
       className={`attendance-btn ${isIn ? "btn-checkin" : "btn-checkout"}`}
       onClick={onClick}
       disabled={loading}
@@ -255,7 +254,7 @@ const CheckButton: React.FC<{ type: "in" | "out"; loading: boolean; onClick: () 
     >
       {loading ? <Spinner size={22} /> : isIn ? <LogIn size={22} /> : <LogOut size={22} />}
       <span>{loading ? "Đang xử lý..." : isIn ? "Check In" : "Check Out"}</span>
-    </button>
+    </Btn>
   );
 };
 
@@ -280,7 +279,7 @@ const ResultBanner: React.FC<{ record: CheckRecord | null; onDismiss: () => void
           <p className="result-time"><Clock size={12} /> {fmt(record.timestamp, "time")} · {fmt(record.timestamp, "date")}</p>
         )}
       </div>
-      <button className="result-close" onClick={onDismiss}>✕</button>
+      <Btn className="result-close" onClick={onDismiss}>✕</Btn>
     </div>
   );
 };
@@ -293,13 +292,13 @@ const PeriodSelector: React.FC<{ value: FilterPeriod; onChange: (v: FilterPeriod
   return (
     <div className="period-selector">
       {periods.map((p) => (
-        <button
+        <Btn
           key={p}
           className={`period-btn${value === p ? " active" : ""}`}
           onClick={() => onChange(p)}
         >
           {PERIOD_LABELS[p]}
-        </button>
+        </Btn>
       ))}
     </div>
   );
@@ -464,13 +463,13 @@ const EmployeeHistoryModule: React.FC<{ MA_NV: string }> = ({ MA_NV }) => {
               <Btn size="sm" variant="secondary" onClick={() => { setShowDatePicker(false); }}>Hủy</Btn>
             </div>
           ) : (
-            <button className="at-date-toggle" onClick={() => setShowDatePicker(true)}>
+            <Btn className="at-date-toggle" onClick={() => setShowDatePicker(true)}>
               <Calendar size={14} /> Chọn ngày
-            </button>
+            </Btn>
           )}
-          <button className="at-refresh" onClick={fetchData} disabled={loading} title="Làm mới">
+          <Btn className="at-refresh" onClick={fetchData} disabled={loading} title="Làm mới">
             <RefreshCw size={14} className={loading ? "spin" : ""} />
-          </button>
+          </Btn>
         </div>
       </div>
 
@@ -668,9 +667,9 @@ const AdminHistoryModule: React.FC = () => {
               onChange={e => setSelectedDate(e.target.value)}
             />
           </div>
-          <button className="at-refresh" onClick={fetchData} disabled={loading} title="Làm mới">
+          <Btn className="at-refresh" onClick={fetchData} disabled={loading} title="Làm mới">
             <RefreshCw size={14} className={loading ? "spin" : ""} />
-          </button>
+          </Btn>
         </div>
       </div>
 
@@ -686,7 +685,7 @@ const AdminHistoryModule: React.FC = () => {
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          {search && <button className="at-search-clear" onClick={() => setSearch("")}>✕</button>}
+          {search && <Btn className="at-search-clear" onClick={() => setSearch("")}>✕</Btn>}
         </div>
       </div>
 
@@ -791,18 +790,18 @@ export const Attendance: React.FC<{ user: any }> = ({ user }) => {
           {/* Tabs – chỉ manager/admin mới thấy tab "Tất cả NV" */}
           {isManager && (
             <div className="at-tabs">
-              <button
+              <Btn
                 className={`at-tab${activeTab === "mine" ? " active" : ""}`}
                 onClick={() => setActiveTab("mine")}
               >
                 <Clock size={14} /> Của tôi
-              </button>
-              <button
+              </Btn>
+              <Btn
                 className={`at-tab${activeTab === "all" ? " active" : ""}`}
                 onClick={() => setActiveTab("all")}
               >
                 <Users size={14} /> Toàn công ty
-              </button>
+              </Btn>
             </div>
           )}
 

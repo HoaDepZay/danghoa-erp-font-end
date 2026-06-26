@@ -1,10 +1,10 @@
+import { Btn } from '../../components/UI';
 import React from "react";
 import { ShieldCheck, UserCog, Building2, AlertTriangle, ClipboardList } from "lucide-react";
 import { Card, SectionHeader } from "../../components/UI/index";
 import { useAdmin } from "./useAdmin";
 import { AdminEmployeeTab, AdminDepartmentTab, AdminOnboardingTab } from "./AdminPanel";
 import { ImportModal } from "./ImportModal";
-
 const TABS = [
   { id: "employees",   label: "Nhân viên",   icon: <UserCog size={15} /> },
   { id: "departments", label: "Phòng ban",   icon: <Building2 size={15} /> },
@@ -52,7 +52,7 @@ export const Admin: React.FC<{ user: any }> = ({ user }) => {
       {/* Tab bar */}
       <div style={{ display: "flex", gap: 4, marginBottom: 20, background: "#f0f0f0", padding: 4, borderRadius: 12, width: "fit-content" }}>
         {TABS.map((tab) => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+          <Btn key={tab.id} onClick={() => setActiveTab(tab.id)}
             style={{
               display: "flex", alignItems: "center", gap: 6, padding: "7px 16px",
               borderRadius: 9, fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer",
@@ -75,7 +75,7 @@ export const Admin: React.FC<{ user: any }> = ({ user }) => {
                 {pendingCount}
               </span>
             )}
-          </button>
+          </Btn>
         ))}
       </div>
 

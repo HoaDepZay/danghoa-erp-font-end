@@ -1,9 +1,9 @@
+import { Btn } from '../../components/UI';
 import React from "react";
 import { FolderKanban, Clock, Wallet, Building2, BarChart3, RefreshCw } from "lucide-react";
 import { Card } from "../../components/UI/index";
 import { formatCurrency, getProp } from "../../utils/helpers";
 import type { RealtimeData } from "./useDashboard";
-
 interface DashboardChartProps {
   myProjects: any[];
   myPayroll: any;
@@ -209,14 +209,14 @@ export const DashboardChart: React.FC<DashboardChartProps> = ({
           <span style={{ fontSize: 11, color: "#bbb" }}>
             Cập nhật lúc {lastUpdated.toLocaleTimeString("vi-VN")} · tự làm mới sau 60s
           </span>
-          <button
+          <Btn
             onClick={fetchRealtime}
             disabled={realtimeLoading}
             style={{ background: "none", border: "1px solid #e5e5e5", borderRadius: 8, padding: "5px 12px", fontSize: 12, color: "#555", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" }}
           >
             <RefreshCw size={12} style={{ animation: realtimeLoading ? "spin 0.8s linear infinite" : "none" }} />
             {realtimeLoading ? "Đang tải..." : "Làm mới"}
-          </button>
+          </Btn>
         </div>
       )}
     </>

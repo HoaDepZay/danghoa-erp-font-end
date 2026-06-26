@@ -6,18 +6,56 @@ import { usePayroll, MONTHS } from "./usePayroll";
 import { PayrollTable } from "./PayrollTable";
 
 // ─── Modal phiếu lương chi tiết ────────────────────────────────────────────────
-const PayslipModal: React.FC<{ isOpen: boolean; onClose: () => void; data: any }> = ({ isOpen, onClose, data }) => {
+const PayslipModal: React.FC<{ isOpen: boolean; onClose: () => void; data: any; isHR?: boolean; onSave?: (data: any) => Promise<void> }> = ({ isOpen, onClose, data, isHR, onSave }) => {
+  const [isEdit, setIsEdit] = useState(false);
+  const [editData, setEditData] = useState<any>({});
+  const [saving, setSaving] = useState(false);
+
+  React.useEffect(() => {
+    if (isOpen && data) {
+      setIsEdit(false);
+      setEditData({
+        SO_NGAY_CONG_THUC_TE: data.SO_NGAY_CONG_THUC_TE ?? data.giolamViec ?? 0,
+        PHU_CAP: data.PHU_CAP ?? data.phucap ?? 0,
+        THUONG: data.THUONG ?? data.thuong ?? 0,
+        KHAU_TRU_BHXH: data.KHAU_TRU_BHXH ?? data.bhxh ?? 0,
+      });
+    }
+  }, [isOpen, data]);
+
   if (!data) return null;
 
-  const rows = [
-    { label: "Giờ làm việc", value: `${data.giolamViec ?? 0} giờ`, icon: <Clock size={14} /> },
-    { label: "Phụ cấp", value: formatCurrency(data.phucap ?? 0), icon: <TrendingUp size={14} /> },
-    { label: "Thưởng", value: formatCurrency(data.thuong ?? 0), icon: <TrendingUp size={14} />, color: "#10b981" },
-    { label: "Bảo hiểm xã hội (BHXH)", value: `- ${formatCurrency(data.bhxh ?? 0)}`, icon: <ShieldCheck size={14} />, color: "#ef4444" },
-    { label: "Thuế thu nhập cá nhân", value: `- ${formatCurrency(data.thueTNCN ?? 0)}`, icon: <Receipt size={14} />, color: "#f59e0b" },
-  ];
+  const handleSave = async () => {
+    if (onSave) {
+      setSaving(true);
+      await onSave({ ...data, ...editData });
+      setSaving(false);
+      setIsEdit(false);
+    }
+  };
 
-  const net = data.thucLanh ?? 0;
+  const net = data.THUC_LANH ?? data.thucLanh ?? 0;
+
+  const renderField = (label: string, field: string, icon: any, color?: string, isNegative: boolean = false) => {
+    return (
+      <div className="drawer-field" key={label}>
+        <span className="drawer-field-label" style={{ display: "flex", alignItems: "center", gap: 6 }}>{icon} {label}</span>
+        {isEdit ? (
+          <input
+            type="number"
+            className="input"
+            style={{ width: 120, padding: "4px 8px", fontSize: 13, textAlign: "right", color: color ?? "#111" }}
+            value={editData[field]}
+            onChange={(e) => setEditData({ ...editData, [field]: Number(e.target.value) })}
+          />
+        ) : (
+          <span className="drawer-field-value" style={{ color: color ?? "#111" }}>
+            {isNegative ? "- " : ""}{field === "SO_NGAY_CONG_THUC_TE" ? `${editData[field]} ngày` : formatCurrency(editData[field])}
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
     <Drawer
@@ -27,24 +65,34 @@ const PayslipModal: React.FC<{ isOpen: boolean; onClose: () => void; data: any }
       subtitle={`Mã NV: ${data.MA_NV} · ${MONTHS[(data.thang ?? 1) - 1]} ${data.nam}`}
       icon={<Wallet size={18} />}
       size="sm"
-      footer={<Btn variant="secondary" onClick={onClose}>Đóng</Btn>}
+      footer={
+        <div style={{ display: "flex", gap: 8, width: "100%", justifyContent: "flex-end" }}>
+          <Btn variant="secondary" onClick={onClose} disabled={saving}>Đóng</Btn>
+          {isHR && !isEdit && <Btn variant="primary" onClick={() => setIsEdit(true)}>Sửa</Btn>}
+          {isHR && isEdit && <Btn variant="primary" onClick={handleSave} disabled={saving}>{saving ? "Đang lưu..." : "Lưu"}</Btn>}
+        </div>
+      }
     >
       <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
         {/* Header tổng quát */}
         <div style={{ background: "#111", borderRadius: 14, padding: "18px 20px", marginBottom: 20, textAlign: "center" }}>
           <p style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 6px" }}>Tổng thực lãnh</p>
           <p style={{ fontSize: 26, fontWeight: 800, color: "#fff", margin: 0 }}>{formatCurrency(net)}</p>
+          {isEdit && <p style={{ fontSize: 11, color: "#f59e0b", marginTop: 6 }}>Thực lãnh sẽ được tính toán lại sau khi lưu.</p>}
         </div>
 
         {/* Các dòng chi tiết */}
         <div className="drawer-section">
           <p className="drawer-section-title">Chi tiết khoản</p>
-          {rows.map(({ label, value, color }) => (
-            <div className="drawer-field" key={label}>
-              <span className="drawer-field-label">{label}</span>
-              <span className="drawer-field-value" style={{ color: color ?? "#111" }}>{value}</span>
-            </div>
-          ))}
+          {renderField("Ngày công", "SO_NGAY_CONG_THUC_TE", <Clock size={14} />)}
+          {renderField("Phụ cấp", "PHU_CAP", <TrendingUp size={14} />)}
+          {renderField("Thưởng", "THUONG", <TrendingUp size={14} />, "#10b981")}
+          {renderField("Khấu trừ (BHXH)", "KHAU_TRU_BHXH", <ShieldCheck size={14} />, "#ef4444", true)}
+          
+          <div className="drawer-field">
+            <span className="drawer-field-label" style={{ display: "flex", alignItems: "center", gap: 6 }}><Receipt size={14} /> Thuế thu nhập cá nhân</span>
+            <span className="drawer-field-value" style={{ color: "#f59e0b" }}>- {formatCurrency(data.THUE_TNCN ?? data.thueTNCN ?? 0)}</span>
+          </div>
         </div>
       </div>
     </Drawer>
@@ -76,6 +124,7 @@ const StatCard: React.FC<{ label: string; value: string; highlight?: boolean; co
   </div>
 );
 
+import { api } from "../../services/api";
 // ─── Trang Payroll chính ────────────────────────────────────────────────────────
 export const Payroll: React.FC<{ user: any }> = ({ user }) => {
   const {
@@ -91,11 +140,26 @@ export const Payroll: React.FC<{ user: any }> = ({ user }) => {
     setPayslipOpen(true);
   };
 
+  const handleSavePayslip = async (updatedData: any) => {
+    try {
+      const id = updatedData.MA_BL;
+      if (!id) throw new Error("Không tìm thấy mã phiếu lương");
+      await api.updatePayroll(id, updatedData);
+      await fetchPayroll(); // Refresh data
+      // Update local modal data slightly to show new numbers, or just close it
+      setPayslipData(null);
+      setPayslipOpen(false);
+      alert("Cập nhật lương thành công!");
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Lỗi cập nhật lương");
+    }
+  };
+
   const MonthNav = () => (
     <div style={{ display: "flex", alignItems: "center", border: "1.5px solid #e0e0e0", borderRadius: 10, overflow: "hidden" }}>
-      <button onClick={prevMonth} style={{ padding: "6px 10px", border: "none", background: "#fff", cursor: "pointer", color: "#666", display: "flex" }}>
+      <Btn onClick={prevMonth} style={{ padding: "6px 10px", border: "none", background: "#fff", cursor: "pointer", color: "#666", display: "flex" }}>
         <ChevronLeft size={16} />
-      </button>
+      </Btn>
       <span style={{
         padding: "6px 12px", fontSize: 13, fontWeight: 600,
         minWidth: 116, textAlign: "center",
@@ -104,9 +168,9 @@ export const Payroll: React.FC<{ user: any }> = ({ user }) => {
       }}>
         {MONTHS[month - 1]} {year}
       </span>
-      <button onClick={nextMonth} style={{ padding: "6px 10px", border: "none", background: "#fff", cursor: "pointer", color: "#666", display: "flex" }}>
+      <Btn onClick={nextMonth} style={{ padding: "6px 10px", border: "none", background: "#fff", cursor: "pointer", color: "#666", display: "flex" }}>
         <ChevronRight size={16} />
-      </button>
+      </Btn>
     </div>
   );
 
@@ -143,12 +207,12 @@ export const Payroll: React.FC<{ user: any }> = ({ user }) => {
             </div>
 
             <div className="grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
-              <StatCard label="Giờ làm việc" value={`${myPayroll.giolamViec ?? 0} giờ`} />
-              <StatCard label="Phụ cấp" value={formatCurrency(myPayroll.phucap ?? 0)} />
-              <StatCard label="Thưởng" value={formatCurrency(myPayroll.thuong ?? 0)} color="#10b981" />
-              <StatCard label="BHXH" value={formatCurrency(myPayroll.bhxh ?? 0)} color="#ef4444" />
-              <StatCard label="Thuế TNCN" value={formatCurrency(myPayroll.thueTNCN ?? 0)} color="#f59e0b" />
-              <StatCard label="Thực lãnh" value={formatCurrency(myPayroll.thucLanh ?? 0)} highlight />
+              <StatCard label="Ngày công" value={`${myPayroll.SO_NGAY_CONG_THUC_TE ?? myPayroll.giolamViec ?? 0} ngày`} />
+              <StatCard label="Phụ cấp" value={formatCurrency(myPayroll.PHU_CAP ?? myPayroll.phucap ?? 0)} />
+              <StatCard label="Thưởng" value={formatCurrency(myPayroll.THUONG ?? myPayroll.thuong ?? 0)} color="#10b981" />
+              <StatCard label="BHXH" value={formatCurrency(myPayroll.KHAU_TRU_BHXH ?? myPayroll.bhxh ?? 0)} color="#ef4444" />
+              <StatCard label="Thuế TNCN" value={formatCurrency(myPayroll.THUE_TNCN ?? myPayroll.thueTNCN ?? 0)} color="#f59e0b" />
+              <StatCard label="Thực lãnh" value={formatCurrency(myPayroll.THUC_LANH ?? myPayroll.thucLanh ?? 0)} highlight />
             </div>
 
             <div style={{ marginTop: 16, textAlign: "right" }}>
@@ -195,6 +259,8 @@ export const Payroll: React.FC<{ user: any }> = ({ user }) => {
         isOpen={payslipOpen}
         onClose={() => setPayslipOpen(false)}
         data={payslipData}
+        isHR={isHR}
+        onSave={handleSavePayslip}
       />
     </div>
   );

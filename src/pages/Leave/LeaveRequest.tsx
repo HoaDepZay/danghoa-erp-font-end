@@ -1,10 +1,10 @@
+import { Btn } from '../../components/UI';
 import { useState, useEffect } from "react";
 import { api } from "../../services/api";
 import { toast, formatDate } from "../../utils/helpers";
 import { FileText, X, Plus, CalendarDays, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { Spinner } from "../../components/UI";
 import { getManv } from "../../utils/user";
-
 interface LeaveRequestProps {
   user: any;
 }
@@ -91,13 +91,13 @@ const LeaveRequest = ({ user }: LeaveRequestProps) => {
           <p>Xem lịch sử và nộp đơn nghỉ phép mới</p>
         </div>
         <div className="section-header-actions">
-          <button
+          <Btn
             className="btn btn-primary"
             onClick={() => setShowForm(true)}
             style={{ display: "flex", alignItems: "center", gap: 6 }}
           >
             <Plus size={16} /> Nộp đơn nghỉ phép
-          </button>
+          </Btn>
         </div>
       </div>
 
@@ -176,7 +176,7 @@ const LeaveRequest = ({ user }: LeaveRequestProps) => {
                 </div>
                 <h3>Nộp đơn xin nghỉ phép</h3>
               </div>
-              <button className="modal-close" onClick={() => setShowForm(false)}><X size={20} /></button>
+              <Btn className="modal-close" onClick={() => setShowForm(false)}><X size={20} /></Btn>
             </div>
 
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16, padding: "20px 0 0" }}>
@@ -223,11 +223,11 @@ const LeaveRequest = ({ user }: LeaveRequestProps) => {
               </div>
 
               <div className="modal-footer" style={{ display: "flex", gap: 10, justifyContent: "flex-end", paddingTop: 8 }}>
-                <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>Hủy</button>
-                <button type="submit" className="btn btn-primary" disabled={saving} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <Btn type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>Hủy</Btn>
+                <Btn type="submit" className="btn btn-primary" disabled={saving} style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   {saving ? <Spinner size={14} /> : <FileText size={14} />}
                   {saving ? "Đang gửi..." : "Nộp đơn"}
-                </button>
+                </Btn>
               </div>
             </form>
           </div>

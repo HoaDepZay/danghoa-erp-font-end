@@ -4,6 +4,7 @@ import {
   Building2,
   FolderKanban,
   Wallet,
+  Banknote,
   UserCircle,
   ChevronLeft,
   ChevronRight,
@@ -17,6 +18,7 @@ import {
   FileSignature,
   BarChart3,
   Network,
+  Terminal,
 } from "lucide-react";
 import { getDisplayRole, getUserLevel, getUserName } from "../../utils/user";
 import { useEffect, useState } from "react";
@@ -26,6 +28,7 @@ const NAV_ITEMS = [
   { key: "schedule", label: "Lịch làm việc", icon: CalendarDays, minLevel: 1 },
   { key: "attendance", label: "Chấm công", icon: ScanLine, minLevel: 1 },
   { key: "payroll", label: "Bảng lương", icon: Wallet, minLevel: 1 },
+  { key: "expenses", label: "Chi tiêu", icon: Banknote, minLevel: 1 },
 
   { key: "projects", label: "Dự án", icon: FolderKanban, minLevel: 1 },
   { key: "chat", label: "Tin nhắn", icon: MessageSquare, minLevel: 1 },
@@ -68,7 +71,7 @@ const Sidebar = ({
         </div>
         {!collapsed && (
           <div className="sidebar-logo-text">
-            <div className="brand">HUIT ERP</div>
+            <div className="brand">DANGHOA-ERP</div>
             <div className="sub">HR Management</div>
           </div>
         )}

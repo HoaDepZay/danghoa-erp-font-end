@@ -7,7 +7,6 @@ import { api } from "../../../services/api";
 import { Btn, Card, Avatar, Badge, EmptyState } from "../../../components/UI/index";
 import { getUserLevel } from "../../../utils/user";
 import { toast } from "../../../utils/helpers";
-
 const GENDER_MAP: Record<number | string, string> = { 1: "Nam", 2: "Nữ", 3: "Khác" };
 const formatGender = (val: number | string | null | undefined): string => {
   if (val == null || val === "") return "—";
@@ -151,7 +150,7 @@ const EmployeeProfile = ({ user, onNavigate }: { user: any; onNavigate: (page: s
           { id: "attendance", label: "Chấm công" },
           { id: "payroll", label: "Lương thưởng" }
         ].map(tab => (
-          <button
+          <Btn
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             style={{
@@ -168,7 +167,7 @@ const EmployeeProfile = ({ user, onNavigate }: { user: any; onNavigate: (page: s
             }}
           >
             {tab.label}
-          </button>
+          </Btn>
         ))}
       </div>
 
@@ -263,7 +262,7 @@ const EmployeeProfile = ({ user, onNavigate }: { user: any; onNavigate: (page: s
             <Card>
               <h4 style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", marginBottom: 16 }}>Lối tắt</h4>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                <button style={{ 
+                <Btn style={{ 
                   width: "100%", 
                   display: "flex", 
                   alignItems: "center", 
@@ -280,9 +279,9 @@ const EmployeeProfile = ({ user, onNavigate }: { user: any; onNavigate: (page: s
                     <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-dark)" }}>Lịch sử nghỉ phép</span>
                   </div>
                   <ArrowLeft size={16} color="#cbd5e1" style={{ transform: "rotate(180deg)" }} />
-                </button>
+                </Btn>
                 
-                <button style={{ 
+                <Btn style={{ 
                   width: "100%", 
                   display: "flex", 
                   alignItems: "center", 
@@ -299,7 +298,7 @@ const EmployeeProfile = ({ user, onNavigate }: { user: any; onNavigate: (page: s
                     <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-dark)" }}>Hợp đồng lao động</span>
                   </div>
                   <ArrowLeft size={16} color="#cbd5e1" style={{ transform: "rotate(180deg)" }} />
-                </button>
+                </Btn>
               </div>
             </Card>
 

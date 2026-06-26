@@ -12,7 +12,6 @@ import {
 } from "../../components/UI/index";
 import Modal from "../../components/UI/Modal";
 import { MONTHS } from "./usePayroll";
-
 // ─── Types ─────────────────────────────────────────────────────────────────────
 interface Employee {
   MA_NV: string;
@@ -319,7 +318,7 @@ const EmployeePayrollModal: React.FC<{
           { key: "attendance", label: "Bảng chấm công", icon: <Clock size={14} /> },
           { key: "payslip", label: "Phiếu lương", icon: <DollarSign size={14} /> },
         ].map(tab => (
-          <button
+          <Btn
             key={tab.key}
             onClick={() => setActiveTab(tab.key as any)}
             style={{
@@ -340,7 +339,7 @@ const EmployeePayrollModal: React.FC<{
                 {attendance.length}
               </span>
             )}
-          </button>
+          </Btn>
         ))}
       </div>
 
@@ -368,7 +367,7 @@ const EmployeePayrollModal: React.FC<{
           <AttendanceTable data={attendance} loading={attLoading} />
           {!attLoading && (
             <div style={{ textAlign: "right", marginTop: 10 }}>
-              <button
+              <Btn
                 onClick={fetchAttendance}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 4,
@@ -377,7 +376,7 @@ const EmployeePayrollModal: React.FC<{
                 }}
               >
                 <RefreshCw size={12} /> Làm mới
-              </button>
+              </Btn>
             </div>
           )}
         </div>
@@ -513,9 +512,9 @@ const MonthNav: React.FC<{ month: number; year: number; onPrev: () => void; onNe
   month, year, onPrev, onNext,
 }) => (
   <div style={{ display: "flex", alignItems: "center", border: "1.5px solid #e0e0e0", borderRadius: 10, overflow: "hidden" }}>
-    <button onClick={onPrev} style={{ padding: "6px 10px", border: "none", background: "#fff", cursor: "pointer", color: "#666", display: "flex" }}>
+    <Btn onClick={onPrev} style={{ padding: "6px 10px", border: "none", background: "#fff", cursor: "pointer", color: "#666", display: "flex" }}>
       <ChevronLeft size={16} />
-    </button>
+    </Btn>
     <span style={{
       padding: "6px 14px", fontSize: 13, fontWeight: 600,
       minWidth: 120, textAlign: "center",
@@ -523,9 +522,9 @@ const MonthNav: React.FC<{ month: number; year: number; onPrev: () => void; onNe
     }}>
       {MONTHS[month - 1]} {year}
     </span>
-    <button onClick={onNext} style={{ padding: "6px 10px", border: "none", background: "#fff", cursor: "pointer", color: "#666", display: "flex" }}>
+    <Btn onClick={onNext} style={{ padding: "6px 10px", border: "none", background: "#fff", cursor: "pointer", color: "#666", display: "flex" }}>
       <ChevronRight size={16} />
-    </button>
+    </Btn>
   </div>
 );
 

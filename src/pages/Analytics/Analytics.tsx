@@ -1,9 +1,9 @@
+import { Btn } from '../../components/UI';
 import { useState, useEffect } from "react";
 import { api } from "../../services/api";
 import { formatCurrency, getProp } from "../../utils/helpers";
 import { TrendingUp, Users, Wallet, ScanLine, RefreshCw, Building2 } from "lucide-react";
 import { Spinner, Card } from "../../components/UI/index";
-
 // ── Mini Line Chart SVG thuần ─────────────────────────────────────────────────
 const LineChart = ({ data, color = "#6366f1", label }: { data: number[]; color?: string; label: string }) => {
   if (!data || data.length < 2) return <p style={{ color: "#bbb", fontSize: 12 }}>Chưa có dữ liệu</p>;
@@ -102,7 +102,7 @@ const Analytics = ({ user }: { user: any }) => {
         api.getDashboardAnalytics(),
         api.getAnalyticsSalaryCost(),
         api.getAnalyticsAttendance(),
-        api.getDashboardSummary(),
+        api.getAnalyticsSummary(),
       ]);
       setTurnover(t.data?.data   || []);
       setSalaryCost(s.data?.data || []);
@@ -129,10 +129,10 @@ const Analytics = ({ user }: { user: any }) => {
           <p>Phân tích nhân sự chuyên sâu dành cho Ban Giám đốc & HR Manager</p>
         </div>
         <div className="section-header-actions">
-          <button className="btn btn-secondary" onClick={fetchAll} disabled={loading} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <Btn className="btn btn-secondary" onClick={fetchAll} disabled={loading} style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <RefreshCw size={15} style={{ animation: loading ? "spin 0.8s linear infinite" : "none" }} />
             Làm mới
-          </button>
+          </Btn>
         </div>
       </div>
 

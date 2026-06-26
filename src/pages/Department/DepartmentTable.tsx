@@ -1,10 +1,11 @@
+import { Btn } from '../../components/UI';
 import React from "react";
 import { Building2, Edit3, Users, ChevronRight } from "lucide-react";
-
 interface DepartmentTableProps {
   departments: any[];
   userLevel: number;
   setModal: (val: any) => void;
+  onNavigate?: (page: string) => void;
 }
 
 const DEPT_COLORS = [
@@ -28,7 +29,7 @@ const stringToDeptColor = (str: string) => {
   return DEPT_COLORS[index];
 };
 
-export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, userLevel, setModal }) => {
+export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, userLevel, setModal, onNavigate }) => {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
       {departments.map((dept) => {
@@ -37,7 +38,15 @@ export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, u
         return (
           <div key={dept.MA_PHG} className="card" style={{ transition: "box-shadow 0.15s", cursor: "pointer", background: "#fff", borderRadius: 16, padding: 16, border: "1px solid #eee" }}
             onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.1)"}
-            onMouseLeave={(e) => e.currentTarget.style.boxShadow = ""}>
+            onMouseLeave={(e) => e.currentTarget.style.boxShadow = ""}
+            onClick={() => {
+              localStorage.setItem("selectedDeptId", String(dept.MA_PHG));
+              if (onNavigate) {
+                onNavigate("department_details");
+              } else {
+                setModal({ type: "detail", data: dept.MA_PHG }); 
+              }
+            }}>
             <div className="card-body">
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -50,10 +59,10 @@ export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, u
                 </div>
               </div>
               {userLevel >= 3 && (
-                 <button
+                 <Btn
                   onClick={(e) => { e.stopPropagation(); setModal({ type: "edit", data: dept }); }}
                   style={{ padding: "6px", borderRadius: 8, color: "#aaa", background: "#f5f5f5", border: "none", cursor: "pointer" }}
-                ><Edit3 size={14} /></button>
+                ><Edit3 size={14} /></Btn>
               )}
             </div>
 
@@ -65,15 +74,23 @@ export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, u
               </div>
             )}
 
-            <button
-               onClick={(e) => { e.stopPropagation(); setModal({ type: "detail", data: dept.MA_PHG }); }}
+            <Btn
+               onClick={(e) => { 
+                 e.stopPropagation(); 
+                 localStorage.setItem("selectedDeptId", dept.MA_PHG);
+                 if (onNavigate) {
+                   onNavigate("department_details");
+                 } else {
+                   setModal({ type: "detail", data: dept.MA_PHG }); 
+                 }
+               }}
               style={{
                 marginTop: 14, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
                 fontSize: 12, color: "#888", background: "#f8f8f8", border: "none", borderRadius: 10, padding: "8px", cursor: "pointer",
               }}
             >
               <span>Xem chi tiết</span><ChevronRight size={13} />
-            </button>
+            </Btn>
           </div>
         </div>
       )

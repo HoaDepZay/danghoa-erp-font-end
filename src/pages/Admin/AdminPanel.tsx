@@ -5,7 +5,6 @@ import { toast, getProp } from "../../utils/helpers";
 import { Btn, Badge, Card, SkeletonRows, EmptyState, Avatar, FormField } from "../../components/UI/index";
 import Modal from "../../components/UI/Modal";
 import { DeptDetailModal } from "../Department/DepartmentModal";
-
 interface AdminEditEmpModalProps {
   isOpen: boolean; onClose: () => void; editData: any; departments: any[]; onSuccess: () => void;
 }
@@ -196,14 +195,14 @@ export const AdminEmployeeTab: React.FC<{ adminData: any }> = ({ adminData }) =>
                     </td>
                     <td>
                       <div style={{ display: "flex", gap: 8 }}>
-                         <button onClick={() => setModal({ type: "editEmp", data: emp })}
+                         <Btn onClick={() => setModal({ type: "editEmp", data: emp })}
                           style={{ fontSize: 12, color: "#666", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
                            <Edit3 size={12} /> Sửa
-                         </button>
-                        <button onClick={() => setModal({ type: "deleteEmp", data: emp })}
+                         </Btn>
+                        <Btn onClick={() => setModal({ type: "deleteEmp", data: emp })}
                            style={{ fontSize: 12, color: "#f87171", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
                           <Trash2 size={12} /> Xóa
-                        </button>
+                        </Btn>
                       </div>
                     </td>
                   </tr>
@@ -291,14 +290,14 @@ export const AdminDepartmentTab: React.FC<{ adminData: any }> = ({ adminData }) 
                    </td>
                    <td>
                     <div style={{ display: "flex", gap: 8 }}>
-                      <button onClick={(e) => { e.stopPropagation(); setModal({ type: "editDept", data: dept }); }}
+                      <Btn onClick={(e) => { e.stopPropagation(); setModal({ type: "editDept", data: dept }); }}
                          style={{ fontSize: 12, color: "#666", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
                         <Edit3 size={12} /> Sửa
-                      </button>
-                       <button onClick={(e) => { e.stopPropagation(); handleDeleteDepartment(dept.MA_PHG, getProp(dept, 'TEN_PB')); }}
+                      </Btn>
+                       <Btn onClick={(e) => { e.stopPropagation(); handleDeleteDepartment(dept.MA_PHG, getProp(dept, 'TEN_PB')); }}
                         style={{ fontSize: 12, color: "#f87171", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
                         <Trash2 size={12} /> Xóa
-                      </button>
+                      </Btn>
                     </div>
                   </td>
                 </tr>
@@ -545,18 +544,18 @@ export const AdminOnboardingTab: React.FC<{ adminData: any }> = ({ adminData }) 
                       <td>
                         {canAction ? (
                           <div style={{ display: "flex", gap: 6 }}>
-                            <button
+                            <Btn
                               onClick={() => setModal({ type: "acceptOnboarding", data: a })}
                               style={{ fontSize: 12, color: "#16a34a", background: "none", border: "1px solid #bbf7d0", borderRadius: 6, padding: "4px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: 3, fontWeight: 600 }}
                             >
                               <CheckCircle size={12} /> Duyệt
-                            </button>
-                            <button
+                            </Btn>
+                            <Btn
                               onClick={() => setModal({ type: "rejectOnboarding", data: a })}
                               style={{ fontSize: 12, color: "#dc2626", background: "none", border: "1px solid #fecaca", borderRadius: 6, padding: "4px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: 3, fontWeight: 600 }}
                             >
                               <XCircle size={12} /> Từ chối
-                            </button>
+                            </Btn>
                           </div>
                         ) : (
                           <span style={{ fontSize: 12, color: "#bbb" }}>—</span>

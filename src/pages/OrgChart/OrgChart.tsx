@@ -1,10 +1,10 @@
+import { Btn } from '../../components/UI';
 import React, { useState } from "react";
 import { useOrgChart, OrgNodeData } from "./useOrgChart";
 import { OrgChartNode } from "./OrgChartNode";
 import { SectionHeader, Card, Drawer, Avatar, Badge } from "../../components/UI";
 import { Network } from "lucide-react";
 import "./OrgChart.css";
-
 const OrgTreeNode: React.FC<{ node: OrgNodeData; onNodeClick: (node: OrgNodeData) => void }> = ({ node, onNodeClick }) => {
   return (
     <li>
@@ -37,9 +37,9 @@ export const OrgChart: React.FC = () => {
         
         {/* Zoom Controls */}
         <div style={{ position: "absolute", top: 16, right: 16, display: "flex", gap: 8, zIndex: 10, background: "#fff", padding: 8, borderRadius: 8, boxShadow: "0 2px 10px rgba(0,0,0,0.1)" }}>
-          <button onClick={handleZoomOut} style={{ width: 32, height: 32, border: "1px solid #e2e8f0", borderRadius: 4, background: "#fff", cursor: "pointer", fontWeight: "bold" }}>-</button>
+          <Btn onClick={handleZoomOut} style={{ width: 32, height: 32, border: "1px solid #e2e8f0", borderRadius: 4, background: "#fff", cursor: "pointer", fontWeight: "bold" }}>-</Btn>
           <span style={{ display: "flex", alignItems: "center", fontSize: 13, minWidth: 40, justifyContent: "center" }}>{Math.round(scale * 100)}%</span>
-          <button onClick={handleZoomIn} style={{ width: 32, height: 32, border: "1px solid #e2e8f0", borderRadius: 4, background: "#fff", cursor: "pointer", fontWeight: "bold" }}>+</button>
+          <Btn onClick={handleZoomIn} style={{ width: 32, height: 32, border: "1px solid #e2e8f0", borderRadius: 4, background: "#fff", cursor: "pointer", fontWeight: "bold" }}>+</Btn>
         </div>
 
         {/* Chart Area */}

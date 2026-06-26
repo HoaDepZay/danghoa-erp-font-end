@@ -82,11 +82,14 @@ export const useEmployees = (user: any) => {
     if (filterDept !== "all" && emp.TEN_PB !== filterDept) return false;
     if (filterRole !== "all" && emp.CHUC_VU !== filterRole) return false;
     
-    const statusText = emp.trang_thai_hom_nay;
+    const statusText = emp.TRANG_THAI_LAM_VIEC || emp.trang_thai_hom_nay || "";
     if (filterStatus !== "all") {
-      if (filterStatus === "working" && statusText !== "Đang làm việc") return false;
-      if (filterStatus === "off" && statusText !== "Đang nghỉ" && statusText !== "Vắng mặt" && statusText !== "Nghỉ việc") return false;
-      if (filterStatus === "other" && statusText === "Đang làm việc" && statusText === "Đang nghỉ" && statusText === "Vắng mặt" && statusText === "Nghỉ việc") return false;
+      const isWorking = statusText === "DANG_LAM_VIEC" || statusText === "Đang làm việc";
+      const isOff = statusText === "VANG_MAT" || statusText === "Vắng mặt" || statusText === "Đang nghỉ" || statusText === "Nghỉ việc";
+
+      if (filterStatus === "working" && !isWorking) return false;
+      if (filterStatus === "off" && !isOff) return false;
+      if (filterStatus === "other" && (isWorking || isOff)) return false;
     }
     
     return true;
@@ -99,8 +102,14 @@ export const useEmployees = (user: any) => {
 
   // Stats
   const totalEmployees = allEmployees.length;
-  const workingCount = allEmployees.filter(e => e.trang_thai_hom_nay === "Đang làm việc").length;
-  const offCount = allEmployees.filter(e => e.trang_thai_hom_nay === "Đang nghỉ" || e.trang_thai_hom_nay === "Vắng mặt" || e.trang_thai_hom_nay === "Nghỉ việc").length;
+  const workingCount = allEmployees.filter(e => {
+    const st = e.TRANG_THAI_LAM_VIEC || e.trang_thai_hom_nay;
+    return st === "DANG_LAM_VIEC" || st === "Đang làm việc";
+  }).length;
+  const offCount = allEmployees.filter(e => {
+    const st = e.TRANG_THAI_LAM_VIEC || e.trang_thai_hom_nay;
+    return st === "VANG_MAT" || st === "Vắng mặt" || st === "Đang nghỉ" || st === "Nghỉ việc";
+  }).length;
 
   return {
     employees, departments, loading, search, setSearch, page, setPage, total, totalPages,

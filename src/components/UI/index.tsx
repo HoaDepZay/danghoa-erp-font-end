@@ -1,6 +1,10 @@
 import React, { ReactNode, CSSProperties } from "react";
 export { default as Drawer } from "./Drawer";
 export { default as SharedCalendar } from "./SharedCalendar";
+export { default as Table } from "./Table";
+export type { Column, TableProps } from "./Table";
+export { default as Input, type InputProps } from "./Input";
+export { default as Select, type SelectProps, type SelectOption } from "./Select";
 
 // ── Spinner ──────────────────────────────────────────────────────────────────
 export const Spinner = ({ size = 20, color = "currentColor" }: { size?: number, color?: string }) => (

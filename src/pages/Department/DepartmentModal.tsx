@@ -2,7 +2,13 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Building2, UserPlus, Trash2, MessageSquare } from "lucide-react";
 import { api } from "../../services/api";
 import { toast } from "../../utils/helpers";
-import { Btn, FormField, Avatar, Spinner, Drawer } from "../../components/UI/index";
+import {
+  Btn,
+  FormField,
+  Avatar,
+  Spinner,
+  Drawer,
+} from "../../components/UI/index";
 import { formatDate } from "../../utils/helpers";
 
 // ─── Modal Tạo / Sửa phòng ban ───────────────────────────────────────────────
@@ -22,7 +28,11 @@ export const DeptModal: React.FC<DeptModalProps> = ({
   onSuccess,
 }) => {
   const isEdit = !!editData;
-  const [form, setForm] = useState({ TEN_PB: "", matruongphg: "", maphophg: "" });
+  const [form, setForm] = useState({
+    TEN_PB: "",
+    matruongphg: "",
+    maphophg: "",
+  });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -33,12 +43,13 @@ export const DeptModal: React.FC<DeptModalProps> = ({
             matruongphg: editData.matruongphg || editData.MA_TRUONG_PHG || "",
             maphophg: editData.maphophg || editData.MA_PHO_PHG || "",
           }
-        : { TEN_PB: "", matruongphg: "", maphophg: "" }
+        : { TEN_PB: "", matruongphg: "", maphophg: "" },
     );
   }, [editData, isOpen]);
 
   const handleSubmit = async () => {
-    if (!form.TEN_PB.trim()) return toast.error("Tên phòng ban không được trống");
+    if (!form.TEN_PB.trim())
+      return toast.error("Tên phòng ban không được trống");
     setLoading(true);
     try {
       const payload: any = {
@@ -59,7 +70,7 @@ export const DeptModal: React.FC<DeptModalProps> = ({
       toast.error(
         err.response?.data?.message ||
           err.response?.data?.error ||
-          "Lỗi thao tác!"
+          "Lỗi thao tác!",
       );
     } finally {
       setLoading(false);
@@ -76,8 +87,12 @@ export const DeptModal: React.FC<DeptModalProps> = ({
       size="sm"
       footer={
         <>
-          <Btn variant="secondary" onClick={onClose}>Hủy</Btn>
-          <Btn loading={loading} onClick={handleSubmit}>{isEdit ? "Lưu" : "Thêm"}</Btn>
+          <Btn variant="secondary" onClick={onClose}>
+            Hủy
+          </Btn>
+          <Btn loading={loading} onClick={handleSubmit}>
+            {isEdit ? "Lưu" : "Thêm"}
+          </Btn>
         </>
       }
     >
@@ -94,7 +109,9 @@ export const DeptModal: React.FC<DeptModalProps> = ({
           <select
             className="form-input"
             value={form.matruongphg}
-            onChange={(e) => setForm((f) => ({ ...f, matruongphg: e.target.value }))}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, matruongphg: e.target.value }))
+            }
           >
             <option value="">— Chưa chọn —</option>
             {employees.map((emp) => (
@@ -108,7 +125,9 @@ export const DeptModal: React.FC<DeptModalProps> = ({
           <select
             className="form-input"
             value={form.maphophg}
-            onChange={(e) => setForm((f) => ({ ...f, maphophg: e.target.value }))}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, maphophg: e.target.value }))
+            }
           >
             <option value="">— Chưa chọn —</option>
             {employees.map((emp) => (
@@ -128,7 +147,7 @@ interface DeptDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   deptId: string | number | null;
-  allEmployees: any[];   // toàn bộ NV để chọn thêm
+  allEmployees: any[]; // toàn bộ NV để chọn thêm
   isAdmin: boolean;
   onRefresh: () => void;
   onNavigate?: (page: string) => void;
@@ -176,7 +195,7 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
     try {
       const res = await api.getDepartmentChatRoom(deptId);
       const room = res.data?.data || res.data;
-      
+
       const roomIdValue = room?.maPhong || room?.maphong || room?.id;
       if (room && roomIdValue) {
         localStorage.setItem("pendingChatRoomId", String(roomIdValue));
@@ -223,34 +242,52 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
   // Lọc danh sách nhân viên thuộc phòng ban này từ allEmployees dựa trên deptId
   const members = allEmployees.filter((emp: any) => {
     const empDeptId = emp.MA_PHG || emp.maphong;
-    return empDeptId && deptId && String(empDeptId).trim().toUpperCase() === String(deptId).trim().toUpperCase();
+    return (
+      empDeptId &&
+      deptId &&
+      String(empDeptId).trim().toUpperCase() ===
+        String(deptId).trim().toUpperCase()
+    );
   });
 
   // Tìm trưởng phòng tương ứng trong danh sách nhân viên
   const truongPhongEmp = allEmployees.find((emp: any) => {
     const empId = emp.MA_NV;
     const leaderId = data?.matruongphg;
-    return empId && leaderId && String(empId).trim().toUpperCase() === String(leaderId).trim().toUpperCase();
+    return (
+      empId &&
+      leaderId &&
+      String(empId).trim().toUpperCase() ===
+        String(leaderId).trim().toUpperCase()
+    );
   });
-  const truongPhong = truongPhongEmp 
-    ? truongPhongEmp.HO_TEN 
-    : (data?.tenTruongPhong || "");
+  const truongPhong = truongPhongEmp
+    ? truongPhongEmp.HO_TEN
+    : data?.tenTruongPhong || "";
 
   // Danh sách NV chưa thuộc phòng này (để chọn thêm)
   const memberIds = new Set(members.map((m: any) => m.MA_NV));
   const availableEmployees = allEmployees.filter(
-    (e) => !memberIds.has(e.MA_NV)
+    (e) => !memberIds.has(e.MA_NV),
   );
 
   return (
     <Drawer
       isOpen={isOpen}
       onClose={onClose}
-      title={data ? (data.TEN_PB || "Chi tiết phòng ban") : "Chi tiết phòng ban"}
-      subtitle={data ? `Mã phòng: ${data.MA_PHG} · ${members.length} thành viên` : undefined}
+      title={data ? data.TEN_PB || "Chi tiết phòng ban" : "Chi tiết phòng ban"}
+      subtitle={
+        data
+          ? `Mã phòng: ${data.MA_PHG} · ${members.length} thành viên`
+          : undefined
+      }
       icon={<Building2 size={18} />}
       size="lg"
-      footer={<Btn variant="secondary" onClick={onClose}>Đóng</Btn>}
+      footer={
+        <Btn variant="secondary" onClick={onClose}>
+          Đóng
+        </Btn>
+      }
     >
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", padding: 32 }}>
@@ -258,16 +295,39 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
         </div>
       ) : data ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-
           {/* ── Header ── */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16, paddingBottom: 16, borderBottom: "1px solid #f0f0f0" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 16,
+              paddingBottom: 16,
+              borderBottom: "1px solid #f0f0f0",
+            }}
+          >
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <div style={{ width: 52, height: 52, background: "#111", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div
+                style={{
+                  width: 52,
+                  height: 52,
+                  background: "#111",
+                  borderRadius: 14,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
                 <Building2 size={22} color="#fff" />
               </div>
               <div>
-                <p style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>{data.TEN_PB}</p>
-                <p style={{ fontSize: 12, color: "#888", margin: "2px 0 0" }}>Mã: {data.MA_PHG}</p>
+                <p style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>
+                  {data.TEN_PB}
+                </p>
+                <p style={{ fontSize: 12, color: "#888", margin: "2px 0 0" }}>
+                  Mã: {data.MA_PHG}
+                </p>
                 {data.ngthanhlap && (
                   <p style={{ fontSize: 11, color: "#aaa", margin: "2px 0 0" }}>
                     Thành lập: {formatDate(data.ngthanhlap)}
@@ -275,7 +335,12 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
                 )}
               </div>
             </div>
-            <Btn size="sm" variant="secondary" icon={<MessageSquare size={14} />} onClick={handleChat}>
+            <Btn
+              size="sm"
+              variant="secondary"
+              icon={<MessageSquare size={14} />}
+              onClick={handleChat}
+            >
               Nhắn tin nhóm
             </Btn>
           </div>
@@ -283,15 +348,37 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
           {/* ── Trưởng phòng ── */}
           {truongPhong && (
             <div>
-              <p style={{ fontSize: 10, color: "#888", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
+              <p
+                style={{
+                  fontSize: 10,
+                  color: "#888",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  marginBottom: 8,
+                }}
+              >
                 Trưởng phòng
               </p>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, background: "#f8f8f8", borderRadius: 12, padding: "10px 14px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  background: "#f8f8f8",
+                  borderRadius: 12,
+                  padding: "10px 14px",
+                }}
+              >
                 <Avatar name={truongPhong} size="sm" />
                 <div>
-                  <span style={{ fontWeight: 600, fontSize: 13 }}>{truongPhong}</span>
+                  <span style={{ fontWeight: 600, fontSize: 13 }}>
+                    {truongPhong}
+                  </span>
                   {data.matruongphg && (
-                    <p style={{ fontSize: 11, color: "#aaa", margin: 0 }}>{data.matruongphg}</p>
+                    <p style={{ fontSize: 11, color: "#aaa", margin: 0 }}>
+                      {data.matruongphg}
+                    </p>
                   )}
                 </div>
               </div>
@@ -300,16 +387,40 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
 
           {/* ── Danh sách thành viên ── */}
           <div>
-            <p style={{ fontSize: 10, color: "#888", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
+            <p
+              style={{
+                fontSize: 10,
+                color: "#888",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                marginBottom: 10,
+              }}
+            >
               Thành viên ({members.length} người)
             </p>
 
             {members.length === 0 ? (
-              <p style={{ fontSize: 13, color: "#aaa", textAlign: "center", padding: "16px 0" }}>
+              <p
+                style={{
+                  fontSize: 13,
+                  color: "#aaa",
+                  textAlign: "center",
+                  padding: "16px 0",
+                }}
+              >
                 Chưa có thành viên trong phòng ban
               </p>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 220, overflowY: "auto" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 6,
+                  maxHeight: 220,
+                  overflowY: "auto",
+                }}
+              >
                 {members.map((nv: any) => {
                   const MA_NV = nv.MA_NV;
                   const HO_TEN = nv.HO_TEN;
@@ -326,25 +437,47 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
                         borderRadius: 12,
                       }}
                     >
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                        }}
+                      >
                         <Avatar name={HO_TEN} size="sm" />
                         <div>
-                          <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>{HO_TEN}</p>
+                          <p
+                            style={{ fontSize: 13, fontWeight: 600, margin: 0 }}
+                          >
+                            {HO_TEN}
+                          </p>
                           <p style={{ fontSize: 11, color: "#999", margin: 0 }}>
                             {CHUC_VU} · {MA_NV}
                           </p>
                         </div>
                       </div>
                       {isAdmin && (
-                        <button
-                           onClick={() => handleRemoveMember(MA_NV)}
+                        <Btn
+                          onClick={() => handleRemoveMember(MA_NV)}
                           title="Gỡ khỏi phòng ban"
-                          style={{ color: "#f87171", background: "none", border: "none", cursor: "pointer", padding: 6, borderRadius: 8, transition: "background 0.15s" }}
-                          onMouseEnter={(e) => (e.currentTarget.style.background = "#fee2e2")}
-                          onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+                          style={{
+                            color: "#f87171",
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            padding: 6,
+                            borderRadius: 8,
+                            transition: "background 0.15s",
+                          }}
+                          onMouseEnter={(e) =>
+                            (e.currentTarget.style.background = "#fee2e2")
+                          }
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.background = "none")
+                          }
                         >
                           <Trash2 size={14} />
-                        </button>
+                        </Btn>
                       )}
                     </div>
                   );
@@ -356,7 +489,16 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
           {/* ── Thêm thành viên (chỉ admin) ── */}
           {isAdmin && (
             <div style={{ borderTop: "1px solid #ebebeb", paddingTop: 16 }}>
-              <p style={{ fontSize: 10, color: "#888", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
+              <p
+                style={{
+                  fontSize: 10,
+                  color: "#888",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  marginBottom: 10,
+                }}
+              >
                 Thêm thành viên vào phòng ban
               </p>
               <div style={{ display: "flex", gap: 10 }}>
@@ -393,7 +535,6 @@ export const DeptDetailModal: React.FC<DeptDetailModalProps> = ({
               )}
             </div>
           )}
-
         </div>
       ) : null}
     </Drawer>

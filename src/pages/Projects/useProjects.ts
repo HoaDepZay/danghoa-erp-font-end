@@ -65,7 +65,7 @@ export const useProjects = (user: any) => {
   useEffect(() => {
     if (isAdmin) {
       api
-        .getEmployees({ pageSize: 200 })
+        .getEmployees({ pageSize: 1000 })
         .then((r: any) => setEmployees(r.data?.data || r.data?.employees || r.data || []))
         .catch(() => {});
     }

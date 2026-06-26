@@ -1,7 +1,7 @@
+import { Btn } from '../../../components/UI';
 import React from "react";
 import { User, Lock, Eye, EyeOff, Clock, XCircle, AlertCircle, ShieldOff } from "lucide-react";
 import { useLogin } from "./useLogin";
-
 interface LoginFormProps {
   onLogin: (user: any) => void;
   onForgotPassword: () => void;
@@ -51,13 +51,13 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onForgotPassword,
           <span style={{ fontSize: 13, color: banner.color, fontWeight: 500, lineHeight: 1.5 }}>
             {banner.text}
           </span>
-          <button
+          <Btn
             type="button"
             onClick={() => setPendingStatus(null)}
             style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: banner.color, padding: 0, flexShrink: 0 }}
           >
             ✕
-          </button>
+          </Btn>
         </div>
       )}
 
@@ -95,28 +95,28 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onForgotPassword,
           onFocus={(e) => { e.target.style.borderColor = "#111"; e.target.style.backgroundColor = "#fff"; }}
           onBlur={(e) => { e.target.style.borderColor = "#f0f0f0"; e.target.style.backgroundColor = "#fafafa"; }}
         />
-        <button
+        <Btn
           type="button"
           tabIndex={-1}
           onClick={() => setShowPass((v) => !v)}
           style={S.iconRight}
         >
           {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-        </button>
+        </Btn>
       </div>
 
       {/* Forgot Password */}
       <div style={S.forgotWrap}>
-        <button type="button" onClick={onForgotPassword} style={S.forgotLink}>
+        <Btn type="button" onClick={onForgotPassword} style={S.forgotLink}>
           Quên mật khẩu?
-        </button>
+        </Btn>
       </div>
 
       {/* Submit */}
-      <button type="submit" disabled={loading} style={S.btn}>
+      <Btn type="submit" disabled={loading} style={S.btn}>
         {loading && <span style={S.spinner} />}
         {loading ? "Đang xác thực..." : "Đăng nhập"}
-      </button>
+      </Btn>
     </form>
   );
 };

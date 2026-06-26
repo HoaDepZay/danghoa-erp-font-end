@@ -1,3 +1,4 @@
+import { Btn } from '../../components/UI';
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { 
   Send, 
@@ -25,7 +26,6 @@ import { api, tokenStorage, API_URL } from "../../services/api";
 import { toast, formatDate, getProp } from "../../utils/helpers";
 import { Spinner, Avatar } from "../../components/UI";
 import { getManv, toArray, getUserName } from "../../utils/user";
-
 // ─── Helper: format giờ hiển thị preview ───────────────────────────────────────
 const fmtPreviewTime = (iso?: string) => {
   if (!iso) return "";
@@ -143,7 +143,15 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
 
   const getRoomId = (room: any) => room?.MA_PHONG || room?.MaPhong || room?.maPhong || room?.MAPHONG || room?.maphong || room?.id;
   const getRoomName = (r: any) => getProp(r, 'tenphong') ?? "";
-  const getRoomType = (r: any) => getProp(r, 'LOAI_PHONG') ?? 1;
+  const getRoomType = (r: any) => {
+    const raw = getProp(r, 'LOAI_PHONG') ?? getProp(r, 'loai_phong') ?? 1;
+    if (typeof raw === 'number') return raw;
+    const str = String(raw).toLowerCase().trim();
+    if (str === 'nhan vien' || str === 'direct' || str === '1') return 1;
+    if (str === 'du an' || str === 'project' || str === '2') return 2;
+    if (str === 'phong ban' || str === 'department' || str === '3') return 3;
+    return 3;
+  };
 
   // ─── Fetch room + latest message ───────────────────────────────────────────
   const fetchRooms = async () => {
@@ -302,7 +310,12 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
     if (!room) return "";
     let name = getRoomName(room);
     
-    // Nếu tên phòng trống (có thể xảy ra khi vừa tạo phòng mới),
+    // Nếu phòng chat cá nhân có tên là chuỗi mặc định "Chat: ", hãy cố lấy tên từ thành viên
+    if (getRoomType(room) === 1 && name.startsWith("Chat: ")) {
+      name = "";
+    }
+    
+    // Nếu tên phòng trống (có thể xảy ra khi vừa tạo phòng mới hoặc bị clear ở trên),
     // cố gắng lấy từ thông tin thành viên (thanhVien) nếu có.
     if (!name && getRoomType(room) === 1 && room.thanhVien && Array.isArray(room.thanhVien)) {
       const myMaNv = getManv(user);
@@ -310,6 +323,15 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
       if (other) {
         name = getProp(other, 'TENNV') || getProp(other, 'HO_TEN') || getProp(other, 'name') || "User";
       }
+    }
+    
+    // Fallback cuối cùng nếu cả thanhVien cũng không có
+    if (!name && getRoomType(room) === 1) {
+       name = getRoomName(room); // Trả lại cái tên cũ "Chat: xxx" nếu không tìm được tên
+       if (name.startsWith("Chat: ")) {
+          // Bỏ chữ "Chat: "
+          name = name.replace("Chat: ", "").trim();
+       }
     }
     
     return name || "User";
@@ -466,12 +488,12 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: isMobile ? "8px" : "12px", minWidth: 0 }}>
                 {isMobile && (
-                  <button
+                  <Btn
                     onClick={() => setShowSidebar(true)}
                     style={{ border: "none", background: "none", padding: "8px", cursor: "pointer", color: "#64748b" }}
                   >
                     <Plus size={20} style={{ transform: "rotate(45deg)" }} />
-                  </button>
+                  </Btn>
                 )}
                 {getRoomType(selectedRoom) === 1 ? (
                   <Avatar name={getDisplayName(selectedRoom)} size="md" />
@@ -496,29 +518,29 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
               </div>
               <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
                 {/* ← Nút tìm kiếm tin nhắn */}
-                <button
+                <Btn
                   className="chat-action-btn"
                   onClick={showSearch ? closeSearch : openSearch}
                   style={{ background: showSearch ? "#f1f5f9" : "transparent" }}
                   title="Tìm kiếm tin nhắn"
                 >
                   <Search size={18} />
-                </button>
+                </Btn>
                 {(!isMobile && !embeddedRoomId) && (
                   <>
-                    <button className="chat-action-btn" onClick={() => toast.info("Tính năng cuộc gọi đang được phát triển")}><Phone size={18} /></button>
-                    <button className="chat-action-btn" onClick={() => toast.info("Tính năng cuộc gọi video đang được phát triển")}><Video size={18} /></button>
+                    <Btn className="chat-action-btn" onClick={() => toast.info("Tính năng cuộc gọi đang được phát triển")}><Phone size={18} /></Btn>
+                    <Btn className="chat-action-btn" onClick={() => toast.info("Tính năng cuộc gọi video đang được phát triển")}><Video size={18} /></Btn>
                   </>
                 )}
-                <button
+                <Btn
                   className="chat-action-btn"
                   onClick={() => setShowRoomInfo(!showRoomInfo)}
                   style={{ background: showRoomInfo ? "#f1f5f9" : "transparent" }}
                 >
                   <Info size={18} />
-                </button>
+                </Btn>
                 {(!isMobile || !showRoomInfo) && (
-                  <button className="chat-action-btn" onClick={() => toast.info("Tính năng đang được phát triển")}><MoreVertical size={18} /></button>
+                  <Btn className="chat-action-btn" onClick={() => toast.info("Tính năng đang được phát triển")}><MoreVertical size={18} /></Btn>
                 )}
               </div>
             </div>
@@ -546,15 +568,15 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                       style={{ flex: 1, border: "none", outline: "none", fontSize: 14, background: "none" }}
                     />
                     {searchKeyword && (
-                      <button
+                      <Btn
                         onClick={() => { setSearchKeyword(""); setSearchResults([]); setSearchDone(false); }}
                         style={{ border: "none", background: "none", cursor: "pointer", color: "#94a3b8", padding: 0 }}
                       >
                         <X size={14} />
-                      </button>
+                      </Btn>
                     )}
                   </div>
-                  <button
+                  <Btn
                     onClick={handleSearch}
                     disabled={searchLoading}
                     style={{
@@ -566,8 +588,8 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                   >
                     {searchLoading ? <Spinner size={14} /> : <Search size={14} />}
                     Tìm
-                  </button>
-                  <button
+                  </Btn>
+                  <Btn
                     onClick={closeSearch}
                     style={{
                       width: 36, height: 36, borderRadius: 10, border: "none",
@@ -576,7 +598,7 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                     }}
                   >
                     <ChevronDown size={16} />
-                  </button>
+                  </Btn>
                 </div>
 
                 {/* Search results */}
@@ -723,9 +745,9 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                 <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: "#f1f5f9", borderRadius: 8, marginBottom: 12, width: "fit-content" }}>
                   <Paperclip size={14} color="#64748b" />
                   <span style={{ fontSize: 13, color: "#475569" }}>{attachedFile.file.name}</span>
-                  <button type="button" onClick={() => setAttachedFile(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", display: "flex", padding: 4 }}>
+                  <Btn type="button" onClick={() => setAttachedFile(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", display: "flex", padding: 4 }}>
                     <X size={14} />
-                  </button>
+                  </Btn>
                 </div>
               )}
               <form
@@ -737,11 +759,11 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
               >
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} style={{ display: 'none' }} />
                 {(!isMobile && !embeddedRoomId) && (
-                  <button type="button" className="input-action-btn" onClick={() => toast.info("Tính năng gửi icon đang được phát triển")}><Smile size={20} /></button>
+                  <Btn type="button" className="input-action-btn" onClick={() => toast.info("Tính năng gửi icon đang được phát triển")}><Smile size={20} /></Btn>
                 )}
-                <button type="button" className="input-action-btn" onClick={() => fileInputRef.current?.click()} style={{ flexShrink: 0 }}>
+                <Btn type="button" className="input-action-btn" onClick={() => fileInputRef.current?.click()} style={{ flexShrink: 0 }}>
                   {uploading ? <Spinner size={20} color="#64748b" /> : <Paperclip size={20} />}
-                </button>
+                </Btn>
                 <input
                   placeholder="Viết tin nhắn..."
                   value={messageInput}
@@ -749,9 +771,9 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                   style={{ flex: 1, border: "none", background: "none", outline: "none", padding: "10px 0", fontSize: "14px", minWidth: "60px" }}
                 />
                 {(!isMobile && !embeddedRoomId) && (
-                  <button type="button" className="input-action-btn" onClick={() => toast.info("Tính năng gửi hình ảnh đang được phát triển")}><ImageIcon size={20} /></button>
+                  <Btn type="button" className="input-action-btn" onClick={() => toast.info("Tính năng gửi hình ảnh đang được phát triển")}><ImageIcon size={20} /></Btn>
                 )}
-                <button
+                <Btn
                   type="submit"
                   disabled={(!messageInput.trim() && !attachedFile) || uploading}
                   style={{
@@ -762,7 +784,7 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                   }}
                 >
                   <Send size={18} />
-                </button>
+                </Btn>
               </form>
             </div>
           </>
@@ -795,12 +817,12 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
           }}
         >
           {isMobile && (
-            <button
+            <Btn
               onClick={() => setShowRoomInfo(false)}
               style={{ position: "absolute", top: "20px", left: "20px", border: "none", background: "#f1f5f9", width: "36px", height: "36px", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}
             >
               <Plus size={20} style={{ transform: "rotate(45deg)" }} />
-            </button>
+            </Btn>
           )}
           <div style={{ textAlign: "center", marginBottom: "32px" }}>
             <div style={{

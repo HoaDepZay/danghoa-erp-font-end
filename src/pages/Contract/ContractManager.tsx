@@ -3,7 +3,7 @@ import { api } from "../../services/api";
 import { toast, formatDate } from "../../utils/helpers";
 import { AlertTriangle, FilePlus, X, Building2 } from "lucide-react";
 import {
-  Badge,
+Badge,
   Spinner,
   Card,
   Btn,
@@ -219,12 +219,12 @@ const ContractManager = ({ user }: { user: any }) => {
           >
             <div className="modal-header">
               <h3>Tạo / Gia hạn hợp đồng</h3>
-              <button
+              <Btn
                 className="modal-close"
                 onClick={() => setShowForm(false)}
               >
                 <X size={20} />
-              </button>
+              </Btn>
             </div>
             <div
               className="modal-body"

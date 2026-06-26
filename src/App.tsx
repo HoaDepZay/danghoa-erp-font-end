@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import Employees from "./pages/Employee/EmployeeList/Employees";
 import EmployeeProfile from "./pages/Employee/EmployeeProfile/EmployeeProfile";
 import Departments from "./pages/Department/Departments";
+import DepartmentDetails from "./pages/Department/DepartmentDetails";
 import Projects from "./pages/Projects/Projects";
 import Payroll from "./pages/Payroll/Payroll";
 import Profile from "./pages/Profile/MyProfile/Profile";
@@ -23,6 +24,7 @@ import ContractManager from "./pages/Contract/ContractManager";
 import Analytics from "./pages/Analytics/Analytics";
 import ProjectDetails from "./pages/Projects/ProjectDetails";
 import OrgChart from "./pages/OrgChart/OrgChart";
+import Expenses from "./pages/Expenses/Expenses";
 
 import { getUserLevel } from "./utils/user";
 import { api } from "./services/api";
@@ -85,8 +87,10 @@ const PAGES: Record<string, React.FC<any>> = {
   contracts: ContractManager,
   analytics: Analytics,
   project_details: ProjectDetails,
+  department_details: DepartmentDetails,
   employee_profile: EmployeeProfile,
   "org-chart": OrgChart,
+  expenses: Expenses,
 };
 
 const PAGE_MIN_LEVEL: Record<string, number> = {
@@ -105,26 +109,45 @@ const PAGE_MIN_LEVEL: Record<string, number> = {
   contracts: 3,
   analytics: 3, // HR Analytics - Manager level
   project_details: 1,
+  department_details: 1,
   employee_profile: 1,
   "org-chart": 1,
+  expenses: 1,
 };
 
 function App() {
   const [user, setUser] = useState<any>(null);
   const [authView, setAuthView] = useState("login");
-  const [activePage, setActivePage] = useState("dashboard");
+  const [activePage, setActivePage] = useState(() => {
+    const hash = window.location.hash.replace("#", "");
+    return hash && PAGES[hash] ? hash : "dashboard";
+  });
   const [sidebarCollapsed, setSidebarCollapsed] = useState(
     () => window.innerWidth <= 1024,
   );
   const [appLoading, setAppLoading] = useState(true);
 
+  // Lắng nghe sự kiện click nút Back/Forward của trình duyệt
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace("#", "");
+      setActivePage(hash && PAGES[hash] ? hash : "dashboard");
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
   useEffect(() => {
     const handleAuthLogout = () => {
       setUser(null);
       setAuthView("login");
-      setActivePage("dashboard");
+      window.location.hash = ""; // Reset URL
+    };
+    const handleAuthUpdate = (e: any) => {
+      if (e.detail) setUser(e.detail);
     };
     window.addEventListener("auth:logout", handleAuthLogout);
+    window.addEventListener("auth:updateUser", handleAuthUpdate);
 
     try {
       const savedUser = localStorage.getItem("user");
@@ -139,18 +162,21 @@ function App() {
       setAppLoading(false);
     }
 
-    return () => window.removeEventListener("auth:logout", handleAuthLogout);
+    return () => {
+      window.removeEventListener("auth:logout", handleAuthLogout);
+      window.removeEventListener("auth:updateUser", handleAuthUpdate);
+    };
   }, []);
 
   const handleLogin = (userData: any) => {
     setUser(userData);
-    setActivePage("dashboard");
+    window.location.hash = "dashboard";
   };
 
   const handleLogout = async () => {
     if (window.confirm("Xác nhận đăng xuất?")) {
       try {
-        await api.logout(); // Gọi API logout xóa cookie hoặc thao tác ở backend (nếu có)
+        await api.logout(); 
       } catch (error) {
         console.error("Logout error", error);
       }
@@ -160,7 +186,7 @@ function App() {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       setAuthView("login");
-      setActivePage("dashboard");
+      window.location.hash = "";
     }
   };
 
@@ -171,7 +197,7 @@ function App() {
       alert("⚠️ Bạn không có quyền truy cập trang này!");
       return;
     }
-    setActivePage(page);
+    window.location.hash = page; // Đổi URL, sẽ kích hoạt handleHashChange để đổi page
     if (window.innerWidth <= 1024) setSidebarCollapsed(true);
   };
 
@@ -220,7 +246,7 @@ function App() {
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
           </div>
-          <p style={{ fontSize: 14, color: "#888" }}>Đang tải HUIT ERP...</p>
+          <p style={{ fontSize: 14, color: "#888" }}>Đang tải DANGHOA-ERP...</p>
         </div>
       </div>
     );

@@ -1,3 +1,4 @@
+import { Btn } from '../../components/UI';
 import React from "react";
 import { TrendingUp, RefreshCw } from "lucide-react";
 import { Spinner } from "../../components/UI/index";
@@ -5,7 +6,6 @@ import { getUserName } from "../../utils/user";
 import { useDashboard } from "./useDashboard";
 import { DashboardStats } from "./DashboardStats";
 import { DashboardChart } from "./DashboardChart";
-
 interface DashboardProps {
   user: any;
 }
@@ -43,7 +43,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           {/* Nút refresh realtime */}
           {userLevel >= 2 && (
-            <button
+            <Btn
               onClick={fetchRealtime}
               disabled={realtimeLoading}
               title="Làm mới dữ liệu realtime"
@@ -54,12 +54,12 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                 size={18}
                 style={{ animation: realtimeLoading ? "spin 0.8s linear infinite" : "none" }}
               />
-            </button>
+            </Btn>
           )}
-          <button className="btn btn-primary" style={{ height: 40 }}>
+          <Btn className="btn btn-primary" style={{ height: 40 }}>
             <TrendingUp size={18} />
             Báo cáo chi tiết
-          </button>
+          </Btn>
         </div>
       </div>
 

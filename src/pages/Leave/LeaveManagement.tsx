@@ -4,7 +4,7 @@ import { toast, formatDate, getProp } from "../../utils/helpers";
 import { CheckCircle2, XCircle, Search, Clock } from "lucide-react";
 import { Btn, Badge, Spinner, Card } from "../../components/UI/index";
 
-const LeaveManagement = ({ user }: { user: any }) => {
+const LeaveManagement = ({ user, deptId, isEmbedded }: { user: any, deptId?: string | number, isEmbedded?: boolean }) => {
   const [leaves, setLeaves] = useState([]);
   const [loading, setLoading] = useState(true);
   const [rejectReason, setRejectReason] = useState("");
@@ -18,7 +18,7 @@ const LeaveManagement = ({ user }: { user: any }) => {
   const fetchLeaves = async () => {
     setLoading(true);
     try {
-      const res = await api.getLeaves();
+      const res = await api.getLeaves(deptId ? { MA_PHG: deptId } : undefined);
       setLeaves(res.data?.data || []);
     } catch (error) {
       toast.error("Không thể lấy danh sách đơn nghỉ phép");
@@ -57,12 +57,14 @@ const LeaveManagement = ({ user }: { user: any }) => {
 
   return (
     <div className="leave-management">
-      <div className="section-header">
-        <div>
-          <h2>Quản lý nghỉ phép</h2>
-          <p>Duyệt hoặc từ chối đơn xin nghỉ phép của nhân viên</p>
+      {!isEmbedded && (
+        <div className="section-header">
+          <div>
+            <h2>Quản lý nghỉ phép</h2>
+            <p>Duyệt hoặc từ chối đơn xin nghỉ phép của nhân viên</p>
+          </div>
         </div>
-      </div>
+      )}
 
       <Card>
         <div className="overflow-x-auto">
