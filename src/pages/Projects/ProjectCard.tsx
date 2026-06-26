@@ -40,6 +40,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) =>
   const role   = project.VAI_TRO_DU_AN;
   const end    = project.NGAY_KET_THUC;
   const isOverdue = checkOverdue(end, status);
+  const isPublic = project.CONG_KHAI;
 
   const colors = stringToProjectColor(name);
 
@@ -82,6 +83,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) =>
           </div>
           <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
              {isOverdue && <Badge color="red">Quá hạn</Badge>}
+             {isPublic ? <Badge color="blue">Công khai</Badge> : <Badge color="gray">Nội bộ</Badge>}
              <Badge color={STATUS_COLOR[status] || "gray"}>{status}</Badge>
           </div>
         </div>

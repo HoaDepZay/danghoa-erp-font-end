@@ -5,6 +5,8 @@ export { default as Table } from "./Table";
 export type { Column, TableProps } from "./Table";
 export { default as Input, type InputProps } from "./Input";
 export { default as Select, type SelectProps, type SelectOption } from "./Select";
+export { default as CustomSelect } from "./CustomSelect";
+export * from "./DatePicker";
 
 // ── Spinner ──────────────────────────────────────────────────────────────────
 export const Spinner = ({ size = 20, color = "currentColor" }: { size?: number, color?: string }) => (

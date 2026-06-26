@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Component, ReactNode, ErrorInfo } from "react";
+import React, { useState, useEffect, useCallback, Component, ReactNode, ErrorInfo } from "react";
 import { ToastContainer } from "./components/UI/Toast";
 import Sidebar from "./components/Layout/Sidebar";
 import Header from "./components/Layout/Header";
@@ -12,6 +12,7 @@ import EmployeeProfile from "./pages/Employee/EmployeeProfile/EmployeeProfile";
 import Departments from "./pages/Department/Departments";
 import DepartmentDetails from "./pages/Department/DepartmentDetails";
 import Projects from "./pages/Projects/Projects";
+import CreateProject from "./pages/Projects/CreateProject";
 import Payroll from "./pages/Payroll/Payroll";
 import Profile from "./pages/Profile/MyProfile/Profile";
 import Admin from "./pages/Admin/Admin";
@@ -76,6 +77,7 @@ const PAGES: Record<string, React.FC<any>> = {
   employees: Employees,
   departments: Departments,
   projects: Projects,
+  project_create: CreateProject,
   payroll: Payroll,
   profile: Profile,
   admin: Admin,
@@ -98,6 +100,7 @@ const PAGE_MIN_LEVEL: Record<string, number> = {
   profile: 1,
   payroll: 1,
   projects: 1,
+  project_create: 3,
   employees: 1,
   departments: 1,
   admin: 4,
@@ -190,7 +193,7 @@ function App() {
     }
   };
 
-  const handleNavigate = (page: string) => {
+  const handleNavigate = useCallback((page: string) => {
     const userLevel = getUserLevel(user);
     const required = PAGE_MIN_LEVEL[page] || 1;
     if (userLevel < required) {
@@ -199,7 +202,7 @@ function App() {
     }
     window.location.hash = page; // Đổi URL, sẽ kích hoạt handleHashChange để đổi page
     if (window.innerWidth <= 1024) setSidebarCollapsed(true);
-  };
+  }, [user]);
 
   useEffect(() => {
     const onResize = () => {

@@ -10,8 +10,9 @@ import {
 } from "lucide-react";
 import { api } from "../../services/api";
 import { toast, formatDate, checkOverdue } from "../../utils/helpers";
-import { Btn, Badge, Card, Avatar, Spinner } from "../../components/UI/index";
-import { STATUS_COLOR } from "./useProjects";
+import { Btn, Badge, Card, Avatar, Spinner, FormField, CustomSelect } from "../../components/UI/index";
+import Modal from "../../components/UI/Modal";
+import { STATUS_COLOR, STATUS_OPTIONS } from "./useProjects";
 import ProjectTasks from "../../components/ProjectTasks";
 // ProjectTimesheet removed: timesheet tab no longer shown
 import Chat from "../Chat/Chat";
@@ -39,14 +40,25 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
   const [addingMember, setAddingMember] = useState(false);
   const [addMember, setAddMember] = useState({
     MA_NV: "",
-    VAI_TRO_DU_AN: "Thành viên",
+    MA_VAI_TRO: 1,
   });
   const [employees, setEmployees] = useState<any[]>([]);
+  const [projectRoles, setProjectRoles] = useState<any[]>([]);
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [newRoleName, setNewRoleName] = useState("");
+  const [addingRole, setAddingRole] = useState(false);
 
   const userLevel = getUserLevel(user);
   const myId = user?.userInfo?.MA_NV || user?.MA_NV || "";
-  // isAdmin được xác định ban đầu bởi level hệ thống. Ta sẽ kết hợp với quyền trong dự án khi render
   const isSystemAdmin = userLevel >= 3;
+
+  const membersList = data?.THANH_VIEN || data?.thanhVien || [];
+  const currentMember = membersList.find((m: any) => (m.MA_NV || m.MANV || m.MaNV) === myId);
+  const currentProjectRole = currentMember?.VAI_TRO || currentMember?.VaiTro || currentMember?.VAI_TRO_DU_AN || currentMember?.VaiTroDuAn || "";
+  const isProjectLead = normalizeRole(currentProjectRole) === normalizeRole("Trưởng dự án") || normalizeRole(currentProjectRole) === normalizeRole("Phó dự án") || normalizeRole(currentProjectRole) === normalizeRole("Quản lý");
+  const canManageProject = isSystemAdmin || isProjectLead;
+  const isMember = !!currentMember;
+  const isPublic = data?.CONG_KHAI;
 
   const fetchDetail = useCallback(async () => {
     if (!id) return;
@@ -75,39 +87,74 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
     } finally {
       setLoading(false);
     }
-  }, [id, onNavigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   useEffect(() => {
     fetchDetail();
   }, [fetchDetail]);
 
+  const handleChangeStatus = async (e: any) => {
+    const newStatus = e.target.value;
+    try {
+      await api.updateProject(id, { ...data, TRANG_THAI: newStatus });
+      toast.success("Cập nhật trạng thái thành công!");
+      fetchDetail();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Lỗi cập nhật trạng thái");
+    }
+  };
+
   useEffect(() => {
     // Nếu là admin hệ thống, hoặc nếu data đã tải xong và phát hiện là quản lý dự án
     const currentProjectRole = data?.THANH_VIEN?.find(
       (m: any) => (m.MA_NV || m.MANV) === myId,
-    )?.VAI_TRO_DU_AN;
+    )?.VAI_TRO || data?.THANH_VIEN?.find(
+      (m: any) => (m.MA_NV || m.MANV) === myId,
+    )?.VAI_TRO_DU_AN || "";
     const isProjManager =
-      currentProjectRole === "Quản lý" || currentProjectRole === "Phó dự án";
+      normalizeRole(currentProjectRole) === normalizeRole("Trưởng dự án") || normalizeRole(currentProjectRole) === normalizeRole("Phó dự án") || normalizeRole(currentProjectRole) === normalizeRole("Quản lý");
 
     if (isSystemAdmin || isProjManager) {
       if (employees.length === 0) {
         api.getEmployees({ pageSize: 1000 }).then((res) => setEmployees(res.data?.data || []));
       }
+      if (projectRoles.length === 0) {
+        api.getProjectRoles().then((res) => setProjectRoles(res.data?.data || []));
+      }
     }
-  }, [fetchDetail, isSystemAdmin, data, myId, employees.length]);
+  }, [fetchDetail, isSystemAdmin, data, myId, employees.length, projectRoles.length]);
 
   const handleAddMember = async () => {
     if (!addMember.MA_NV) return toast.error("Vui lòng chọn nhân viên!");
     setAddingMember(true);
     try {
-      await api.addProjectMember(id, addMember);
+      await api.addProjectMember(id, { MA_NV: addMember.MA_NV, MA_VAI_TRO: addMember.MA_VAI_TRO });
       toast.success("Phân công nhân sự thành công!");
-      setAddMember({ MA_NV: "", VAI_TRO_DU_AN: "Thành viên" });
+      setAddMember({ MA_NV: "", MA_VAI_TRO: 1 });
       fetchDetail();
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Lỗi phân công!");
     } finally {
       setAddingMember(false);
+    }
+  };
+
+  const handleAddRoleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newRoleName.trim()) return toast.error("Vui lòng nhập tên vai trò!");
+    setAddingRole(true);
+    try {
+      await api.createProjectRole(id, { TEN_VAI_TRO: newRoleName.trim() });
+      toast.success("Thêm vai trò thành công!");
+      const res = await api.getProjectRoles();
+      setProjectRoles(res.data?.data || []);
+      setShowRoleModal(false);
+      setNewRoleName("");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Lỗi thêm vai trò");
+    } finally {
+      setAddingRole(false);
     }
   };
 
@@ -205,7 +252,7 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
               flexShrink: 0,
             }}
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={18} color="#475569" />
           </Btn>
           <div style={{ minWidth: 0 }}>
             <h2
@@ -233,23 +280,25 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
           </div>
         </div>
         <div style={{ flexShrink: 0 }}>
-          <Btn
-            variant="primary"
-            icon={<MessageSquare size={16} />}
-            onClick={handleProjectChat}
-          >
-            Chat nhóm
-          </Btn>
+          {(isMember || isSystemAdmin) && (
+            <Btn
+              variant="primary"
+              icon={<MessageSquare size={16} />}
+              onClick={handleProjectChat}
+            >
+              Chat nhóm
+            </Btn>
+          )}
         </div>
       </div>
 
       {/* Tabs - scrollable trên mobile */}
       <div style={{ overflowX: "auto", borderBottom: "1px solid #f1f5f9" }}>
         <div style={{ display: "flex", gap: 8, minWidth: "max-content" }}>
-          {(["overview", "tasks", "chat"] as const).map((tab) => (
+          {["overview", "tasks", ...(isMember || isSystemAdmin ? ["chat"] : [])].map((tab) => (
             <Btn
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => setActiveTab(tab as any)}
               style={{
                 padding: "12px 16px",
                 fontSize: 14,
@@ -271,6 +320,33 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
           ))}
         </div>
       </div>
+
+      <Modal
+        isOpen={showRoleModal}
+        onClose={() => setShowRoleModal(false)}
+        title="Thêm vai trò dự án mới"
+      >
+        <form onSubmit={handleAddRoleSubmit}>
+          <FormField label="Tên vai trò mới">
+            <input
+              type="text"
+              className="form-input"
+              value={newRoleName}
+              onChange={(e) => setNewRoleName(e.target.value)}
+              placeholder="Ví dụ: Tester, Hỗ trợ, BA..."
+              autoFocus
+            />
+          </FormField>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 20 }}>
+            <Btn type="button" variant="secondary" onClick={() => setShowRoleModal(false)}>
+              Hủy
+            </Btn>
+            <Btn type="submit" variant="primary" loading={addingRole}>
+              Lưu vai trò
+            </Btn>
+          </div>
+        </form>
+      </Modal>
 
       {activeTab === "overview" ? (
         <div
@@ -329,6 +405,25 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
                     {formatDate(project.NGAY_KET_THUC)}
                   </p>
                 </div>
+                {canManageProject && (
+                  <div style={{ minWidth: 160, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+                    <p
+                      style={{
+                        fontSize: 12,
+                        color: "#94a3b8",
+                        marginBottom: 4,
+                        fontWeight: 600,
+                      }}
+                    >
+                      CẬP NHẬT TRẠNG THÁI
+                    </p>
+                    <CustomSelect
+                      value={project.TRANG_THAI?.trim()}
+                      onChange={handleChangeStatus}
+                      options={STATUS_OPTIONS.map((s) => ({ label: s, value: s }))}
+                    />
+                  </div>
+                )}
               </div>
             </Card>
             <ProjectAnalysis projectId={id!} />
@@ -381,11 +476,11 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
                         <p
                           style={{ fontSize: 12, color: "#64748b", margin: 0 }}
                         >
-                          {m.VAI_TRO_DU_AN}
+                          {m.VAI_TRO || m.VaiTro || m.VAI_TRO_DU_AN}
                         </p>
                       </div>
                     </div>
-                    {isAdmin && (
+                    {canManageProject && (
                       <Btn
                         onClick={() => handleRemoveMember(m.MA_NV)}
                         style={{
@@ -404,7 +499,7 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
                 ))}
               </div>
 
-              {isAdmin && (
+              {canManageProject && (
                 <div
                   style={{
                     marginTop: 20,
@@ -425,33 +520,44 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
                   <div
                     style={{ display: "flex", flexDirection: "column", gap: 8 }}
                   >
-                    <select
+                    <CustomSelect
                       className="form-input"
                       value={addMember.MA_NV}
-                      onChange={(e) =>
+                      onChange={(e: any) =>
                         setAddMember((p) => ({ ...p, MA_NV: e.target.value }))
                       }
-                    >
-                      <option value="">-- Chọn nhân viên --</option>
-                      {employees.map((e) => (
-                        <option key={e.MA_NV} value={e.MA_NV}>
-                          {e.HO_TEN || e.EMAIL || e.MA_NV}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      className="form-input"
-                      value={addMember.VAI_TRO_DU_AN}
-                      onChange={(e) =>
-                        setAddMember((p) => ({
-                          ...p,
-                          VAI_TRO_DU_AN: e.target.value,
-                        }))
-                      }
-                    >
-                      <option>Quản lý</option>
-                      <option>Thành viên</option>
-                    </select>
+                      options={[
+                        { label: "-- Chọn nhân viên --", value: "" },
+                        ...employees.map((e) => ({
+                          label: e.HO_TEN || e.EMAIL || e.MA_NV,
+                          value: e.MA_NV,
+                        })),
+                      ]}
+                    />
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <CustomSelect
+                        className="form-input"
+                        value={addMember.MA_VAI_TRO}
+                        onChange={(e: any) =>
+                          setAddMember((p) => ({
+                            ...p,
+                            MA_VAI_TRO: Number(e.target.value),
+                          }))
+                        }
+                        options={projectRoles.map((r) => ({
+                          label: r.TEN_VAI_TRO,
+                          value: r.MA_VAI_TRO,
+                        }))}
+                        style={{ flex: 1 }}
+                      />
+                      <Btn
+                        onClick={() => setShowRoleModal(true)}
+                        style={{ padding: "0 12px" }}
+                        title="Thêm vai trò mới"
+                      >
+                        <Plus size={16} />
+                      </Btn>
+                    </div>
                   </div>
                   <Btn
                     variant="primary"
@@ -475,8 +581,9 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
           <ProjectTasks
             projectId={project.MA_DA}
             members={members}
-            isAdmin={isAdmin}
+            isAdmin={canManageProject}
             currentUser={user}
+            projectStatus={project.TRANG_THAI}
           />
         </Card>
       ) : activeTab === "chat" ? (

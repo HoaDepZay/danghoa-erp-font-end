@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { api } from "../services/api";
 import { toast, formatDate, checkOverdue } from "../utils/helpers";
-import { Spinner, Btn, Badge, FormField, SharedCalendar } from "./UI";
+import { Spinner, Btn, Badge, FormField, SharedCalendar, DatePicker, CustomSelect } from "./UI";
 
 interface Task {
   maNvDa: number;
@@ -39,10 +39,11 @@ interface ProjectTasksProps {
   isAdmin: boolean;
   defaultView?: "list" | "calendar" | "kanban";
   currentUser?: any;
+  projectStatus?: string;
 }
 
-const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin, defaultView = "list", currentUser }) => {
-  const myId = currentUser?.userInfo?.MA_NV || currentUser?.userInfo?.MA_NV;
+const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin, defaultView = "list", currentUser, projectStatus }) => {
+  const myId = currentUser?.userInfo?.MA_NV || currentUser?.MA_NV;
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -112,7 +113,7 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
 
   const handleQuickUpdate = async (task: any, status: string, progress: number) => {
     try {
-      const taskId = task.maNvDa || task.MA_NV_DA || task.id || task.TEN_NHIEM_VU;
+      const taskId = task.MANVDA || task.maNvDa || task.MA_NV_DA || task.id || task.TEN_NHIEM_VU;
       await api.updateProjectTask(projectId, taskId, {
         TRANG_THAI: status,
         PHAN_TRAM_HOAN_THANH: progress,
@@ -187,6 +188,7 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
   };
 
   const calendarEvents = tasks.map((t) => ({
+    id: String(t.MANVDA || t.maNvDa || t.MA_NV_DA || t.id || t.TEN_NHIEM_VU),
     title: t.TEN_NHIEM_VU,
     start: t.NGAY_BAT_DAU,
     end: t.NGAY_KET_THUC,
@@ -195,9 +197,9 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
   }));
 
   const renderTaskCard = (task: any) => {
-    const taskId = task.maNvDa || task.MA_NV_DA || task.id || task.TEN_NHIEM_VU;
+    const taskId = task.MANVDA || task.maNvDa || task.MA_NV_DA || task.id || task.TEN_NHIEM_VU;
     const isOverdue = checkOverdue(task.NGAY_KET_THUC, task.TRANG_THAI);
-    const isEditing = editingTask && (taskId === (editingTask as any).maNvDa || taskId === (editingTask as any).MA_NV_DA || taskId === (editingTask as any).id || taskId === (editingTask as any).TEN_NHIEM_VU);
+    const isEditing = editingTask && (taskId === (editingTask as any).MANVDA || taskId === (editingTask as any).maNvDa || taskId === (editingTask as any).MA_NV_DA || taskId === (editingTask as any).id || taskId === (editingTask as any).TEN_NHIEM_VU);
 
     return (
       <div key={taskId} className="card" style={{ 
@@ -254,25 +256,24 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
         {/* Actions */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4, paddingTop: 12, borderTop: "1px dashed #e2e8f0" }}>
           <div style={{ display: "flex", gap: 8 }}>
-            {(task.TRANG_THAI === "Mới" || task.TRANG_THAI?.toLowerCase() === "new" || task.TRANG_THAI?.toLowerCase() === "todo") && (
+            {(isAdmin || String(task.MA_NV).trim() === String(myId).trim()) && (task.TRANG_THAI === "Mới" || task.TRANG_THAI?.toLowerCase() === "new" || task.TRANG_THAI?.toLowerCase() === "todo") && (
               <Btn size="sm" variant="secondary" onClick={() => handleQuickUpdate(task, "Đang làm", 10)} style={{ fontSize: 12, padding: "4px 12px" }}>Bắt đầu làm</Btn>
             )}
-            {(task.TRANG_THAI === "Đang làm" || task.TRANG_THAI?.toLowerCase() === "doing" || task.TRANG_THAI?.toLowerCase() === "in progress") && (
+            {(isAdmin || String(task.MA_NV).trim() === String(myId).trim()) && (task.TRANG_THAI === "Đang làm" || task.TRANG_THAI?.toLowerCase() === "doing" || task.TRANG_THAI?.toLowerCase() === "in progress") && (
               <Btn size="sm" variant="success" onClick={() => handleQuickUpdate(task, "Hoàn thành", 100)} style={{ fontSize: 12, padding: "4px 12px" }}>Hoàn tất</Btn>
             )}
           </div>
-          
           <div style={{ display: "flex", gap: 8 }}>
             {isEditing ? (
               <>
                 <Btn size="sm" variant="primary" onClick={() => handleUpdateTask(taskId, editingTask)} style={{ fontSize: 12 }}>Lưu</Btn>
                 <Btn size="sm" variant="ghost" onClick={() => setEditingTask(null)} style={{ fontSize: 12, color: "#ef4444" }}>Hủy</Btn>
               </>
-            ) : (
+            ) : (isAdmin || String(task.MA_NV).trim() === String(myId).trim()) ? (
               <Btn size="sm" variant="ghost" onClick={() => setEditingTask({...task})} style={{ fontSize: 12, color: "#64748b", display: "flex", alignItems: "center", gap: 4 }}>
                 <MoreVertical size={14} /> Sửa
               </Btn>
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -280,15 +281,20 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
           <div style={{ marginTop: 12, borderTop: "1px solid #f1f5f9", paddingTop: 12 }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               <FormField label="Trạng thái">
-                <select className="form-input" value={editingTask.TRANG_THAI} onChange={(e) => setEditingTask({...editingTask, TRANG_THAI: e.target.value})}>
-                  <option>Mới</option>
-                  <option>Đang làm</option>
-                  <option>Hoàn thành</option>
-                  <option>Tạm dừng</option>
-                </select>
+                <CustomSelect 
+                  className="form-input" 
+                  value={editingTask.TRANG_THAI} 
+                  onChange={(e: any) => setEditingTask({...editingTask, TRANG_THAI: e.target.value})}
+                  options={["Mới", "Đang làm", "Hoàn thành", "Tạm dừng", "Hủy"].map(s => ({ label: s, value: s }))}
+                />
               </FormField>
               <FormField label="Hoàn thành (%)">
-                <input type="number" className="form-input" min="0" max="100" value={editingTask.PHAN_TRAM_HOAN_THANH} onChange={(e) => setEditingTask({...editingTask, PHAN_TRAM_HOAN_THANH: parseInt(e.target.value)})} />
+                <CustomSelect 
+                  className="form-input" 
+                  value={editingTask.PHAN_TRAM_HOAN_THANH} 
+                  onChange={(e: any) => setEditingTask({...editingTask, PHAN_TRAM_HOAN_THANH: parseInt(e.target.value)})}
+                  options={[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(val => ({ label: `${val}%`, value: val }))}
+                />
               </FormField>
               <div style={{ gridColumn: "span 2" }}>
                 <FormField label="Ghi chú/Mô tả tiến độ mới">
@@ -323,7 +329,7 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
             <button onClick={() => setView("calendar")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", border: "none", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer", background: view === "calendar" ? "#fff" : "transparent", color: view === "calendar" ? "#111" : "#64748b", boxShadow: view === "calendar" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}><CalendarDays size={14}/> Lịch</button>
           </div>
         </div>
-        {isAdmin && !showAddForm && (
+        {isAdmin && !showAddForm && projectStatus?.trim().toLowerCase() !== "hoàn thành" && (
           <Btn size="sm" variant="primary" icon={<Plus size={14} />} onClick={() => setShowAddForm(true)}>
             Giao nhiệm vụ
           </Btn>
@@ -335,12 +341,18 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
           <h6 style={{ margin: "0 0 16px 0", fontSize: 14, fontWeight: 700 }}>Giao nhiệm vụ mới</h6>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <FormField label="Nhân viên phụ trách *">
-              <select className="form-input" value={form.MA_NV} onChange={(e) => setForm({...form, MA_NV: e.target.value})}>
-                <option value="">-- Chọn nhân viên --</option>
-                {members.map((m: any) => (
-                  <option key={m.MA_NV || m.MANV} value={m.MA_NV || m.MANV}>{m.HO_TEN || m.TEN_NV || m.TENNV}</option>
-                ))}
-              </select>
+              <CustomSelect 
+                className="form-input" 
+                value={form.MA_NV} 
+                onChange={(e: any) => setForm({...form, MA_NV: e.target.value})}
+                options={[
+                  { label: "-- Chọn nhân viên --", value: "" },
+                  ...members.map((m: any) => ({
+                    label: m.HO_TEN || m.TEN_NV || m.TENNV,
+                    value: m.MA_NV || m.MANV
+                  }))
+                ]}
+              />
             </FormField>
             <FormField label="Tên nhiệm vụ *">
               <input className="form-input" placeholder="Tên nhiệm vụ..." value={form.TEN_NHIEM_VU} onChange={(e) => setForm({...form, TEN_NHIEM_VU: e.target.value})} />
@@ -351,25 +363,33 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, members, isAdmin
               </FormField>
             </div>
             <FormField label="Ngày bắt đầu">
-              <input type="date" className="form-input" value={form.NGAY_BAT_DAU} onChange={(e) => setForm({...form, NGAY_BAT_DAU: e.target.value})} />
+              <DatePicker 
+                value={form.NGAY_BAT_DAU} 
+                onChange={(date) => setForm({...form, NGAY_BAT_DAU: date ? date.toLocaleDateString('en-CA') : ""})} 
+              />
             </FormField>
             <FormField label="Ngày kết thúc">
-              <input type="date" className="form-input" value={form.NGAY_KET_THUC} onChange={(e) => setForm({...form, NGAY_KET_THUC: e.target.value})} />
+              <DatePicker 
+                value={form.NGAY_KET_THUC} 
+                onChange={(date) => setForm({...form, NGAY_KET_THUC: date ? date.toLocaleDateString('en-CA') : ""})} 
+                minDate={form.NGAY_BAT_DAU ? new Date(form.NGAY_BAT_DAU) : undefined}
+              />
             </FormField>
             <FormField label="Độ ưu tiên">
-              <select className="form-input" value={form.DO_UU_TIEN} onChange={(e) => setForm({...form, DO_UU_TIEN: e.target.value})}>
-                <option>Thấp</option>
-                <option>Trung bình</option>
-                <option>Cao</option>
-              </select>
+              <CustomSelect 
+                className="form-input" 
+                value={form.DO_UU_TIEN} 
+                onChange={(e: any) => setForm({...form, DO_UU_TIEN: e.target.value})}
+                options={["Thấp", "Trung bình", "Cao"].map(s => ({ label: s, value: s }))}
+              />
             </FormField>
             <FormField label="Trạng thái">
-              <select className="form-input" value={form.TRANG_THAI} onChange={(e) => setForm({...form, TRANG_THAI: e.target.value})}>
-                <option>Mới</option>
-                <option>Đang làm</option>
-                <option>Hoàn thành</option>
-                <option>Tạm dừng</option>
-              </select>
+              <CustomSelect 
+                className="form-input" 
+                value={form.TRANG_THAI} 
+                onChange={(e: any) => setForm({...form, TRANG_THAI: e.target.value})}
+                options={["Mới", "Đang làm", "Hoàn thành", "Tạm dừng", "Hủy"].map(s => ({ label: s, value: s }))}
+              />
             </FormField>
           </div>
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 16 }}>

@@ -519,28 +519,31 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
               <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
                 {/* ← Nút tìm kiếm tin nhắn */}
                 <Btn
+                  variant="ghost"
                   className="chat-action-btn"
                   onClick={showSearch ? closeSearch : openSearch}
-                  style={{ background: showSearch ? "#f1f5f9" : "transparent" }}
+                  style={{ width: 36, height: 36, padding: 0, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", background: showSearch ? "#f1f5f9" : "#fff", border: "1px solid #e2e8f0", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}
                   title="Tìm kiếm tin nhắn"
                 >
                   <Search size={18} />
                 </Btn>
                 {(!isMobile && !embeddedRoomId) && (
                   <>
-                    <Btn className="chat-action-btn" onClick={() => toast.info("Tính năng cuộc gọi đang được phát triển")}><Phone size={18} /></Btn>
-                    <Btn className="chat-action-btn" onClick={() => toast.info("Tính năng cuộc gọi video đang được phát triển")}><Video size={18} /></Btn>
+                    <Btn variant="ghost" className="chat-action-btn" onClick={() => toast.info("Tính năng cuộc gọi đang được phát triển")} style={{ width: 36, height: 36, padding: 0, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", background: "#fff", border: "1px solid #e2e8f0", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}><Phone size={18} /></Btn>
+                    <Btn variant="ghost" className="chat-action-btn" onClick={() => toast.info("Tính năng cuộc gọi video đang được phát triển")} style={{ width: 36, height: 36, padding: 0, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", background: "#fff", border: "1px solid #e2e8f0", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}><Video size={18} /></Btn>
                   </>
                 )}
                 <Btn
+                  variant="ghost"
                   className="chat-action-btn"
                   onClick={() => setShowRoomInfo(!showRoomInfo)}
-                  style={{ background: showRoomInfo ? "#f1f5f9" : "transparent" }}
+                  style={{ width: 36, height: 36, padding: 0, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", background: showRoomInfo ? "#f1f5f9" : "#fff", border: "1px solid #e2e8f0", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}
+                  title="Thông tin nhóm"
                 >
                   <Info size={18} />
                 </Btn>
                 {(!isMobile || !showRoomInfo) && (
-                  <Btn className="chat-action-btn" onClick={() => toast.info("Tính năng đang được phát triển")}><MoreVertical size={18} /></Btn>
+                  <Btn variant="ghost" className="chat-action-btn" onClick={() => toast.info("Tính năng đang được phát triển")} style={{ width: 36, height: 36, padding: 0, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", background: "#fff", border: "1px solid #e2e8f0", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}><MoreVertical size={18} /></Btn>
                 )}
               </div>
             </div>

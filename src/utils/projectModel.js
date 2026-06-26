@@ -18,6 +18,7 @@ export const CREATE_PROJECT_INITIAL_FORM = Object.freeze({
   NGAY_BAT_DAU: "",
   NGAY_KET_THUC: "",
   TRANG_THAI: "Đang thực hiện",
+  CONG_KHAI: true,
 });
 
 export const buildCreateProjectModel = (form = {}) => ({
@@ -26,4 +27,5 @@ export const buildCreateProjectModel = (form = {}) => ({
   NGAY_BAT_DAU: toNullableDate(form.NGAY_BAT_DAU),
   NGAY_KET_THUC: toNullableDate(form.NGAY_KET_THUC),
   TRANG_THAI: toNullableString(form.TRANG_THAI),
+  CONG_KHAI: form.CONG_KHAI !== undefined ? Boolean(form.CONG_KHAI) : true,
 });

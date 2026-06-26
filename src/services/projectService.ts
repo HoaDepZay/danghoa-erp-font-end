@@ -13,6 +13,8 @@ const projectService = {
   getProjectTasks: (id: string | number) => axiosClient.get(`/projects/${id}/tasks`),
   createProjectTask: (id: string | number, data: any) => axiosClient.post(`/projects/${id}/tasks`, data),
   updateProjectTask: (id: string | number, taskId: string | number, data: any) => axiosClient.put(`/projects/${id}/tasks/${taskId}`, data),
+  getProjectRoles: () => axiosClient.get("/projects/roles/all"),
+  createProjectRole: (id: string | number, data: any) => axiosClient.post(`/projects/${id}/roles`, data),
 };
 
 export default projectService;

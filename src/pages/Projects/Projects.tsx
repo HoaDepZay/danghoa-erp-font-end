@@ -15,6 +15,8 @@ import {
   Avatar,
   Spinner,
   FormField,
+  DatePicker,
+  CustomSelect,
 } from "../../components/UI/index";
 import Modal from "../../components/UI/Modal";
 import { Drawer } from "../../components/UI/index";
@@ -23,116 +25,6 @@ import { ProjectCard } from "./ProjectCard";
 import { ProjectListView, ProjectKanbanView, ProjectCalendarView } from "./ProjectViews";
 
 import ProjectTasks from "../../components/ProjectTasks";
-// ─── Tạo dự án ──────────────────────────────────────────────────────────────
-const CreateProjectModal: React.FC<any> = ({ isOpen, onClose, onSuccess }) => {
-  const [form, setForm] = useState({ ...CREATE_PROJECT_INITIAL_FORM });
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) setForm({ ...CREATE_PROJECT_INITIAL_FORM });
-  }, [isOpen]);
-
-  const set = (k: string) => (e: any) =>
-    setForm((f) => ({ ...f, [k]: e.target.value }));
-
-  const handleSubmit = async () => {
-    const payload = buildCreateProjectModel(form);
-    if (!payload.TEN_DA) return toast.error("Tên dự án không được trống");
-    if (
-      payload.NGAY_BAT_DAU &&
-      payload.NGAY_KET_THUC &&
-      payload.NGAY_BAT_DAU > payload.NGAY_KET_THUC
-    ) {
-      return toast.error("Ngày kết thúc phải sau hoặc bằng ngày bắt đầu");
-    }
-    setLoading(true);
-    try {
-      await api.createProject(payload);
-      toast.success("Tạo dự án thành công!");
-      onSuccess();
-      onClose();
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Lỗi tạo dự án!");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Tạo dự án mới"
-      footer={
-        <>
-          <Btn variant="secondary" onClick={onClose}>
-            Hủy
-          </Btn>
-          <Btn loading={loading} onClick={handleSubmit}>
-            Tạo dự án
-          </Btn>
-        </>
-      }
-    >
-      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-        <FormField label="Tên dự án *">
-          <input
-            className="form-input"
-            placeholder="Tên dự án..."
-            value={form.TEN_DA}
-            onChange={set("TEN_DA")}
-          />
-        </FormField>
-        <FormField label="Mô tả">
-          <textarea
-            className="form-input"
-            rows={3}
-            placeholder="Mô tả dự án..."
-            value={form.MO_TA}
-            onChange={set("MO_TA")}
-            style={{ resize: "none" }}
-          />
-        </FormField>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 14,
-          }}
-        >
-          <FormField label="Ngày bắt đầu">
-            <input
-              className="form-input"
-              type="date"
-              value={form.NGAY_BAT_DAU}
-              onChange={set("NGAY_BAT_DAU")}
-            />
-          </FormField>
-          <FormField label="Ngày kết thúc">
-            <input
-              className="form-input"
-              type="date"
-              value={form.NGAY_KET_THUC}
-              onChange={set("NGAY_KET_THUC")}
-            />
-          </FormField>
-        </div>
-        <FormField label="Trạng thái">
-          <select
-            className="form-input"
-            value={form.TRANG_THAI}
-            onChange={set("TRANG_THAI")}
-          >
-            {STATUS_OPTIONS.map((s) => (
-              <option key={s}>{s}</option>
-            ))}
-          </select>
-        </FormField>
-      </div>
-    </Modal>
-  );
-};
-
 // ─── Sửa dự án ──────────────────────────────────────────────────────────────
 const EditProjectModal: React.FC<any> = ({
   isOpen,
@@ -151,6 +43,7 @@ const EditProjectModal: React.FC<any> = ({
         NGAY_BAT_DAU:  project.NGAY_BAT_DAU   ?? "",
         NGAY_KET_THUC: project.NGAY_KET_THUC  ?? "",
         TRANG_THAI:   project.TRANG_THAI    ?? "Đang thực hiện",
+        CONG_KHAI:    project.CONG_KHAI !== undefined ? project.CONG_KHAI : true,
       });
       if (form.NGAY_BAT_DAU)  form.NGAY_BAT_DAU  = String(form.NGAY_BAT_DAU).slice(0, 10) as any;
       if (form.NGAY_KET_THUC) form.NGAY_KET_THUC = String(form.NGAY_KET_THUC).slice(0, 10) as any;
@@ -227,32 +120,37 @@ const EditProjectModal: React.FC<any> = ({
           }}
         >
           <FormField label="Ngày bắt đầu">
-            <input
-              className="form-input"
-              type="date"
+            <DatePicker
               value={form.NGAY_BAT_DAU}
-              onChange={set("NGAY_BAT_DAU")}
+              onChange={(date) => set("NGAY_BAT_DAU")(date ? date.toLocaleDateString('en-CA') : "")}
             />
           </FormField>
           <FormField label="Ngày kết thúc">
-            <input
-              className="form-input"
-              type="date"
+            <DatePicker
               value={form.NGAY_KET_THUC}
-              onChange={set("NGAY_KET_THUC")}
+              onChange={(date) => set("NGAY_KET_THUC")(date ? date.toLocaleDateString('en-CA') : "")}
+              minDate={form.NGAY_BAT_DAU ? new Date(form.NGAY_BAT_DAU) : undefined}
             />
           </FormField>
         </div>
         <FormField label="Trạng thái">
-          <select
+          <CustomSelect
             className="form-input"
             value={form.TRANG_THAI}
             onChange={set("TRANG_THAI")}
-          >
-            {STATUS_OPTIONS.map((s) => (
-              <option key={s}>{s}</option>
-            ))}
-          </select>
+            options={STATUS_OPTIONS.map((s) => ({ label: s, value: s }))}
+          />
+        </FormField>
+        <FormField>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+            <input
+              type="checkbox"
+              checked={Boolean(form.CONG_KHAI)}
+              onChange={(e) => setForm((f) => ({ ...f, CONG_KHAI: e.target.checked }))}
+              style={{ width: 16, height: 16 }}
+            />
+            <span style={{ fontSize: "14px", color: "var(--text-color, #333)" }}>Dự án công khai (Mọi người đều có thể xem)</span>
+          </label>
         </FormField>
       </div>
     </Modal>
@@ -271,14 +169,19 @@ const ProjectDetailModal: React.FC<any> = ({
   onDelete,
   onNavigate,
   user,
+  projectRoles,
+  fetchRoles,
 }) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
 
   // Thành viên để phân công
-  const [addMember, setAddMember] = useState({ MA_NV: "", VAI_TRO_DU_AN: "Thành viên" });
+  const [addMember, setAddMember] = useState({ MA_NV: "", MA_VAI_TRO: 1 });
   const [addingMember, setAddingMember] = useState(false);
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [newRoleName, setNewRoleName] = useState("");
+  const [addingRole, setAddingRole] = useState(false);
 
   const fetchDetail = useCallback(async () => {
     if (!projectId) return;
@@ -304,16 +207,33 @@ const ProjectDetailModal: React.FC<any> = ({
 
   const handleAddMember = async () => {
     if (!addMember.MA_NV) return toast.error("Vui lòng chọn nhân viên!");
-    setAddingMember(true);
     try {
-      await api.addProjectMember(projectId, addMember);
-      toast.success("Phân công nhân sự thành công!");
-      setAddMember({ MA_NV: "", VAI_TRO_DU_AN: "Thành viên" });
+      setAddingMember(true);
+      await api.addProjectMember(projectId, { MA_NV: addMember.MA_NV, MA_VAI_TRO: addMember.MA_VAI_TRO });
+      toast.success("Phân công thành công!");
+      setAddMember({ MA_NV: "", MA_VAI_TRO: 1 });
       fetchDetail();
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Lỗi phân công!");
     } finally {
       setAddingMember(false);
+    }
+  };
+
+  const handleAddRoleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newRoleName.trim()) return toast.error("Vui lòng nhập tên vai trò!");
+    setAddingRole(true);
+    try {
+      await api.createProjectRole(projectId, { TEN_VAI_TRO: newRoleName.trim() });
+      toast.success("Thêm vai trò thành công!");
+      fetchRoles();
+      setShowRoleModal(false);
+      setNewRoleName("");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Lỗi thêm vai trò");
+    } finally {
+      setAddingRole(false);
     }
   };
 
@@ -350,6 +270,13 @@ const ProjectDetailModal: React.FC<any> = ({
 
   const project = data;
   const members = data?.thanhVien || data?.ThanhVien || data?.members || data?.THANH_VIEN || [];
+  
+  const myId = user?.userInfo?.MA_NV || user?.MA_NV || "";
+  const currentMember = members.find((m: any) => (m.MA_NV || m.MANV || m.MaNV) === myId);
+  const currentProjectRole = currentMember?.VAI_TRO_DU_AN || currentMember?.VaiTroDuAn;
+  const isProjectLead = currentProjectRole === "Trưởng dự án" || currentProjectRole === "Phó dự án";
+  const canManageProject = isAdmin || isProjectLead;
+  const isMember = !!currentMember;
 
   return (
     <Drawer
@@ -362,10 +289,10 @@ const ProjectDetailModal: React.FC<any> = ({
       footer={
         <div style={{ display: "flex", justifyContent: "space-between", width: "100%", flexWrap: "wrap", gap: 8 }}>
           <div style={{ display: "flex", gap: 8 }}>
-            {project && (
+            {project && (isMember || isAdmin) && (
               <Btn variant="primary" size="sm" icon={<MessageSquare size={13} />} onClick={handleProjectChat}>Chat nhóm</Btn>
             )}
-            {isAdmin && project && activeTab === "overview" && (
+            {canManageProject && project && activeTab === "overview" && (
               <>
                 <Btn variant="secondary" size="sm" icon={<Pencil size={13} />} onClick={() => { onClose(); onEdit(project); }}>Sửa</Btn>
                 <Btn variant="danger" size="sm" icon={<Trash2 size={13} />} onClick={() => { onClose(); onDelete(project); }}>Xóa</Btn>
@@ -434,39 +361,97 @@ const ProjectDetailModal: React.FC<any> = ({
                         <p style={{ fontSize: 11, color: "#999", margin: 0 }}>{m.VAI_TRO_DU_AN}</p>
                       </div>
                     </div>
-                    {isAdmin && <Btn onClick={() => handleRemoveMember(m.MA_NV)} style={{ color: "#f87171", background: "none", border: "none", cursor: "pointer", padding: 6, borderRadius: 8 }}><Trash2 size={13} /></Btn>}
+                    {canManageProject && <Btn onClick={() => handleRemoveMember(m.MA_NV)} style={{ color: "#f87171", background: "none", border: "none", cursor: "pointer", padding: 6, borderRadius: 8 }}><Trash2 size={13} /></Btn>}
                   </div>
                 ))}
               </div>
             </div>
 
-            {isAdmin && (
+            {canManageProject && (
               <div style={{ borderTop: "1px solid #ebebeb", paddingTop: 16 }}>
                 <p style={{ fontSize: 10, fontWeight: 700, color: "#888", textTransform: "uppercase", marginBottom: 10 }}>Phân công</p>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  <select className="form-input" value={addMember.MA_NV} onChange={(e) => setAddMember({ ...addMember, MA_NV: e.target.value })}>
-                    <option value="">-- Chọn nhân viên --</option>
-                    {employees.map((emp: any) => (<option key={emp.MA_NV} value={emp.MA_NV}>{emp.HO_TEN || emp.EMAIL || emp.MA_NV}</option>))}
-                  </select>
-                  <select className="form-input" value={addMember.VAI_TRO_DU_AN} onChange={(e) => setAddMember({ ...addMember, VAI_TRO_DU_AN: e.target.value })}>
-                    <option>Thành viên</option><option>Trưởng dự án</option><option>Phó dự án</option><option>Backend Developer</option><option>Frontend Developer</option>
-                  </select>
+                  <CustomSelect
+                    className="form-input"
+                    value={addMember.MA_NV}
+                    onChange={(e: any) => setAddMember({ ...addMember, MA_NV: e.target.value })}
+                    options={[
+                      { label: "-- Chọn nhân viên --", value: "" },
+                      ...employees.map((emp: any) => ({
+                        label: emp.HO_TEN || emp.EMAIL || emp.MA_NV,
+                        value: emp.MA_NV,
+                      })),
+                    ]}
+                  />
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <CustomSelect
+                      className="form-input"
+                      value={addMember.MA_VAI_TRO}
+                      onChange={(e: any) => setAddMember({ ...addMember, MA_VAI_TRO: Number(e.target.value) })}
+                      options={projectRoles?.map((r: any) => ({ label: r.TEN_VAI_TRO, value: r.MA_VAI_TRO })) || []}
+                      style={{ flex: 1 }}
+                    />
+                    <Btn onClick={() => setShowRoleModal(true)} size="sm" style={{ padding: "0 10px" }} title="Thêm vai trò mới">
+                      <Plus size={16} />
+                    </Btn>
+                  </div>
                 </div>
                 <Btn loading={addingMember} size="sm" icon={<UserPlus size={14} />} onClick={handleAddMember} style={{ width: "100%", marginTop: 10, justifyContent: "center" }}>Phân công</Btn>
               </div>
             )}
           </div>
         ) : activeTab === "tasks" ? (
-          <ProjectTasks projectId={projectId} members={members} isAdmin={isAdmin} />
+          <div style={{ background: "#f8f8f8", borderRadius: 14, overflow: "hidden", border: "1px solid #eee" }}>
+            <ProjectTasks projectId={projectId} members={members} isAdmin={canManageProject} currentUser={user} />
+          </div>
         ) : null
       ) : null}
+
+      <Modal
+        isOpen={showRoleModal}
+        onClose={() => setShowRoleModal(false)}
+        title="Thêm vai trò dự án mới"
+      >
+        <form onSubmit={handleAddRoleSubmit}>
+          <FormField label="Tên vai trò mới">
+            <input
+              type="text"
+              className="form-input"
+              value={newRoleName}
+              onChange={(e) => setNewRoleName(e.target.value)}
+              placeholder="Ví dụ: Tester, Hỗ trợ, BA..."
+              autoFocus
+            />
+          </FormField>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 20 }}>
+            <Btn type="button" variant="secondary" onClick={() => setShowRoleModal(false)}>
+              Hủy
+            </Btn>
+            <Btn type="submit" variant="primary" loading={addingRole}>
+              Lưu vai trò
+            </Btn>
+          </div>
+        </form>
+      </Modal>
     </Drawer>
   );
 };
 
 // ─── Trang chính ─────────────────────────────────────────────────────────────
 export const Projects: React.FC<{ user: any; onNavigate: (page: string) => void }> = ({ user, onNavigate }) => {
-  const { displayList, employees, loading, modal, setModal, viewMode, setViewMode, isAdmin, fetchProjects } = useProjects(user);
+  const { 
+    displayList, 
+    employees, 
+    projectRoles,
+    fetchRoles,
+    loading, 
+    modal, 
+    setModal, 
+    viewMode, 
+    setViewMode, 
+    isAdmin, 
+    fetchProjects 
+  } = useProjects(user);
   const [layoutView, setLayoutView] = useState<"grid" | "list" | "kanban" | "calendar">("grid");
 
   const handleDelete = async (project: any) => {
@@ -485,7 +470,7 @@ export const Projects: React.FC<{ user: any; onNavigate: (page: string) => void 
     <div className="animate-fade-in">
       <SectionHeader title="Dự án" subtitle={`${displayList.length} dự án`} actions={
         <>
-          {isAdmin && (
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <div style={{ display: "flex", borderRadius: 10, border: "1.5px solid #e0e0e0", overflow: "hidden" }}>
               {["mine", "all"].map((mode) => (
                 <Btn key={mode} onClick={() => setViewMode(mode)} style={{ padding: "6px 14px", fontSize: 12, fontWeight: 600, border: "none", cursor: "pointer", background: viewMode === mode ? "#111" : "#fff", color: viewMode === mode ? "#fff" : "#666" }}>
@@ -493,7 +478,7 @@ export const Projects: React.FC<{ user: any; onNavigate: (page: string) => void 
                 </Btn>
               ))}
             </div>
-          )}
+          </div>
           <div style={{ display: "flex", borderRadius: 10, border: "1.5px solid #e0e0e0", overflow: "hidden", marginLeft: 4 }}>
             {[
               { id: "grid", icon: <LayoutGrid size={14} />, label: "Grid" },
@@ -523,7 +508,7 @@ export const Projects: React.FC<{ user: any; onNavigate: (page: string) => void 
               </Btn>
             ))}
           </div>
-          {isAdmin && <Btn size="sm" icon={<Plus size={14} />} onClick={() => setModal({ type: "create", data: null })}>Tạo dự án</Btn>}
+          {isAdmin && <Btn size="sm" icon={<Plus size={14} />} onClick={() => onNavigate && onNavigate("project_create")}>Tạo dự án</Btn>}
         </>
       } />
 
@@ -579,8 +564,15 @@ export const Projects: React.FC<{ user: any; onNavigate: (page: string) => void 
         </>
       )}
 
-      <CreateProjectModal isOpen={modal.type === "create"} onClose={() => setModal({ type: "", data: null })} onSuccess={fetchProjects} />
       <EditProjectModal isOpen={modal.type === "edit"} onClose={() => setModal({ type: "", data: null })} project={modal.data} onSuccess={fetchProjects} />
+      
+      {/* ProjectDetailModal rendered just in case, though unused directly */}
+      <ProjectDetailModal 
+        isOpen={false} 
+        onClose={() => {}} 
+        projectRoles={projectRoles}
+        fetchRoles={fetchRoles}
+      />
     </div>
   );
 };

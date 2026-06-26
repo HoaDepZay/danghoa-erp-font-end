@@ -23,6 +23,7 @@ export const useProjects = (user: any) => {
   const [projects, setProjects] = useState<any[]>([]);
   const [myProjects, setMyProjects] = useState<any[]>([]);
   const [employees, setEmployees] = useState<any[]>([]);
+  const [projectRoles, setProjectRoles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState({ type: "", data: null as any });
   const [viewMode, setViewMode] = useState("all");
@@ -35,28 +36,21 @@ export const useProjects = (user: any) => {
   const fetchProjects = useCallback(async () => {
     setLoading(true);
     try {
-      const promises: Promise<any>[] = [api.getMyProjects(MA_NV)];
-      if (isAdmin) promises.unshift(api.getProjects());
+      const promises: Promise<any>[] = [api.getProjects(), api.getMyProjects(MA_NV)];
+      const [allRes, myRes] = await Promise.allSettled(promises);
 
-      const results = await Promise.allSettled(promises);
-
-      if (isAdmin) {
-        const [allRes, myRes] = results;
-        if (allRes.status === "fulfilled" && allRes.value)
-          setProjects(toArray(allRes.value.data));
-        if (myRes.status === "fulfilled")
-          setMyProjects(toArray(myRes.value.data));
-      } else {
-        const [myRes] = results;
-        if (myRes.status === "fulfilled")
-          setMyProjects(toArray(myRes.value.data));
+      if (allRes.status === "fulfilled" && allRes.value) {
+        setProjects(toArray(allRes.value.data));
+      }
+      if (myRes.status === "fulfilled" && myRes.value) {
+        setMyProjects(toArray(myRes.value.data));
       }
     } catch {
       toast.error("Không thể tải dự án!");
     } finally {
       setLoading(false);
     }
-  }, [MA_NV, isAdmin]);
+  }, [MA_NV]);
 
   useEffect(() => {
     fetchProjects();
@@ -71,14 +65,29 @@ export const useProjects = (user: any) => {
     }
   }, [isAdmin]);
 
-  // Admin xem "all" thì dùng danh sách đầy đủ, còn lại xem "mine"
-  const displayList = isAdmin && viewMode === "all" ? projects : myProjects;
+  const fetchRoles = useCallback(async () => {
+    try {
+      const res = await api.getProjectRoles();
+      setProjectRoles(res.data?.data || []);
+    } catch (e) {
+      console.error("Lỗi lấy vai trò dự án:", e);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRoles();
+  }, [fetchRoles]);
+
+  // Dùng danh sách đầy đủ khi chọn "all", nếu không thì dùng "mine"
+  const displayList = viewMode === "all" ? projects : myProjects;
 
   return {
     projects,
     myProjects,
     displayList,
     employees,
+    projectRoles,
+    fetchRoles,
     loading,
     modal,
     setModal,

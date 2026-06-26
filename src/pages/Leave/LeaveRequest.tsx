@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { api } from "../../services/api";
 import { toast, formatDate } from "../../utils/helpers";
 import { FileText, X, Plus, CalendarDays, Clock, CheckCircle, AlertCircle } from "lucide-react";
-import { Spinner } from "../../components/UI";
+import { Spinner, DatePicker } from "../../components/UI";
 import { getManv } from "../../utils/user";
 interface LeaveRequestProps {
   user: any;
@@ -183,13 +183,19 @@ const LeaveRequest = ({ user }: LeaveRequestProps) => {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 6 }}>Từ ngày *</label>
-                  <input className="form-input" type="date" value={form.tuNgay} onChange={set("tuNgay")}
-                    min={new Date().toISOString().split("T")[0]} required />
+                  <DatePicker 
+                    value={form.tuNgay} 
+                    onChange={(date) => set("tuNgay")({ target: { value: date ? date.toLocaleDateString('en-CA') : "" } } as any)}
+                    minDate={new Date()}
+                  />
                 </div>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 6 }}>Đến ngày *</label>
-                  <input className="form-input" type="date" value={form.denNgay} onChange={set("denNgay")}
-                    min={form.tuNgay || new Date().toISOString().split("T")[0]} required />
+                  <DatePicker 
+                    value={form.denNgay} 
+                    onChange={(date) => set("denNgay")({ target: { value: date ? date.toLocaleDateString('en-CA') : "" } } as any)}
+                    minDate={form.tuNgay ? new Date(form.tuNgay) : new Date()}
+                  />
                 </div>
               </div>
 

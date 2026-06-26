@@ -2423,3 +2423,47 @@ select.form-input {
     font-size: 12px;
   }
 }
+
+/* ── Custom DatePicker ──────────────────────────────────────── */
+.custom-datepicker-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.custom-datepicker-wrapper .react-datepicker-wrapper {
+  width: 100%;
+}
+.custom-datepicker-wrapper .datepicker-icon {
+  position: absolute;
+  right: 14px;
+  pointer-events: none;
+}
+.custom-datepicker-wrapper input {
+  padding-right: 40px !important;
+}
+
+.react-datepicker {
+  font-family: inherit !important;
+  border: 1px solid var(--border-light) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+  overflow: hidden;
+}
+.react-datepicker__header {
+  background-color: var(--surface-dim) !important;
+  border-bottom: 1px solid var(--border-light) !important;
+  padding-top: 12px !important;
+}
+.react-datepicker__day--selected, .react-datepicker__day--keyboard-selected {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  border-radius: 8px !important;
+}
+.react-datepicker__day:hover {
+  background-color: var(--surface-dim) !important;
+  border-radius: 8px !important;
+}
+.react-datepicker__triangle {
+  display: none;
+}
