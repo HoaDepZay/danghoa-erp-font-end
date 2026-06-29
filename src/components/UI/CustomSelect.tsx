@@ -14,6 +14,7 @@ export interface CustomSelectProps {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
+  variant?: "default" | "ghost";
 }
 
 const CustomSelect: React.FC<CustomSelectProps> = ({
@@ -24,6 +25,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   className = "",
   style = {},
   disabled = false,
+  variant = "default",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -52,15 +54,17 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       style={{ ...style, position: "relative", width: style.width || "100%", userSelect: "none" }}
     >
       <div
-        className={`form-input ${className}`.trim()}
+        className={variant === "default" ? `form-input ${className}`.trim() : className}
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           cursor: disabled ? "not-allowed" : "pointer",
           opacity: disabled ? 0.6 : 1,
-          backgroundColor: "#fff",
-          minHeight: "38px",
+          backgroundColor: variant === "default" ? "#fff" : "transparent",
+          minHeight: variant === "default" ? "38px" : "auto",
+          border: variant === "ghost" ? "none" : undefined,
+          padding: variant === "ghost" ? 0 : undefined,
         }}
         onClick={(e) => {
           e.preventDefault();
@@ -68,10 +72,10 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
           if (!disabled) setIsOpen((prev) => !prev);
         }}
       >
-        <span style={{ color: selectedOption ? "inherit" : "#888", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <span style={{ color: selectedOption ? "inherit" : (variant === "ghost" ? "inherit" : "#888"), overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {selectedOption ? selectedOption.label : placeholder}
         </span>
-        <ChevronDown size={16} color="#888" style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
+        <ChevronDown size={variant === "ghost" ? 14 : 16} color={variant === "ghost" ? "currentColor" : "#888"} style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s", marginLeft: 4 }} />
       </div>
 
       {isOpen && !disabled && (
@@ -109,9 +113,9 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                   cursor: "pointer",
                   fontSize: 14,
                   backgroundColor: value === opt.value ? "#e2e8f0" : "transparent",
-                  color: value === opt.value ? "#0f172a" : "#334155",
                   fontWeight: value === opt.value ? 600 : 400,
                   transition: "background-color 0.15s ease",
+                  color: "#334155" // Keep ghost variant options readable
                 }}
               >
                 {opt.label}

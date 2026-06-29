@@ -24,6 +24,7 @@ import LeaveRequest from "./pages/Leave/LeaveRequest";
 import ContractManager from "./pages/Contract/ContractManager";
 import Analytics from "./pages/Analytics/Analytics";
 import ProjectDetails from "./pages/Projects/ProjectDetails";
+import PhaseDetails from "./pages/Projects/PhaseDetails";
 import OrgChart from "./pages/OrgChart/OrgChart";
 import Expenses from "./pages/Expenses/Expenses";
 
@@ -89,6 +90,7 @@ const PAGES: Record<string, React.FC<any>> = {
   contracts: ContractManager,
   analytics: Analytics,
   project_details: ProjectDetails,
+  phase_details: PhaseDetails,
   department_details: DepartmentDetails,
   employee_profile: EmployeeProfile,
   "org-chart": OrgChart,
@@ -112,6 +114,7 @@ const PAGE_MIN_LEVEL: Record<string, number> = {
   contracts: 3,
   analytics: 3, // HR Analytics - Manager level
   project_details: 1,
+  phase_details: 1,
   department_details: 1,
   employee_profile: 1,
   "org-chart": 1,

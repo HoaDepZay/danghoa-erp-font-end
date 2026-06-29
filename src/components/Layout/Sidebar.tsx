@@ -17,8 +17,9 @@ import {
   FileText,
   FileSignature,
   BarChart3,
-  Network,
   Terminal,
+  ChevronDown,
+  Network,
 } from "lucide-react";
 import { getDisplayRole, getUserLevel, getUserName } from "../../utils/user";
 import { useEffect, useState } from "react";
@@ -56,6 +57,7 @@ const Sidebar = ({
   const visibleItems = NAV_ITEMS.filter((item) => userLevel >= item.minLevel);
 
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 1024);
+
   useEffect(() => {
     const handler = () => setIsMobile(window.innerWidth <= 1024);
     window.addEventListener("resize", handler);

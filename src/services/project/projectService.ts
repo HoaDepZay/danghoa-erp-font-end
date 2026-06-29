@@ -1,9 +1,10 @@
-import axiosClient from "./axiosClient";
+import axiosClient from "../axiosClient";
 
 const projectService = {
   getProjects: () => axiosClient.get("/projects"),
   getProject: (id: string | number) => axiosClient.get(`/projects/${id}`),
   createProject: (data: any) => axiosClient.post("/projects", data),
+  createProjectFull: (data: any) => axiosClient.post("/projects/full", data),
   updateProject: (id: string | number, data: any) => axiosClient.put(`/projects/${id}`, data),
   deleteProject: (id: string | number) => axiosClient.delete(`/projects/${id}`),
   getMyProjects: (MA_NV: string) => axiosClient.get(`/projects/employee/${MA_NV}`),

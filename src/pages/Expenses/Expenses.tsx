@@ -9,6 +9,7 @@ import {
   SectionHeader, Card, Btn, Badge, Spinner, EmptyState, FormField, SkeletonRows 
 } from "../../components/UI/index";
 import Modal from "../../components/UI/Modal";
+import CustomSelect from "../../components/UI/CustomSelect";
 interface Expense {
   ID: number;
   TenKhoanChi: string;
@@ -24,6 +25,10 @@ export const Expenses: React.FC<{ user: any }> = ({ user }) => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [assigneeFilter, setAssigneeFilter] = useState("");
+  const [minAmount, setMinAmount] = useState<number | "">("");
+  const [maxAmount, setMaxAmount] = useState<number | "">("");
   
   const [modalOpen, setModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -33,7 +38,17 @@ export const Expenses: React.FC<{ user: any }> = ({ user }) => {
     setLoading(true);
     try {
       const res = await api.getExpenses();
-      setExpenses(res.data?.data || res.data || []);
+      const rawData = res.data?.data || res.data || [];
+      const mappedData = rawData.map((item: any) => ({
+        ID: item.MA_CHI_TIEU || item.ID,
+        TenKhoanChi: item.TEN_KHOAN_CHI || item.TenKhoanChi,
+        SoTien: item.SO_TIEN || item.SoTien,
+        NgayChi: item.NGAY_CHI || item.NgayChi,
+        MaNvPhuTrach: item.MA_NV_PHU_TRACH || item.MaNvPhuTrach,
+        TrangThai: item.TRANG_THAI || item.TrangThai,
+        HoTenPhuTrach: item.TEN_NHAN_VIEN_PHU_TRACH || item.TenNhanVienPhuTrach || item.HoTenPhuTrach
+      }));
+      setExpenses(mappedData);
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Không thể tải danh sách chi tiêu");
     } finally {
@@ -93,13 +108,27 @@ export const Expenses: React.FC<{ user: any }> = ({ user }) => {
     }
   };
 
-  const filtered = expenses.filter(e => 
-    e.TenKhoanChi?.toLowerCase().includes(search.toLowerCase()) ||
-    e.TrangThai?.toLowerCase().includes(search.toLowerCase()) ||
-    e.HoTenPhuTrach?.toLowerCase().includes(search.toLowerCase())
+  const uniqueAssignees = Array.from(
+    new Set(expenses.map(e => e.HoTenPhuTrach || e.MaNvPhuTrach).filter(Boolean))
   );
 
-  const totalAmount = filtered.reduce((sum, e) => sum + (e.SoTien || 0), 0);
+  const filtered = expenses.filter(e => {
+    const matchesSearch = 
+      e.TenKhoanChi?.toLowerCase().includes(search.toLowerCase()) ||
+      e.HoTenPhuTrach?.toLowerCase().includes(search.toLowerCase());
+    
+    const matchesStatus = statusFilter ? e.TrangThai === statusFilter : true;
+    
+    const assignee = e.HoTenPhuTrach || e.MaNvPhuTrach;
+    const matchesAssignee = assigneeFilter ? assignee === assigneeFilter : true;
+    
+    const matchesMinAmount = minAmount !== "" ? e.SoTien >= minAmount : true;
+    const matchesMaxAmount = maxAmount !== "" ? e.SoTien <= maxAmount : true;
+
+    return matchesSearch && matchesStatus && matchesAssignee && matchesMinAmount && matchesMaxAmount;
+  });
+
+  const totalAmount = filtered.reduce((sum, e) => e.TrangThai === "Đã duyệt" ? sum + (e.SoTien || 0) : sum, 0);
 
   return (
     <div className="animate-fade-in">
@@ -135,8 +164,8 @@ export const Expenses: React.FC<{ user: any }> = ({ user }) => {
       </div>
 
       <Card>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-          <div style={{ position: "relative", width: 300 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
+          <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
             <Search size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#888" }} />
             <input 
               type="text" 
@@ -145,6 +174,48 @@ export const Expenses: React.FC<{ user: any }> = ({ user }) => {
               value={search}
               onChange={e => setSearch(e.target.value)}
               style={{ paddingLeft: 36 }}
+            />
+          </div>
+          
+          <CustomSelect 
+            style={{ width: 160 }}
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+            options={[
+              { label: "Tất cả trạng thái", value: "" },
+              { label: "Chờ duyệt", value: "Chờ duyệt" },
+              { label: "Đã duyệt", value: "Đã duyệt" },
+              { label: "Từ chối", value: "Từ chối" },
+            ]}
+          />
+
+          <CustomSelect 
+            style={{ width: 180 }}
+            value={assigneeFilter}
+            onChange={e => setAssigneeFilter(e.target.value)}
+            options={[
+              { label: "Người phụ trách", value: "" },
+              ...uniqueAssignees.map(a => ({ label: a as string, value: a as string }))
+            ]}
+          />
+
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <input 
+              type="number" 
+              className="form-input" 
+              placeholder="Min (VNĐ)" 
+              style={{ width: 120 }}
+              value={minAmount}
+              onChange={e => setMinAmount(e.target.value ? Number(e.target.value) : "")}
+            />
+            <span style={{ color: "#888" }}>-</span>
+            <input 
+              type="number" 
+              className="form-input" 
+              placeholder="Max (VNĐ)" 
+              style={{ width: 120 }}
+              value={maxAmount}
+              onChange={e => setMaxAmount(e.target.value ? Number(e.target.value) : "")}
             />
           </div>
         </div>
@@ -259,15 +330,15 @@ export const Expenses: React.FC<{ user: any }> = ({ user }) => {
 
           {formData.ID && (
             <FormField label="Trạng thái">
-              <select 
-                className="form-input" 
+              <CustomSelect 
                 value={formData.TrangThai || "Chờ duyệt"} 
                 onChange={e => setFormData({ ...formData, TrangThai: e.target.value })}
-              >
-                <option value="Chờ duyệt">Chờ duyệt</option>
-                <option value="Đã duyệt">Đã duyệt</option>
-                <option value="Từ chối">Từ chối</option>
-              </select>
+                options={[
+                  { label: "Chờ duyệt", value: "Chờ duyệt" },
+                  { label: "Đã duyệt", value: "Đã duyệt" },
+                  { label: "Từ chối", value: "Từ chối" },
+                ]}
+              />
             </FormField>
           )}
         </form>

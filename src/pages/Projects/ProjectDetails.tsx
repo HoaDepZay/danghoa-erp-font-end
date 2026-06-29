@@ -312,7 +312,7 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
               }}
             >
               {
-                { overview: "Tổng quan", tasks: "Nhiệm vụ", chat: "Tin nhắn" }[
+                { overview: "Tổng quan", tasks: "Giai đoạn", chat: "Tin nhắn" }[
                   tab
                 ]
               }
@@ -577,15 +577,14 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
           </div>
         </div>
       ) : activeTab === "tasks" ? (
-        <Card>
-          <ProjectTasks
-            projectId={project.MA_DA}
-            members={members}
-            isAdmin={canManageProject}
-            currentUser={user}
-            projectStatus={project.TRANG_THAI}
-          />
-        </Card>
+        <ProjectTasks
+          projectId={project.MA_DA}
+          members={members}
+          isAdmin={canManageProject}
+          currentUser={user}
+          projectStatus={project.TRANG_THAI}
+          onNavigate={onNavigate}
+        />
       ) : activeTab === "chat" ? (
         <div
           style={{

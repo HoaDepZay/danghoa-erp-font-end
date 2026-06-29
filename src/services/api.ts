@@ -3,13 +3,14 @@ import authService from "./authService";
 import employeeService from "./employeeService";
 import adminService from "./adminService";
 import departmentService from "./departmentService";
-import projectService from "./projectService";
+import projectService from "./project/projectService";
 import payrollService from "./payrollService";
 import chatService from "./chatService";
 import contractService from "./contractService";
 import dashboardService from "./dashboardService";
 import expenseService from "./expenseService";
 import notificationService from "./notificationService";
+import phaseService from "./project/phaseService";
 
 export const api = {
   ...authService,
@@ -23,6 +24,7 @@ export const api = {
   ...dashboardService,
   ...expenseService,
   ...notificationService,
+  ...phaseService,
 };
 
 export { API_URL, tokenStorage };
