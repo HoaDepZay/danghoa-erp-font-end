@@ -31,11 +31,11 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }: any)
                   data: { ...modal.data, EMAIL: e.target.value },
                 })
               }
-              className="w-full rounded-2xl border-2 border-slate-100 p-4 outline-none focus:border-red-500 font-bold"
+              className="w-full rounded-sm border-2 border-slate-100 p-4 outline-none focus:border-red-500 font-bold"
             />
             <button
               onClick={handlers.handleUpdateProfile}
-              className="w-full rounded-2xl bg-red-600 py-4 font-black text-white hover:bg-red-700"
+              className="w-full rounded-sm bg-red-600 py-4 font-black text-white hover:bg-red-700"
             >
               LƯU THAY ĐỔI
             </button>
@@ -53,7 +53,7 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }: any)
                   data: { ...modal.data, oldPass: e.target.value },
                 })
               }
-              className="w-full rounded-2xl border-2 border-slate-100 p-4 outline-none focus:border-red-500"
+              className="w-full rounded-sm border-2 border-slate-100 p-4 outline-none focus:border-red-500"
             />
             <input
               type="password"
@@ -64,7 +64,7 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }: any)
                   data: { ...modal.data, newPass: e.target.value },
                 })
               }
-              className="w-full rounded-2xl border-2 border-slate-100 p-4 outline-none focus:border-red-500"
+              className="w-full rounded-sm border-2 border-slate-100 p-4 outline-none focus:border-red-500"
             />
             <input
               type="password"
@@ -75,11 +75,11 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }: any)
                   data: { ...modal.data, confirmPass: e.target.value },
                 })
               }
-              className="w-full rounded-2xl border-2 border-slate-100 p-4 outline-none focus:border-red-500"
+              className="w-full rounded-sm border-2 border-slate-100 p-4 outline-none focus:border-red-500"
             />
             <button
               onClick={handlers.handleChangePass}
-              className="w-full rounded-2xl bg-slate-900 py-4 font-black text-white hover:bg-black uppercase"
+              className="w-full rounded-sm bg-slate-900 py-4 font-black text-white hover:bg-black uppercase"
             >
               Xác nhận đổi
             </button>
@@ -101,7 +101,7 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }: any)
                   data: { ...modal.data, HO_TEN: e.target.value },
                 })
               }
-              className="w-full rounded-2xl border-2 border-slate-100 p-4 outline-none focus:border-red-500 font-bold"
+              className="w-full rounded-sm border-2 border-slate-100 p-4 outline-none focus:border-red-500 font-bold"
             />
             <input
               type="number"
@@ -112,7 +112,7 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }: any)
                   data: { ...modal.data, LUONG: e.target.value },
                 })
               }
-              className="w-full rounded-2xl border-2 border-slate-100 p-4 outline-none focus:border-red-500 font-bold"
+              className="w-full rounded-sm border-2 border-slate-100 p-4 outline-none focus:border-red-500 font-bold"
             />
             <select
               onChange={(e) =>
@@ -121,7 +121,7 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }: any)
                   data: { ...modal.data, CHUC_VU: e.target.value },
                 })
               }
-              className="w-full rounded-2xl border-2 border-slate-100 p-4 outline-none focus:border-red-500 font-bold"
+              className="w-full rounded-sm border-2 border-slate-100 p-4 outline-none focus:border-red-500 font-bold"
             >
               <option value="Nhân viên">Nhân viên</option>
               <option value="Cộng tác viên">Cộng tác viên</option>
@@ -129,7 +129,7 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }: any)
             </select>
             <button
               onClick={handlers.handleAdminEditNV}
-              className="w-full rounded-2xl bg-red-600 py-4 font-black text-white"
+              className="w-full rounded-sm bg-red-600 py-4 font-black text-white"
             >
               CẬP NHẬT
             </button>
@@ -148,12 +148,12 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }: any)
                   data: { ...modal.data, TEN_PB: e.target.value },
                 })
               }
-              className="w-full rounded-2xl border-2 border-slate-100 p-4 outline-none focus:border-emerald-500 font-bold"
+              className="w-full rounded-sm border-2 border-slate-100 p-4 outline-none focus:border-emerald-500 font-bold"
             />
             <button
               onClick={handlers.handleCreateDepartment}
               disabled={loading}
-              className="w-full rounded-2xl bg-emerald-600 py-4 font-black text-white uppercase"
+              className="w-full rounded-sm bg-emerald-600 py-4 font-black text-white uppercase"
             >
               {loading ? "Đang tạo..." : "Tạo mới"}
             </button>
@@ -174,7 +174,7 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }: any)
                   data: { ...modal.data, username: e.target.value },
                 })
               }
-              className="w-full rounded-2xl border-2 border-slate-100 p-4 outline-none focus:border-red-500 font-bold"
+              className="w-full rounded-sm border-2 border-slate-100 p-4 outline-none focus:border-red-500 font-bold"
             />
             <input
               type="EMAIL"
@@ -185,7 +185,7 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }: any)
                   data: { ...modal.data, EMAIL: e.target.value },
                 })
               }
-              className="w-full rounded-2xl border-2 border-slate-100 p-4 outline-none focus:border-red-500 font-bold"
+              className="w-full rounded-sm border-2 border-slate-100 p-4 outline-none focus:border-red-500 font-bold"
             />
             <input
               type="password"
@@ -196,7 +196,7 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }: any)
                   data: { ...modal.data, password: e.target.value },
                 })
               }
-              className="w-full rounded-2xl border-2 border-slate-100 p-4 outline-none focus:border-red-500 font-bold"
+              className="w-full rounded-sm border-2 border-slate-100 p-4 outline-none focus:border-red-500 font-bold"
             />
             <select
               onChange={(e) =>
@@ -205,7 +205,7 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }: any)
                   data: { ...modal.data, MA_PHG: e.target.value },
                 })
               }
-              className="w-full rounded-2xl border-2 border-slate-100 p-4 outline-none focus:border-red-500 font-bold"
+              className="w-full rounded-sm border-2 border-slate-100 p-4 outline-none focus:border-red-500 font-bold"
             >
               <option value="">Chọn phòng ban</option>
               {departments.map((dept: any) => (
@@ -217,7 +217,7 @@ const ProfileModals = ({ modal, setModal, departments, loading, handlers }: any)
             <button
               onClick={handlers.handleCreateEmployee}
               disabled={loading}
-              className="w-full rounded-2xl bg-red-600 py-4 font-black text-white uppercase tracking-widest"
+              className="w-full rounded-sm bg-red-600 py-4 font-black text-white uppercase tracking-widest"
             >
               Tạo Nhân Viên
             </button>

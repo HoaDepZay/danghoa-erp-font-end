@@ -10,7 +10,7 @@ interface TabButtonProps {
 export const TabButton: React.FC<TabButtonProps> = ({ active, onClick, icon, label }) => (
   <button
     onClick={onClick}
-    className={`flex items-center gap-2 rounded-2xl px-6 py-3 text-xs font-black transition-all ${
+    className={`flex items-center gap-2 rounded-sm px-6 py-3 text-xs font-black transition-all ${
       active
         ? "bg-red-600 text-white shadow-lg"
         : "bg-white text-slate-400 hover:bg-red-50 shadow-sm"
@@ -29,7 +29,7 @@ interface CardProps {
 export const Card: React.FC<CardProps> = ({ title, icon, children }) => (
   <div className="rounded-[2.5rem] bg-white p-8 shadow-sm border border-slate-100">
     <div className="mb-6 flex items-center gap-3">
-      <div className="rounded-xl bg-red-50 p-2.5 text-red-600">{icon}</div>
+      <div className="rounded-sm bg-red-50 p-2.5 text-red-600">{icon}</div>
       <h3 className="text-lg font-black">{title}</h3>
     </div>
     {children}
@@ -50,7 +50,7 @@ export const InfoItem: React.FC<InfoItemProps> = ({ label, value }) => (
 
 export const LoadingScreen = () => (
   <div className="flex h-screen w-screen flex-col items-center justify-center bg-white gap-4">
-    <div className="h-12 w-12 animate-spin rounded-2xl border-[5px] border-red-600 border-t-transparent shadow-xl"></div>
+    <div className="h-12 w-12 animate-spin rounded-sm border-[5px] border-red-600 border-t-transparent shadow-xl"></div>
     <p className="text-xs font-black uppercase tracking-[0.2em] text-red-600 animate-pulse">
       DANGHOA-ERP SYSTEM
     </p>

@@ -101,10 +101,12 @@ export const Avatar = ({ name = "", size = "md" }: { name?: string, size?: "sm" 
 };
 
 // ── Card ──────────────────────────────────────────────────────────────────────
-export const Card = ({ children, className = "", padding = true, style }: { children: ReactNode, className?: string, padding?: boolean, style?: CSSProperties }) => (
+export const Card = ({ children, className = "", padding = true, style, onClick }: { 
+children: ReactNode, className?: string, padding?: boolean, style?: import("react").CSSProperties, onClick?: () => void }) => (
   <div
     className={`card ${className}`.trim()}
     style={style}
+    onClick={onClick}
   >
     <div className={padding ? "card-body" : ""}>{children}</div>
   </div>

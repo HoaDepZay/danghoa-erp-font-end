@@ -161,7 +161,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
            <Lock size={16} color="#aaa" />
           <h3 style={{ fontWeight: 700, fontSize: 15, margin: 0 }}>Bảo mật tài khoản</h3>
         </div>
-         <div className="flex items-center justify-between gap-3 p-4 rounded-xl bg-muted flex-wrap">
+         <div className="flex items-center justify-between gap-3 p-4 rounded-sm bg-muted flex-wrap">
           <div>
             <p style={{ fontWeight: 600, fontSize: 13, margin: 0 }}>Mật khẩu đăng nhập</p>
             <p style={{ fontSize: 11, color: "#aaa", marginTop: 3 }}>Cập nhật định kỳ để bảo vệ tài khoản</p>
@@ -171,7 +171,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
       </Card>
 
        <Card>
-         <div className="flex items-center justify-between gap-3 p-4 rounded-xl bg-muted flex-wrap">
+         <div className="flex items-center justify-between gap-3 p-4 rounded-sm bg-muted flex-wrap">
           <div>
              <p style={{ fontWeight: 600, fontSize: 13, margin: 0 }}>Thông tin liên hệ</p>
             <p style={{ fontSize: 11, color: "#aaa", marginTop: 3 }}>Cập nhật họ tên, ngày sinh, giới tính, địa chỉ nhận và số điện thoại</p>

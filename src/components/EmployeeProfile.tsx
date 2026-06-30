@@ -138,7 +138,7 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
     <div className="min-h-screen w-screen bg-[#FFFBFB] font-sans text-slate-900">
       <nav className="sticky top-0 z-50 border-b border-red-100 bg-white/80 backdrop-blur-xl px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-red-600 to-yellow-500 text-white shadow-lg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-gradient-to-br from-red-600 to-yellow-500 text-white shadow-lg">
             <ShieldCheck size={22} />
           </div>
           <span className="text-xl font-bold">
@@ -147,7 +147,7 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
         </div>
         <button
           onClick={onLogout}
-          className="flex items-center gap-2 rounded-xl bg-slate-50 px-4 py-2 text-sm font-bold text-slate-600 hover:text-red-600"
+          className="flex items-center gap-2 rounded-sm bg-slate-50 px-4 py-2 text-sm font-bold text-slate-600 hover:text-red-600"
         >
           <LogOut size={18} /> Đăng xuất
         </button>
@@ -178,7 +178,7 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
         {activeTab === "profile" && (
           <div className="grid gap-6 md:grid-cols-3 animate-in fade-in duration-500">
             <div className="col-span-2 rounded-[2.5rem] bg-white p-8 shadow-sm border border-slate-100 flex items-center gap-8">
-              <div className="h-32 w-32 rounded-3xl bg-gradient-to-tr from-red-600 to-yellow-500 text-4xl font-black text-white flex items-center justify-center">
+              <div className="h-32 w-32 rounded-sm bg-gradient-to-tr from-red-600 to-yellow-500 text-4xl font-black text-white flex items-center justify-center">
                 {profile.HO_TEN.split(" ").pop().charAt(0)}
               </div>
               <div>
@@ -205,7 +205,7 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
                         data: { EMAIL: profile.EMAIL },
                       })
                     }
-                    className="flex-1 rounded-xl bg-slate-900 py-3 text-[10px] font-black text-white"
+                    className="flex-1 rounded-sm bg-slate-900 py-3 text-[10px] font-black text-white"
                   >
                     SỬA EMAIL
                   </button>
@@ -213,7 +213,7 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
                     onClick={() =>
                       setModal({ isOpen: true, type: "pass_edit", data: {} })
                     }
-                    className="flex-1 rounded-xl border border-slate-200 py-3 text-[10px] font-black"
+                    className="flex-1 rounded-sm border border-slate-200 py-3 text-[10px] font-black"
                   >
                     ĐỔI PASS
                   </button>
@@ -228,10 +228,10 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
             {coworkers.map((member) => (
               <div
                 key={member.MA_NV}
-                className="rounded-3xl bg-white p-5 border border-slate-100 flex items-center justify-between"
+                className="rounded-sm bg-white p-5 border border-slate-100 flex items-center justify-between"
               >
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold">
+                  <div className="h-10 w-10 rounded-sm bg-red-50 text-red-600 flex items-center justify-center font-bold">
                     {member.HO_TEN.charAt(0)}
                   </div>
                   <div>
@@ -273,12 +273,12 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
                       setModal({ isOpen: true, type: "emp_create", data: {} }),
                     )
                   }
-                  className="rounded-xl bg-red-600 px-6 py-2.5 text-xs font-black text-white shadow-lg flex items-center gap-2"
+                  className="rounded-sm bg-red-600 px-6 py-2.5 text-xs font-black text-white shadow-lg flex items-center gap-2"
                 >
                   <UserPlus size={16} /> THÊM NHÂN VIÊN
                 </button>
               </div>
-              <div className="rounded-2xl border border-slate-50 overflow-hidden">
+              <div className="rounded-sm border border-slate-50 overflow-hidden">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-slate-50 text-[10px] font-black uppercase text-slate-400">
                     <tr>
@@ -312,12 +312,12 @@ const EmployeeProfile = ({ user, onLogout }: { user: any, onLogout: () => void }
                       }),
                     )
                   }
-                  className="rounded-xl bg-emerald-600 px-6 py-2.5 text-xs font-black text-white shadow-lg flex items-center gap-2"
+                  className="rounded-sm bg-emerald-600 px-6 py-2.5 text-xs font-black text-white shadow-lg flex items-center gap-2"
                 >
                   <FolderPlus size={16} /> THÊM PHÒNG BAN
                 </button>
               </div>
-              <div className="rounded-2xl border border-slate-50 overflow-hidden">
+              <div className="rounded-sm border border-slate-50 overflow-hidden">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-slate-50 text-[10px] font-black uppercase text-slate-400">
                     <tr>
