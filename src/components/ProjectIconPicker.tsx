@@ -1,21 +1,28 @@
 import React from 'react';
-import * as LucideIcons from 'lucide-react';
+import {
+  FolderKanban, Briefcase, Code, Globe, Zap, Target, Star, Rocket,
+  Monitor, Database, Layout, Smartphone, Box, Cloud, Cpu, Layers,
+  Activity, AlarmClock, Anchor, Award, Battery, Bell, BookOpen,
+  Building, Camera, Car, Coffee, Compass, Crown, Diamond, Droplets,
+  Feather, Flag, Flame, Gamepad, Gift, Headphones, Heart, Image,
+  Key, Leaf, Lightbulb, Map, Microscope, Music, Package, Palette,
+  PieChart, Puzzle, Radio, Scissors, Shield, ShoppingBag, Speaker,
+  Sun, Tent, Tool, Trophy, Truck, Umbrella, Video, Wand
+} from 'lucide-react';
 import { FormField } from './UI';
 
-const PRESET_ICONS = [
-  'FolderKanban', 'Briefcase', 'Code', 'Globe', 'Zap', 
-  'Target', 'Star', 'Rocket', 'Monitor', 'Database', 
-  'Layout', 'Smartphone', 'Box', 'Cloud', 'Cpu', 'Layers',
-  'Activity', 'AlarmClock', 'Anchor', 'Award', 'Battery',
-  'Bell', 'BookOpen', 'Building', 'Camera', 'Car',
-  'Coffee', 'Compass', 'Crown', 'Diamond', 'Droplets',
-  'Feather', 'Flag', 'Flame', 'Gamepad', 'Gift',
-  'Headphones', 'Heart', 'Image', 'Key', 'Leaf',
-  'Lightbulb', 'Map', 'Microscope', 'Music', 'Package',
-  'Palette', 'PieChart', 'Puzzle', 'Radio', 'Scissors',
-  'Shield', 'ShoppingBag', 'Speaker', 'Sun', 'Tent',
-  'Tool', 'Trophy', 'Truck', 'Umbrella', 'Video', 'Wand'
-];
+export const ICON_MAP: Record<string, any> = {
+  FolderKanban, Briefcase, Code, Globe, Zap, Target, Star, Rocket,
+  Monitor, Database, Layout, Smartphone, Box, Cloud, Cpu, Layers,
+  Activity, AlarmClock, Anchor, Award, Battery, Bell, BookOpen,
+  Building, Camera, Car, Coffee, Compass, Crown, Diamond, Droplets,
+  Feather, Flag, Flame, Gamepad, Gift, Headphones, Heart, Image,
+  Key, Leaf, Lightbulb, Map, Microscope, Music, Package, Palette,
+  PieChart, Puzzle, Radio, Scissors, Shield, ShoppingBag, Speaker,
+  Sun, Tent, Tool, Trophy, Truck, Umbrella, Video, Wand
+};
+
+export const PRESET_ICONS = Object.keys(ICON_MAP);
 
 const PRESET_COLORS = [
   { name: 'Xanh dương', value: '#3b82f6' },
@@ -36,7 +43,7 @@ interface ProjectIconPickerProps {
 }
 
 export const DynamicIcon = ({ name, color = "#000", size = 20 }: { name: string, color?: string, size?: number }) => {
-  const IconComponent = (LucideIcons as any)[name] || LucideIcons.FolderKanban;
+  const IconComponent = ICON_MAP[name] || ICON_MAP['FolderKanban'];
   return <IconComponent color={color} size={size} />;
 };
 
