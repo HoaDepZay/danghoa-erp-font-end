@@ -5,8 +5,17 @@ import {
 } from "lucide-react";
 import { api } from "../../services/api";
 import { toast, formatDate, checkOverdue } from "../../utils/helpers";
-import { Spinner, Btn, Badge, FormField, SharedCalendar, DatePicker, CustomSelect } from "../../components/UI";
+import { Spinner, Btn, Badge, FormField, SharedCalendar, DatePicker, CustomSelect, Avatar } from "../../components/UI";
 import { getUserLevel } from "../../utils/user";
+
+const normalizeRole = (role: string) =>
+  String(role || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .trim();
+
 
 interface Task {
   maNvGd: number;
@@ -28,6 +37,7 @@ const PhaseDetails = ({ user, onNavigate }: any) => {
   const projectId = localStorage.getItem("selectedProjectId");
 
   const [phase, setPhase] = useState<any>(null);
+  const [project, setProject] = useState<any>(null);
   const [projectMembers, setProjectMembers] = useState<any[]>([]);
   const [phaseMembers, setPhaseMembers] = useState<any[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -71,14 +81,21 @@ const PhaseDetails = ({ user, onNavigate }: any) => {
       ]);
       
       setPhase(phaseRes.data?.data);
-      const projMembers = projRes.data?.data?.THANH_VIEN || [];
+      const projData = projRes.data?.data || projRes.data;
+      setProject(projData);
+      const projMembers = projData?.THANH_VIEN || [];
       setProjectMembers(projMembers);
       setTasks(tasksRes.data?.data || []);
       setPhaseMembers(assignRes.data?.data || []);
       
       const userLevel = getUserLevel(user);
-      const myProjectRole = projMembers.find((m: any) => (m.MA_NV || m.MANV) === myId)?.VAI_TRO_DU_AN;
-      setIsAdmin(userLevel >= 3 || myProjectRole === "Quản lý" || myProjectRole === "Phó dự án" || myProjectRole === "Trưởng dự án");
+      const myMember = projMembers.find((m: any) => String(m.MA_NV || m.MANV).trim().toLowerCase() === String(myId).trim().toLowerCase());
+      const myProjectRole = myMember?.VAI_TRO_DU_AN || myMember?.VAI_TRO || "";
+      const isProjectManager = 
+        normalizeRole(myProjectRole) === normalizeRole("Trưởng dự án") || 
+        normalizeRole(myProjectRole) === normalizeRole("Phó dự án") || 
+        normalizeRole(myProjectRole) === normalizeRole("Quản lý");
+      setIsAdmin(userLevel >= 3 || isProjectManager);
       
     } catch (err) {
       toast.error("Lỗi lấy thông tin giai đoạn");
@@ -121,6 +138,16 @@ const PhaseDetails = ({ user, onNavigate }: any) => {
       fetchAssignments();
     } catch (err) {
       toast.error("Lỗi xóa nhân sự");
+    }
+  };
+
+  const handleUpdatePhaseStatus = async (status: string) => {
+    try {
+      await api.updatePhase(phaseId!, { ...phase, trangThai: status, TRANG_THAI: status });
+      setPhase({ ...phase, TRANG_THAI: status, trangThai: status });
+      toast.success("Đã cập nhật trạng thái giai đoạn!");
+    } catch (err) {
+      toast.error("Lỗi cập nhật trạng thái!");
     }
   };
 
@@ -202,9 +229,16 @@ const PhaseDetails = ({ user, onNavigate }: any) => {
     return member?.HO_TEN || member?.TEN_NV || member?.TENNV || maNv;
   };
 
+  const getAssigneePhaseRole = (maNv: string) => {
+    if (!maNv) return "";
+    const member = phaseMembers.find((m: any) => String(m.MA_NV || m.MANV).toLowerCase() === String(maNv).toLowerCase());
+    return member?.VAI_TRO || "Thành viên";
+  };
+
   const KANBAN_COLUMNS = ["Mới", "Đang làm", "Hoàn thành", "Đã duyệt", "Tạm dừng"];
-  const myPhaseRole = phaseMembers.find(m => String(m.MA_NV) === String(myId))?.VAI_TRO;
-  const canManagePhase = isAdmin || myPhaseRole === "Trưởng giai đoạn";
+  const myPhaseRole = phaseMembers.find(m => String(m.MA_NV) === String(myId))?.VAI_TRO || "";
+  const isPhaseManager = normalizeRole(myPhaseRole) === normalizeRole("Trưởng giai đoạn");
+  const canManagePhase = isAdmin || isPhaseManager;
 
   const renderTaskCard = (task: any) => {
     const taskId = task.maNvGd || task.MA_NV_GD;
@@ -214,6 +248,8 @@ const PhaseDetails = ({ user, onNavigate }: any) => {
 
     return (
       <div key={taskId} className="card" style={{ 
+        position: "relative",
+        zIndex: isEditing ? 50 : 1,
         padding: 16, 
         background: isOverdue ? "#fff1f2" : "#fff", 
         borderColor: isOverdue ? "#fecdd3" : "#e2e8f0",
@@ -243,12 +279,17 @@ const PhaseDetails = ({ user, onNavigate }: any) => {
         
         <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center", background: "#f8fafc", padding: "10px 14px", borderRadius: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#eff6ff", padding: "4px 12px 4px 4px", borderRadius: 20, border: "1px solid #bfdbfe" }}>
-            <div style={{ width: 24, height: 24, background: "#3b82f6", color: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800 }}>
-              {(getAssigneeName(task.MA_NV) || "C").charAt(0).toUpperCase()}
+            <Avatar name={getAssigneeName(task.MA_NV || task.maNv) || "C"} size="sm" />
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span style={{ fontWeight: 800, color: "#1e40af", fontSize: 13, lineHeight: 1.2 }}>
+                {getAssigneeName(task.MA_NV || task.maNv) || "Chưa phân công"}
+              </span>
+              {(task.MA_NV || task.maNv) && (
+                <span style={{ fontSize: 11, color: "#3b82f6", fontWeight: 600 }}>
+                  {getAssigneePhaseRole(task.MA_NV || task.maNv)}
+                </span>
+              )}
             </div>
-            <span style={{ fontWeight: 800, color: "#1e40af", fontSize: 13 }}>
-              {getAssigneeName(task.MA_NV) || "Chưa phân công"}
-            </span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#475569", fontWeight: 500 }}>
             <Calendar size={15} color="#64748b" /> 
@@ -340,18 +381,70 @@ const PhaseDetails = ({ user, onNavigate }: any) => {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       {/* Header */}
-      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <Btn onClick={() => onNavigate && onNavigate("project_details")} style={{ background: "#f1f5f9", border: "none", cursor: "pointer", padding: 8, borderRadius: 8 }}>
-            <ArrowLeft size={18} color="#475569" />
-          </Btn>
-          <div>
-            <h2 style={{ display: "flex", alignItems: "center", gap: 8, margin: 0, marginBottom: 4, fontSize: 22 }}>
-              <span>{phase.TEN_GD || phase.tenGd}</span>
+      <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+        {/* Row 1: Back Button + Title */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+          <button 
+            onClick={() => onNavigate && onNavigate("project_details")} 
+            style={{ 
+              display: "flex", alignItems: "center", justifyContent: "center", 
+              width: 32, height: 32, background: "#f8fafc", border: "1px solid #e2e8f0", 
+              cursor: "pointer", borderRadius: 8, flexShrink: 0, transition: "all 0.2s" 
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.borderColor = "#cbd5e1"; }}
+            onMouseOut={(e) => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.borderColor = "#e2e8f0"; }}
+            title="Quay lại danh sách giai đoạn"
+          >
+            <ArrowLeft size={16} color="#475569" />
+          </button>
+          <h2 style={{ display: "flex", alignItems: "center", gap: 8, margin: 0, fontSize: 22, flexWrap: "wrap" }}>
+            <span style={{ wordBreak: "break-word" }}>{phase.TEN_GD || phase.tenGd}</span>
+            {canManagePhase ? (
+              <CustomSelect 
+                value={phase.TRANG_THAI || phase.trangThai} 
+                onChange={(e: any) => handleUpdatePhaseStatus(e.target.value)}
+                options={["Chưa bắt đầu", "Đang thực hiện", "Hoàn thành", "Tạm dừng", "Hủy"].map(s => ({ label: s, value: s }))}
+                style={{ width: 160, fontSize: 13, padding: "2px 8px", minHeight: 28, borderRadius: 12, border: "1px solid #e2e8f0", background: "#f8fafc", fontWeight: 600, color: getStatusColorHex(phase.TRANG_THAI || phase.trangThai) === 'green' ? '#15803d' : getStatusColorHex(phase.TRANG_THAI || phase.trangThai) === 'blue' ? '#1d4ed8' : getStatusColorHex(phase.TRANG_THAI || phase.trangThai) === 'red' ? '#b91c1c' : '#475569' }}
+              />
+            ) : (
               <Badge color={getStatusColorHex(phase.TRANG_THAI || phase.trangThai)}>{phase.TRANG_THAI || phase.trangThai}</Badge>
-            </h2>
-            <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>Chi tiết các nhiệm vụ trong giai đoạn này</p>
+            )}
+          </h2>
+        </div>
+
+        {/* Row 2: Subtitle & Members (indented to align with Title text) */}
+        <div style={{ paddingLeft: 44 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
+            <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>
+              Chi tiết các nhiệm vụ trong giai đoạn này
+            </p>
+            {myPhaseRole && (
+              <div style={{ display: "flex", alignItems: "center", gap: 6, paddingLeft: 12, borderLeft: "1px solid #cbd5e1" }}>
+                <span style={{ fontSize: 13, color: "#475569", fontWeight: 500 }}>Vai trò của bạn:</span>
+                <Badge color={myPhaseRole.toLowerCase().includes("trưởng") ? "blue" : "purple"}>
+                  {myPhaseRole}
+                </Badge>
+              </div>
+            )}
           </div>
+          
+          {/* Hiển thị nhanh danh sách thành viên giai đoạn */}
+          {phaseMembers.length > 0 && (
+            <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>Thành viên tham gia ({phaseMembers.length}):</span>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                {phaseMembers.map(m => (
+                  <div key={m.MA_NV} style={{ display: "flex", alignItems: "center", gap: 8, background: "#f8fafc", padding: "6px 12px 6px 6px", borderRadius: 20, border: "1px solid #e2e8f0" }}>
+                    <Avatar name={m.HO_TEN || m.TEN_NV || m.MA_NV} size="sm" />
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "#1e293b", lineHeight: 1.2, marginBottom: 4 }}>{m.HO_TEN || m.TEN_NV || m.MA_NV}</span>
+                      <Badge color={m.VAI_TRO?.toLowerCase().includes("trưởng") ? "blue" : "purple"}>{m.VAI_TRO}</Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -367,7 +460,7 @@ const PhaseDetails = ({ user, onNavigate }: any) => {
               Nhân sự
             </Btn>
           )}
-          {canManagePhase && !showAddForm && (phase.TRANG_THAI || phase.trangThai) !== "Hoàn thành" && (
+          {canManagePhase && !showAddForm && (
             <Btn variant="primary" icon={<Plus size={14} />} onClick={() => setShowAddForm(true)}>
               Giao nhiệm vụ
             </Btn>
@@ -376,7 +469,7 @@ const PhaseDetails = ({ user, onNavigate }: any) => {
       </div>
 
       {showAssignmentForm && (
-        <div className="card" style={{ padding: 16, background: "#f8fafc", border: "1px dashed #cbd5e1" }}>
+        <div className="card" style={{ padding: 16, background: "#f8fafc", border: "1px dashed #cbd5e1", position: "relative", zIndex: 100 }}>
           <h6 style={{ margin: "0 0 16px 0", fontSize: 14, fontWeight: 700 }}>Phân công nhân sự Giai đoạn</h6>
           <div style={{ display: "flex", gap: 12, alignItems: "flex-end" }}>
             <div style={{ flex: 1 }}>
@@ -415,7 +508,7 @@ const PhaseDetails = ({ user, onNavigate }: any) => {
       )}
 
       {showAddForm && (
-        <div className="card" style={{ padding: 16, background: "#f8fafc", border: "1px dashed #cbd5e1" }}>
+        <div className="card" style={{ padding: 16, background: "#f8fafc", border: "1px dashed #cbd5e1", position: "relative", zIndex: 100 }}>
           <h6 style={{ margin: "0 0 16px 0", fontSize: 14, fontWeight: 700 }}>Giao nhiệm vụ mới</h6>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <FormField label="Nhân viên phụ trách *">
@@ -425,7 +518,7 @@ const PhaseDetails = ({ user, onNavigate }: any) => {
                 onChange={(e: any) => setForm({...form, maNv: e.target.value})}
                 options={[
                   { label: "-- Chọn nhân viên --", value: "" },
-                  ...projectMembers.map((m: any) => ({
+                  ...phaseMembers.map((m: any) => ({
                     label: m.HO_TEN || m.TEN_NV || m.TENNV,
                     value: m.MA_NV || m.MANV
                   }))
@@ -441,10 +534,20 @@ const PhaseDetails = ({ user, onNavigate }: any) => {
               </FormField>
             </div>
             <FormField label="Ngày bắt đầu">
-              <DatePicker value={form.ngayBatDau} onChange={(date) => setForm({...form, ngayBatDau: date ? date.toLocaleDateString('en-CA') : ""})} />
+              <DatePicker 
+                value={form.ngayBatDau} 
+                onChange={(date) => setForm({...form, ngayBatDau: date ? date.toLocaleDateString('en-CA') : ""})}
+                minDate={phase?.NGAY_BAT_DAU || phase?.ngayBatDau ? new Date(phase?.NGAY_BAT_DAU || phase?.ngayBatDau) : (project?.NGAY_BAT_DAU ? new Date(project.NGAY_BAT_DAU) : undefined)}
+                maxDate={phase?.NGAY_KET_THUC || phase?.ngayKetThuc ? new Date(phase?.NGAY_KET_THUC || phase?.ngayKetThuc) : (project?.NGAY_KET_THUC ? new Date(project.NGAY_KET_THUC) : undefined)}
+              />
             </FormField>
             <FormField label="Ngày kết thúc">
-              <DatePicker value={form.ngayKetThuc} onChange={(date) => setForm({...form, ngayKetThuc: date ? date.toLocaleDateString('en-CA') : ""})} minDate={form.ngayBatDau ? new Date(form.ngayBatDau) : undefined} />
+              <DatePicker 
+                value={form.ngayKetThuc} 
+                onChange={(date) => setForm({...form, ngayKetThuc: date ? date.toLocaleDateString('en-CA') : ""})}
+                minDate={form.ngayBatDau ? new Date(form.ngayBatDau) : (phase?.NGAY_BAT_DAU || phase?.ngayBatDau ? new Date(phase?.NGAY_BAT_DAU || phase?.ngayBatDau) : (project?.NGAY_BAT_DAU ? new Date(project.NGAY_BAT_DAU) : undefined))}
+                maxDate={phase?.NGAY_KET_THUC || phase?.ngayKetThuc ? new Date(phase?.NGAY_KET_THUC || phase?.ngayKetThuc) : (project?.NGAY_KET_THUC ? new Date(project.NGAY_KET_THUC) : undefined)}
+              />
             </FormField>
             <FormField label="Độ ưu tiên">
               <CustomSelect 

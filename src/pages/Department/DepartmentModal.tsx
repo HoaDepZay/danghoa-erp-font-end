@@ -10,6 +10,7 @@ import {
   Drawer,
 } from "../../components/UI/index";
 import { formatDate } from "../../utils/helpers";
+import { ProjectIconPicker } from "../../components/ProjectIconPicker";
 
 // ─── Modal Tạo / Sửa phòng ban ───────────────────────────────────────────────
 interface DeptModalProps {
@@ -32,6 +33,8 @@ export const DeptModal: React.FC<DeptModalProps> = ({
     TEN_PB: "",
     matruongphg: "",
     maphophg: "",
+    ICON: "Building",
+    COLOR: "#3b82f6",
   });
   const [loading, setLoading] = useState(false);
 
@@ -42,8 +45,10 @@ export const DeptModal: React.FC<DeptModalProps> = ({
             TEN_PB: editData.TEN_PB || "",
             matruongphg: editData.matruongphg || editData.MA_TRUONG_PHG || "",
             maphophg: editData.maphophg || editData.MA_PHO_PHG || "",
+            ICON: editData.ICON || "Building",
+            COLOR: editData.COLOR || "#3b82f6",
           }
-        : { TEN_PB: "", matruongphg: "", maphophg: "" },
+        : { TEN_PB: "", matruongphg: "", maphophg: "", ICON: "Building", COLOR: "#3b82f6" },
     );
   }, [editData, isOpen]);
 
@@ -56,6 +61,8 @@ export const DeptModal: React.FC<DeptModalProps> = ({
         TEN_PB: form.TEN_PB.trim(),
         matruongphg: form.matruongphg || undefined,
         maphophg: form.maphophg || undefined,
+        ICON: form.ICON,
+        COLOR: form.COLOR,
       };
       if (isEdit) {
         await api.updateDepartment(editData.MA_PHG, payload);
@@ -137,6 +144,12 @@ export const DeptModal: React.FC<DeptModalProps> = ({
             ))}
           </select>
         </FormField>
+        <ProjectIconPicker 
+          icon={form.ICON} 
+          color={form.COLOR} 
+          onIconChange={(icon) => setForm(f => ({ ...f, ICON: icon }))}
+          onColorChange={(color) => setForm(f => ({ ...f, COLOR: color }))}
+        />
       </div>
     </Drawer>
   );

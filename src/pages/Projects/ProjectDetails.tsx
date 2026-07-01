@@ -7,6 +7,7 @@ import {
   Pencil,
   MessageSquare,
   ArrowLeft,
+  Settings,
 } from "lucide-react";
 import { api } from "../../services/api";
 import { toast, formatDate, checkOverdue } from "../../utils/helpers";
@@ -18,6 +19,7 @@ import ProjectTasks from "../../components/ProjectTasks";
 import Chat from "../Chat/Chat";
 import { getDisplayRole, getUserLevel } from "../../utils/user";
 import ProjectAnalysis from "../../components/ProjectAnalysis";
+import { ProjectIconPicker, DynamicIcon } from "../../components/ProjectIconPicker";
 const normalizeRole = (role: string) =>
   String(role || "")
     .normalize("NFD")
@@ -47,6 +49,18 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [newRoleName, setNewRoleName] = useState("");
   const [addingRole, setAddingRole] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [settingsForm, setSettingsForm] = useState({
+    TEN_DA: "",
+    MO_TA: "",
+    NGAY_BAT_DAU: "",
+    NGAY_KET_THUC: "",
+    ICON: "FolderKanban",
+    COLOR: "#3b82f6",
+  });
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
 
   const userLevel = getUserLevel(user);
   const myId = user?.userInfo?.MA_NV || user?.MA_NV || "";
@@ -192,6 +206,52 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
     }
   };
 
+  const handleOpenSettings = () => {
+    setSettingsForm({
+      TEN_DA: data?.TEN_DA || "",
+      MO_TA: data?.MO_TA || "",
+      NGAY_BAT_DAU: data?.NGAY_BAT_DAU ? new Date(data.NGAY_BAT_DAU).toISOString().split('T')[0] : "",
+      NGAY_KET_THUC: data?.NGAY_KET_THUC ? new Date(data.NGAY_KET_THUC).toISOString().split('T')[0] : "",
+      ICON: data?.ICON || "FolderKanban",
+      COLOR: data?.COLOR || "#3b82f6",
+    });
+    setDeleteConfirmText("");
+    setShowSettingsModal(true);
+  };
+
+  const handleUpdateProjectSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!settingsForm.TEN_DA) return toast.error("Tên dự án không được để trống!");
+    setIsUpdating(true);
+    try {
+      await api.updateProject(id, { ...data, ...settingsForm });
+      toast.success("Cập nhật thông tin dự án thành công!");
+      fetchDetail();
+      setShowSettingsModal(false);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Lỗi cập nhật dự án");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleDeleteProject = async () => {
+    if (deleteConfirmText !== data?.TEN_DA) {
+      return toast.error("Vui lòng gõ đúng tên dự án để xác nhận xóa!");
+    }
+    setIsDeleting(true);
+    try {
+      await api.deleteProject(id);
+      toast.success("Xóa dự án thành công!");
+      setShowSettingsModal(false);
+      if (onNavigate) onNavigate("projects");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Lỗi xóa dự án");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (loading)
     return (
       <div style={{ padding: 40, display: "flex", justifyContent: "center" }}>
@@ -266,6 +326,12 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
                 marginBottom: 4,
               }}
             >
+              <div style={{ 
+                width: 36, height: 36, borderRadius: 8, backgroundColor: `${project.COLOR || '#3b82f6'}15`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 4
+              }}>
+                <DynamicIcon name={project.ICON} color={project.COLOR || '#3b82f6'} size={20} />
+              </div>
               <span style={{ wordBreak: "break-word" }}>{project.TEN_DA}</span>
               {checkOverdue(project.NGAY_KET_THUC, project.TRANG_THAI) && (
                 <Badge color="red">Quá hạn</Badge>
@@ -274,12 +340,22 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
                 {project.TRANG_THAI}
               </Badge>
             </h2>
-            <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>
-              Mã dự án: {project.MA_DA}
-            </p>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 6 }}>
+              <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>
+                Mã dự án: {project.MA_DA}
+              </p>
+              {currentProjectRole && (
+                <div style={{ display: "flex", alignItems: "center", gap: 6, paddingLeft: 12, borderLeft: "1px solid #cbd5e1" }}>
+                  <span style={{ fontSize: 13, color: "#475569", fontWeight: 500 }}>Vai trò của bạn:</span>
+                  <Badge color={currentProjectRole.toLowerCase().includes("trưởng") || currentProjectRole.toLowerCase().includes("quản lý") ? "blue" : currentProjectRole.toLowerCase().includes("phó") ? "green" : "purple"}>
+                    {currentProjectRole}
+                  </Badge>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-        <div style={{ flexShrink: 0 }}>
+        <div style={{ flexShrink: 0, display: "flex", gap: 12 }}>
           {(isMember || isSystemAdmin) && (
             <Btn
               variant="primary"
@@ -287,6 +363,15 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
               onClick={handleProjectChat}
             >
               Chat nhóm
+            </Btn>
+          )}
+          {isSystemAdmin && (
+            <Btn
+              variant="secondary"
+              icon={<Settings size={16} />}
+              onClick={handleOpenSettings}
+            >
+              Cài đặt
             </Btn>
           )}
         </div>
@@ -348,232 +433,286 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
         </form>
       </Modal>
 
-      {activeTab === "overview" ? (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
-            gap: 24,
-          }}
-        >
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <Card>
-              <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>
-                Thông tin chung
-              </h3>
-              <p style={{ color: "#475569", fontSize: 14, lineHeight: 1.6 }}>
-                {project.MO_TA || "Không có mô tả."}
-              </p>
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: 20,
-                  marginTop: 16,
-                  paddingTop: 16,
-                  borderTop: "1px solid #f1f5f9",
-                }}
-              >
-                <div style={{ minWidth: 120 }}>
-                  <p
-                    style={{
-                      fontSize: 12,
-                      color: "#94a3b8",
-                      marginBottom: 4,
-                      fontWeight: 600,
-                    }}
-                  >
-                    NGÀY BẮT ĐẦU
-                  </p>
-                  <p style={{ fontWeight: 600, margin: 0 }}>
-                    {formatDate(project.NGAY_BAT_DAU)}
-                  </p>
-                </div>
-                <div style={{ minWidth: 120 }}>
-                  <p
-                    style={{
-                      fontSize: 12,
-                      color: "#94a3b8",
-                      marginBottom: 4,
-                      fontWeight: 600,
-                    }}
-                  >
-                    NGÀY KẾT THÚC
-                  </p>
-                  <p style={{ fontWeight: 600, margin: 0 }}>
-                    {formatDate(project.NGAY_KET_THUC)}
-                  </p>
-                </div>
-                {canManageProject && (
-                  <div style={{ minWidth: 160, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
-                    <p
-                      style={{
-                        fontSize: 12,
-                        color: "#94a3b8",
-                        marginBottom: 4,
-                        fontWeight: 600,
-                      }}
-                    >
-                      CẬP NHẬT TRẠNG THÁI
-                    </p>
-                    <CustomSelect
-                      value={project.TRANG_THAI?.trim()}
-                      onChange={handleChangeStatus}
-                      options={STATUS_OPTIONS.map((s) => ({ label: s, value: s }))}
-                    />
-                  </div>
-                )}
-              </div>
-            </Card>
-            <ProjectAnalysis projectId={id!} />
+      <Modal
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+        title="Cài đặt Dự án"
+      >
+        <form onSubmit={handleUpdateProjectSettings} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <FormField label="Tên dự án *">
+            <input
+              type="text"
+              className="form-input"
+              value={settingsForm.TEN_DA}
+              onChange={(e) => setSettingsForm({ ...settingsForm, TEN_DA: e.target.value })}
+              required
+            />
+          </FormField>
+          
+          <div style={{ display: "flex", gap: 16 }}>
+            <div style={{ flex: 1 }}>
+              <FormField label="Ngày bắt đầu">
+                <input
+                  type="date"
+                  className="form-input"
+                  value={settingsForm.NGAY_BAT_DAU}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, NGAY_BAT_DAU: e.target.value })}
+                />
+              </FormField>
+            </div>
+            <div style={{ flex: 1 }}>
+              <FormField label="Ngày kết thúc">
+                <input
+                  type="date"
+                  className="form-input"
+                  value={settingsForm.NGAY_KET_THUC}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, NGAY_KET_THUC: e.target.value })}
+                />
+              </FormField>
+            </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <Card>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: 16,
-                }}
-              >
-                <h3 style={{ fontSize: 16, fontWeight: 700 }}>
-                  Thành viên ({members.length})
-                </h3>
-              </div>
-              <div
-                style={{ display: "flex", flexDirection: "column", gap: 12 }}
-              >
-                {members.map((m: any) => (
-                  <div
-                    key={m.MA_NV}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "12px",
-                      background: "#f8fafc",
-                      borderRadius: 12,
-                    }}
-                  >
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 12 }}
-                    >
-                      <Avatar name={m.HO_TEN || m.EMAIL || m.MA_NV} size="md" />
-                      <div>
-                        <p
-                          style={{
-                            fontSize: 14,
-                            fontWeight: 600,
-                            margin: 0,
-                            color: "#1e293b",
-                          }}
-                        >
-                          {m.HO_TEN || m.EMAIL || m.MA_NV}
-                        </p>
-                        <p
-                          style={{ fontSize: 12, color: "#64748b", margin: 0 }}
-                        >
-                          {m.VAI_TRO || m.VaiTro || m.VAI_TRO_DU_AN}
-                        </p>
-                      </div>
-                    </div>
-                    {canManageProject && (
-                      <Btn
-                        onClick={() => handleRemoveMember(m.MA_NV)}
-                        style={{
-                          color: "#ef4444",
-                          background: "#fee2e2",
-                          border: "none",
-                          cursor: "pointer",
-                          padding: 8,
-                          borderRadius: 8,
-                        }}
-                      >
-                        <Trash2 size={14} />
-                      </Btn>
-                    )}
-                  </div>
-                ))}
-              </div>
+          <FormField label="Mô tả dự án">
+            <textarea
+              className="form-input"
+              rows={3}
+              value={settingsForm.MO_TA}
+              onChange={(e) => setSettingsForm({ ...settingsForm, MO_TA: e.target.value })}
+            />
+          </FormField>
 
+          <ProjectIconPicker 
+            icon={settingsForm.ICON} 
+            color={settingsForm.COLOR} 
+            onIconChange={(icon) => setSettingsForm({ ...settingsForm, ICON: icon })}
+            onColorChange={(color) => setSettingsForm({ ...settingsForm, COLOR: color })}
+          />
+
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 10, paddingBottom: 20, borderBottom: "1px solid #f1f5f9" }}>
+            <Btn type="button" variant="secondary" onClick={() => setShowSettingsModal(false)}>
+              Hủy
+            </Btn>
+            <Btn type="submit" variant="primary" loading={isUpdating}>
+              Lưu cập nhật
+            </Btn>
+          </div>
+        </form>
+
+        <div style={{ marginTop: 20, padding: 16, border: "1px solid #fee2e2", borderRadius: 8, backgroundColor: "#fef2f2" }}>
+          <h4 style={{ color: "#ef4444", margin: "0 0 8px 0", fontSize: 15, fontWeight: 700 }}>Xóa dự án (Danger Zone)</h4>
+          <p style={{ color: "#991b1b", fontSize: 13, marginBottom: 16, lineHeight: 1.5 }}>
+            Hành động này sẽ xóa vĩnh viễn dự án cùng toàn bộ các giai đoạn, nhiệm vụ và phân công nhân sự liên quan. Dữ liệu không thể khôi phục.
+            <br />Để xác nhận, vui lòng nhập đúng tên dự án: <strong style={{ color: "#7f1d1d" }}>{project.TEN_DA}</strong>
+          </p>
+          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+            <input
+              type="text"
+              className="form-input"
+              style={{ flex: 1, borderColor: "#fca5a5" }}
+              placeholder={project.TEN_DA}
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+            />
+            <Btn 
+              variant="danger" 
+              icon={<Trash2 size={16} />} 
+              onClick={handleDeleteProject}
+              loading={isDeleting}
+              disabled={deleteConfirmText !== project.TEN_DA}
+            >
+              Xóa dự án
+            </Btn>
+          </div>
+        </div>
+      </Modal>
+
+      {activeTab === "overview" ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          {/* Tầng 1: Thông tin chung (Full width) */}
+          <Card style={{ position: "relative", zIndex: 10 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>
+              Thông tin chung
+            </h3>
+            <p style={{ color: "#475569", fontSize: 14, lineHeight: 1.6 }}>
+              {project.MO_TA || "Không có mô tả."}
+            </p>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 24,
+                marginTop: 16,
+                paddingTop: 16,
+                borderTop: "1px solid #f1f5f9",
+              }}
+            >
+              <div style={{ minWidth: 120 }}>
+                <p style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4, fontWeight: 600 }}>
+                  NGÀY BẮT ĐẦU
+                </p>
+                <p style={{ fontWeight: 600, margin: 0, color: "#1e293b" }}>
+                  {formatDate(project.NGAY_BAT_DAU)}
+                </p>
+              </div>
+              <div style={{ minWidth: 120 }}>
+                <p style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4, fontWeight: 600 }}>
+                  NGÀY KẾT THÚC
+                </p>
+                <p style={{ fontWeight: 600, margin: 0, color: "#1e293b" }}>
+                  {formatDate(project.NGAY_KET_THUC)}
+                </p>
+              </div>
               {canManageProject && (
-                <div
-                  style={{
-                    marginTop: 20,
-                    paddingTop: 20,
-                    borderTop: "1px solid #f1f5f9",
-                  }}
-                >
-                  <h4
-                    style={{
-                      fontSize: 13,
-                      fontWeight: 700,
-                      marginBottom: 12,
-                      color: "#64748b",
-                    }}
-                  >
-                    Thêm thành viên
-                  </h4>
-                  <div
-                    style={{ display: "flex", flexDirection: "column", gap: 8 }}
-                  >
-                    <CustomSelect
-                      className="form-input"
-                      value={addMember.MA_NV}
-                      onChange={(e: any) =>
-                        setAddMember((p) => ({ ...p, MA_NV: e.target.value }))
-                      }
-                      options={[
-                        { label: "-- Chọn nhân viên --", value: "" },
-                        ...employees.map((e) => ({
-                          label: e.HO_TEN || e.EMAIL || e.MA_NV,
-                          value: e.MA_NV,
-                        })),
-                      ]}
-                    />
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <CustomSelect
-                        className="form-input"
-                        value={addMember.MA_VAI_TRO}
-                        onChange={(e: any) =>
-                          setAddMember((p) => ({
-                            ...p,
-                            MA_VAI_TRO: Number(e.target.value),
-                          }))
-                        }
-                        options={projectRoles.map((r) => ({
-                          label: r.TEN_VAI_TRO,
-                          value: r.MA_VAI_TRO,
-                        }))}
-                        style={{ flex: 1 }}
-                      />
-                      <Btn
-                        onClick={() => setShowRoleModal(true)}
-                        style={{ padding: "0 12px" }}
-                        title="Thêm vai trò mới"
-                      >
-                        <Plus size={16} />
-                      </Btn>
-                    </div>
-                  </div>
-                  <Btn
-                    variant="primary"
-                    style={{
-                      marginTop: 12,
-                      width: "100%",
-                      justifyContent: "center",
-                    }}
-                    onClick={handleAddMember}
-                    loading={addingMember}
-                  >
-                    Thêm vào dự án
-                  </Btn>
+                <div style={{ minWidth: 200, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+                  <p style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4, fontWeight: 600 }}>
+                    CẬP NHẬT TRẠNG THÁI
+                  </p>
+                  <CustomSelect
+                    value={project.TRANG_THAI?.trim()}
+                    onChange={handleChangeStatus}
+                    options={STATUS_OPTIONS.map((s) => ({ label: s, value: s }))}
+                  />
                 </div>
               )}
-            </Card>
+            </div>
+          </Card>
+
+          {/* Tầng 2: Biểu đồ (rộng) & Thành viên (hẹp) */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 24 }}>
+            {/* Cột trái (Biểu đồ) */}
+            <div style={{ flex: "2 1 500px", minWidth: 0 }}>
+              <ProjectAnalysis projectId={id!} />
+            </div>
+
+            {/* Cột phải (Thành viên) */}
+            <div style={{ flex: "1 1 300px", minWidth: 0 }}>
+              <Card>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 16,
+                  }}
+                >
+                  <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+                    Thành viên ({members.length})
+                  </h3>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: 400, overflowY: "auto", paddingRight: 4 }}>
+                  {members.map((m: any) => (
+                    <div
+                      key={m.MA_NV}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "12px",
+                        background: "#f8fafc",
+                        borderRadius: 12,
+                        border: "1px solid #f1f5f9"
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <Avatar name={m.HO_TEN || m.EMAIL || m.MA_NV} size="md" />
+                        <div>
+                          <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: "#1e293b" }}>
+                            {m.HO_TEN || m.EMAIL || m.MA_NV}
+                          </p>
+                          <div style={{ marginTop: 6 }}>
+                            <Badge color={(m.VAI_TRO || m.VaiTro || m.VAI_TRO_DU_AN)?.toLowerCase().includes("trưởng") ? "blue" : "purple"}>
+                              {m.VAI_TRO || m.VaiTro || m.VAI_TRO_DU_AN || "Thành viên"}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                      {canManageProject && (
+                        <Btn
+                          onClick={() => handleRemoveMember(m.MA_NV)}
+                          style={{
+                            color: "#ef4444",
+                            background: "#fee2e2",
+                            border: "none",
+                            cursor: "pointer",
+                            padding: 8,
+                            borderRadius: 8,
+                          }}
+                          title="Gỡ khỏi dự án"
+                        >
+                          <Trash2 size={14} />
+                        </Btn>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {canManageProject && (
+                  <div
+                    style={{
+                      marginTop: 20,
+                      paddingTop: 20,
+                      borderTop: "1px solid #f1f5f9",
+                    }}
+                  >
+                    <h4 style={{ fontSize: 13, fontWeight: 700, marginBottom: 12, color: "#475569" }}>
+                      Thêm thành viên
+                    </h4>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      <CustomSelect
+                        className="form-input"
+                        value={addMember.MA_NV}
+                        onChange={(e: any) =>
+                          setAddMember((p) => ({ ...p, MA_NV: e.target.value }))
+                        }
+                        options={[
+                          { label: "-- Chọn nhân viên --", value: "" },
+                          ...employees.map((e) => ({
+                            label: e.HO_TEN || e.EMAIL || e.MA_NV,
+                            value: e.MA_NV,
+                          })),
+                        ]}
+                      />
+                      <div style={{ display: "flex", gap: 10 }}>
+                        <CustomSelect
+                          className="form-input"
+                          value={addMember.MA_VAI_TRO}
+                          onChange={(e: any) =>
+                            setAddMember((p) => ({
+                              ...p,
+                              MA_VAI_TRO: Number(e.target.value),
+                            }))
+                          }
+                          options={projectRoles.map((r) => ({
+                            label: r.TEN_VAI_TRO,
+                            value: r.MA_VAI_TRO,
+                          }))}
+                          style={{ flex: 1 }}
+                        />
+                        <Btn
+                          onClick={() => setShowRoleModal(true)}
+                          style={{ padding: "0 12px", background: "#f1f5f9", border: "1px solid #cbd5e1" }}
+                          title="Thêm vai trò mới"
+                        >
+                          <Plus size={16} color="#475569" />
+                        </Btn>
+                      </div>
+                    </div>
+                    <Btn
+                      variant="primary"
+                      style={{
+                        marginTop: 16,
+                        width: "100%",
+                        justifyContent: "center",
+                      }}
+                      onClick={handleAddMember}
+                      loading={addingMember}
+                    >
+                      Thêm vào dự án
+                    </Btn>
+                  </div>
+                )}
+              </Card>
+            </div>
           </div>
         </div>
       ) : activeTab === "tasks" ? (
@@ -583,6 +722,8 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
           isAdmin={canManageProject}
           currentUser={user}
           projectStatus={project.TRANG_THAI}
+          projectStartDate={project.NGAY_BAT_DAU}
+          projectEndDate={project.NGAY_KET_THUC}
           onNavigate={onNavigate}
         />
       ) : activeTab === "chat" ? (

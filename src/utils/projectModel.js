@@ -19,6 +19,8 @@ export const CREATE_PROJECT_INITIAL_FORM = Object.freeze({
   NGAY_KET_THUC: "",
   TRANG_THAI: "Đang thực hiện",
   CONG_KHAI: true,
+  ICON: "FolderKanban",
+  COLOR: "#3b82f6",
 });
 
 export const buildCreateProjectModel = (form = {}) => ({
@@ -28,4 +30,6 @@ export const buildCreateProjectModel = (form = {}) => ({
   NGAY_KET_THUC: toNullableDate(form.NGAY_KET_THUC),
   TRANG_THAI: toNullableString(form.TRANG_THAI),
   CONG_KHAI: form.CONG_KHAI !== undefined ? Boolean(form.CONG_KHAI) : true,
+  ICON: toNullableString(form.ICON) ?? "FolderKanban",
+  COLOR: toNullableString(form.COLOR) ?? "#3b82f6",
 });

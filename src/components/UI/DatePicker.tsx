@@ -36,6 +36,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         maxDate={maxDate}
         disabled={disabled}
         showPopperArrow={false}
+        portalId="root-portal"
       />
       <Calendar className="datepicker-icon" size={16} color="#888" />
     </div>

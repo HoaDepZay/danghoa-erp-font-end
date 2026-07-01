@@ -3,6 +3,7 @@ import { FolderKanban, User } from "lucide-react";
 import { Badge } from "../../components/UI/index";
 import { formatDate, checkOverdue } from "../../utils/helpers";
 import { STATUS_COLOR } from "./useProjects";
+import { DynamicIcon } from "../../components/ProjectIconPicker";
 
 interface ProjectCardProps {
   project: any;
@@ -41,8 +42,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) =>
   const end    = project.NGAY_KET_THUC;
   const isOverdue = checkOverdue(end, status);
   const isPublic = project.CONG_KHAI;
-
-  const colors = stringToProjectColor(name);
+  const bgCol = project.COLOR ? `${project.COLOR}15` : stringToProjectColor(name).bg;
+  const iconCol = project.COLOR || stringToProjectColor(name).icon;
+  const iconName = project.ICON || 'FolderKanban';
 
   return (
     <div
@@ -71,17 +73,19 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) =>
           <div
             style={{
               width: 40,
+              minWidth: 40,
               height: 40,
-              background: colors.bg,
+              background: bgCol,
               borderRadius: 12,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              flexShrink: 0
             }}
           >
-            <FolderKanban size={18} color={colors.icon} />
+            <DynamicIcon name={iconName} color={iconCol} size={18} />
           </div>
-          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
              {isOverdue && <Badge color="red">Quá hạn</Badge>}
              {isPublic ? <Badge color="blue">Công khai</Badge> : <Badge color="gray">Nội bộ</Badge>}
              <Badge color={STATUS_COLOR[status] || "gray"}>{status}</Badge>

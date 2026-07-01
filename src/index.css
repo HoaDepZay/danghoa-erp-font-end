@@ -608,7 +608,7 @@ body::before {
 .form-input {
   width: 100%;
   padding: 10px 14px;
-  border: 1px solid var(--border-light);
+  border: 1px solid #cbd5e1; /* Tăng độ tương phản viền */
   border-radius: 4px;
   background: #ffffff;
   backdrop-filter: none;
@@ -2441,6 +2441,10 @@ select.form-input {
 }
 .custom-datepicker-wrapper input {
   padding-right: 40px !important;
+}
+
+.react-datepicker-popper {
+  z-index: 99999 !important;
 }
 
 .react-datepicker {

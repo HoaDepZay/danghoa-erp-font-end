@@ -1,6 +1,7 @@
 import { Btn } from '../../components/UI';
 import React from "react";
-import { Building2, Edit3, Users, ChevronRight } from "lucide-react";
+import { Edit3, Users, ChevronRight } from "lucide-react";
+import { DynamicIcon } from "../../components/ProjectIconPicker";
 interface DepartmentTableProps {
   departments: any[];
   userLevel: number;
@@ -34,7 +35,10 @@ export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, u
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
       {departments.map((dept) => {
         const name = dept.TEN_PB || "";
-        const colors = stringToDeptColor(name);
+        const fallbackColors = stringToDeptColor(name);
+        const iconCol = dept.COLOR || fallbackColors.icon;
+        const bgCol = dept.COLOR ? `${dept.COLOR}15` : fallbackColors.bg;
+        const iconName = dept.ICON || 'Building';
         return (
           <div key={dept.MA_PHG} className="card" style={{ transition: "box-shadow 0.15s", cursor: "pointer", background: "#fff", borderRadius: 16, padding: 16, border: "1px solid #eee" }}
             onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.1)"}
@@ -50,8 +54,8 @@ export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, u
             <div className="card-body">
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 40, height: 40, background: colors.bg, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <Building2 size={18} color={colors.icon} />
+                  <div style={{ width: 40, height: 40, background: bgCol, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <DynamicIcon name={iconName} size={18} color={iconCol} />
                   </div>
                 <div>
                   <p style={{ fontWeight: 700, color: "#111", fontSize: 14, margin: 0 }}>{dept.TEN_PB}</p>

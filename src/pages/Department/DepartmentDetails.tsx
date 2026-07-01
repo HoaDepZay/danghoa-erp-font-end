@@ -14,6 +14,7 @@ import { Btn, Card, Avatar, Spinner } from "../../components/UI/index";
 import Chat from "../Chat/Chat";
 import LeaveManagement from "../Leave/LeaveManagement";
 import { getUserLevel } from "../../utils/user";
+import { DynamicIcon } from "../../components/ProjectIconPicker";
 const DepartmentDetails = ({ user, onNavigate }: any) => {
   const deptId = localStorage.getItem("selectedDeptId");
   const [data, setData] = useState<any>(null);
@@ -136,8 +137,8 @@ const DepartmentDetails = ({ user, onNavigate }: any) => {
         </Btn>
         <div style={{ flex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 48, height: 48, borderRadius: 12, background: "#e0e7ff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Building2 size={24} color="#4f46e5" />
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: data.COLOR ? `${data.COLOR}15` : "#e0e7ff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <DynamicIcon name={data.ICON || 'Building'} size={24} color={data.COLOR || "#4f46e5"} />
             </div>
             <div>
               <h1 className="page-title" style={{ margin: 0, fontSize: 24 }}>

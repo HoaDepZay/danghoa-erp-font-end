@@ -5,6 +5,7 @@ import { toast } from "../../utils/helpers";
 import { CREATE_PROJECT_INITIAL_FORM, buildCreateProjectModel } from "../../utils/projectModel";
 import { Btn, Card, FormField, DatePicker, CustomSelect, Avatar } from "../../components/UI/index";
 import { STATUS_OPTIONS } from "./useProjects";
+import { ProjectIconPicker } from "../../components/ProjectIconPicker";
 
 interface PhaseDraft {
   id: string;
@@ -278,6 +279,14 @@ const CreateProject: React.FC<any> = ({ onNavigate }) => {
                   </div>
                 </label>
               </FormField>
+
+              <ProjectIconPicker 
+                icon={form.ICON} 
+                color={form.COLOR} 
+                onIconChange={(icon) => setForm({ ...form, ICON: icon })}
+                onColorChange={(color) => setForm({ ...form, COLOR: color })}
+              />
+
             </div>
           </Card>
 

@@ -13,10 +13,12 @@ interface ProjectTasksProps {
   defaultView?: "list" | "calendar" | "kanban" | "timeline";
   currentUser?: any;
   projectStatus?: string;
+  projectStartDate?: string;
+  projectEndDate?: string;
   onNavigate?: (page: string) => void;
 }
 
-const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, isAdmin, defaultView = "list", onNavigate }) => {
+const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, isAdmin, defaultView = "timeline", onNavigate, projectStartDate, projectEndDate }) => {
   const [phases, setPhases] = useState<any[]>([]);
   const [loadingPhases, setLoadingPhases] = useState(false);
   const [showAddPhaseForm, setShowAddPhaseForm] = useState(false);
@@ -126,10 +128,10 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, isAdmin, default
     <div className="project-phases" style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
         <div style={{ display: "flex", background: "#f1f5f9", borderRadius: 8, padding: 4 }}>
+          <button onClick={() => setView("timeline")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", border: "none", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer", background: view === "timeline" ? "#fff" : "transparent", color: view === "timeline" ? "#111" : "#64748b", boxShadow: view === "timeline" ? "0 1px 3px rgba(0,0,0,0.1)" : "none" }}><Activity size={14}/> Sơ đồ</button>
           <button onClick={() => setView("list")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", border: "none", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer", background: view === "list" ? "#fff" : "transparent", color: view === "list" ? "#111" : "#64748b", boxShadow: view === "list" ? "0 1px 3px rgba(0,0,0,0.1)" : "none" }}><List size={14}/> Danh sách</button>
           <button onClick={() => setView("kanban")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", border: "none", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer", background: view === "kanban" ? "#fff" : "transparent", color: view === "kanban" ? "#111" : "#64748b", boxShadow: view === "kanban" ? "0 1px 3px rgba(0,0,0,0.1)" : "none" }}><Kanban size={14}/> Kanban</button>
           <button onClick={() => setView("calendar")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", border: "none", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer", background: view === "calendar" ? "#fff" : "transparent", color: view === "calendar" ? "#111" : "#64748b", boxShadow: view === "calendar" ? "0 1px 3px rgba(0,0,0,0.1)" : "none" }}><CalendarDays size={14}/> Lịch</button>
-          <button onClick={() => setView("timeline")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", border: "none", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer", background: view === "timeline" ? "#fff" : "transparent", color: view === "timeline" ? "#111" : "#64748b", boxShadow: view === "timeline" ? "0 1px 3px rgba(0,0,0,0.1)" : "none" }}><Activity size={14}/> Sơ đồ</button>
         </div>
         {isAdmin && (
           <Btn size="sm" variant="primary" icon={<Plus size={14} />} onClick={() => setShowAddPhaseForm(!showAddPhaseForm)}>
@@ -139,7 +141,7 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, isAdmin, default
       </div>
 
       {showAddPhaseForm && (
-        <Card style={{ padding: 16, background: "#f8fafc", border: "1px dashed #cbd5e1" }}>
+        <Card style={{ padding: 20, background: "#ffffff", border: "1px solid #cbd5e1", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
           <h6 style={{ margin: "0 0 16px 0", fontSize: 14, fontWeight: 700 }}>Tạo giai đoạn mới</h6>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <FormField label="Tên giai đoạn *">
@@ -154,10 +156,20 @@ const ProjectTasks: React.FC<ProjectTasksProps> = ({ projectId, isAdmin, default
               />
             </FormField>
             <FormField label="Ngày bắt đầu">
-              <DatePicker value={phaseForm.ngayBatDau} onChange={(d) => setPhaseForm({...phaseForm, ngayBatDau: d ? d.toLocaleDateString('en-CA') : ""})} />
+              <DatePicker 
+                value={phaseForm.ngayBatDau} 
+                onChange={(d) => setPhaseForm({...phaseForm, ngayBatDau: d ? d.toLocaleDateString('en-CA') : ""})}
+                minDate={projectStartDate ? new Date(projectStartDate) : undefined}
+                maxDate={projectEndDate ? new Date(projectEndDate) : undefined}
+              />
             </FormField>
             <FormField label="Ngày kết thúc">
-              <DatePicker value={phaseForm.ngayKetThuc} onChange={(d) => setPhaseForm({...phaseForm, ngayKetThuc: d ? d.toLocaleDateString('en-CA') : ""})} />
+              <DatePicker 
+                value={phaseForm.ngayKetThuc} 
+                onChange={(d) => setPhaseForm({...phaseForm, ngayKetThuc: d ? d.toLocaleDateString('en-CA') : ""})}
+                minDate={phaseForm.ngayBatDau ? new Date(phaseForm.ngayBatDau) : (projectStartDate ? new Date(projectStartDate) : undefined)}
+                maxDate={projectEndDate ? new Date(projectEndDate) : undefined}
+              />
             </FormField>
           </div>
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 16 }}>

@@ -23,6 +23,7 @@ import { Drawer } from "../../components/UI/index";
 import { STATUS_COLOR, STATUS_OPTIONS, useProjects } from "./useProjects";
 import { ProjectCard } from "./ProjectCard";
 import { ProjectListView, ProjectKanbanView, ProjectCalendarView } from "./ProjectViews";
+import { ProjectIconPicker } from "../../components/ProjectIconPicker";
 
 import ProjectTasks from "../../components/ProjectTasks";
 // ─── Sửa dự án ──────────────────────────────────────────────────────────────
@@ -44,6 +45,8 @@ const EditProjectModal: React.FC<any> = ({
         NGAY_KET_THUC: project.NGAY_KET_THUC  ?? "",
         TRANG_THAI:   project.TRANG_THAI    ?? "Đang thực hiện",
         CONG_KHAI:    project.CONG_KHAI !== undefined ? project.CONG_KHAI : true,
+        ICON:         project.ICON ?? "FolderKanban",
+        COLOR:        project.COLOR ?? "#3b82f6",
       });
       if (form.NGAY_BAT_DAU)  form.NGAY_BAT_DAU  = String(form.NGAY_BAT_DAU).slice(0, 10) as any;
       if (form.NGAY_KET_THUC) form.NGAY_KET_THUC = String(form.NGAY_KET_THUC).slice(0, 10) as any;
@@ -149,9 +152,15 @@ const EditProjectModal: React.FC<any> = ({
               onChange={(e) => setForm((f) => ({ ...f, CONG_KHAI: e.target.checked }))}
               style={{ width: 16, height: 16 }}
             />
-            <span style={{ fontSize: "14px", color: "var(--text-color, #333)" }}>Dự án công khai (Mọi người đều có thể xem)</span>
+            <span style={{ fontSize: 13, fontWeight: 500 }}>Dự án công khai (Ai cũng có thể xem)</span>
           </label>
         </FormField>
+        <ProjectIconPicker 
+          icon={form.ICON} 
+          color={form.COLOR} 
+          onIconChange={(icon) => setForm({ ...form, ICON: icon })}
+          onColorChange={(color) => setForm({ ...form, COLOR: color })}
+        />
       </div>
     </Modal>
   );

@@ -1,130 +1,123 @@
 import React, { useState, useEffect } from "react";
 import { api } from "../services/api";
 import { Card, Spinner } from "./UI";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { checkOverdue } from "../utils/helpers";
 
 export default function ProjectAnalysis({ projectId }: { projectId: number | string }) {
-  const [tasks, setTasks] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!projectId) return;
-    api.getProjectTasks(projectId).then((res: any) => {
-      setTasks(res.data?.data || []);
-      setLoading(false);
-    }).catch((err: any) => {
-      console.error(err);
-      setLoading(false);
-    });
+    
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // 1. Lấy danh sách các giai đoạn của dự án
+        const phasesRes = await api.getPhasesByProject(projectId);
+        const phases = phasesRes.data?.data || [];
+
+        if (phases.length === 0) {
+          setChartData([]);
+          setLoading(false);
+          return;
+        }
+
+        // 2. Lấy nhiệm vụ cho từng giai đoạn đồng thời
+        const tasksPromises = phases.map((p: any) => api.getTasksByPhase(p.MA_GD || p.maGd));
+        const tasksResponses = await Promise.allSettled(tasksPromises);
+
+        // 3. Xử lý dữ liệu
+        const data = phases.map((p: any, index: number) => {
+          const res = tasksResponses[index];
+          const phaseTasks = res.status === "fulfilled" ? (res.value?.data?.data || res.value?.data || []) : [];
+          
+          let total = phaseTasks.length;
+          let completed = 0;
+          let overdue = 0;
+
+          phaseTasks.forEach((t: any) => {
+            const status = String(t.TRANG_THAI || t.trangThai || "").toLowerCase();
+            const isCompleted = status === "đã duyệt" || status === "hoàn thành";
+            if (isCompleted) {
+              completed++;
+            } else {
+              const endDate = t.NGAY_KET_THUC || t.ngayKetThuc;
+              if (checkOverdue(endDate, status)) {
+                overdue++;
+              }
+            }
+          });
+
+          return {
+            name: p.TEN_GD || p.tenGd || `Giai đoạn ${index + 1}`,
+            "Tổng số": total,
+            "Hoàn thành": completed,
+            "Quá hạn": overdue,
+          };
+        });
+
+        setChartData(data);
+      } catch (err: any) {
+        console.error("Lỗi lấy dữ liệu phân tích:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [projectId]);
 
   if (loading) return <Card><Spinner /></Card>;
 
-  if (tasks.length === 0) return (
+  if (chartData.length === 0) return (
     <Card>
       <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>Biểu đồ phân tích dự án</h3>
-      <p style={{ color: '#666', fontSize: 14 }}>Dự án chưa có nhiệm vụ nào để phân tích.</p>
+      <p style={{ color: '#666', fontSize: 14 }}>Dự án chưa có giai đoạn hoặc nhiệm vụ nào để phân tích.</p>
     </Card>
   );
 
-  const statuses: Record<string, number> = {
-    'Mới tạo': 0,
-    'Đang thực hiện': 0,
-    'Chờ duyệt': 0,
-    'Hoàn thành': 0
-  };
-
-  const statusColors: Record<string, string> = {
-    'Mới tạo': '#94a3b8',
-    'Đang thực hiện': '#3b82f6',
-    'Chờ duyệt': '#eab308',
-    'Hoàn thành': '#22c55e'
-  };
-
-  tasks.forEach(t => {
-    const st = t.TRANG_THAI || 'Mới tạo';
-    if (statuses[st] !== undefined) {
-      statuses[st]++;
-    } else {
-      statuses[st] = 1;
-    }
-  });
-
-  const total = tasks.length;
-  
-  let currentAngle = 0;
-  const radius = 60;
-  const circumference = 2 * Math.PI * radius;
-  
-  const svgPieces = Object.keys(statuses).map(key => {
-    const val = statuses[key];
-    if (val === 0) return null;
-    const percentage = val / total;
-    const strokeDasharray = `${percentage * circumference} ${circumference}`;
-    const strokeDashoffset = -currentAngle;
-    currentAngle += percentage * circumference;
-    
-    return (
-      <circle
-        key={key}
-        cx="100"
-        cy="100"
-        r={radius}
-        fill="transparent"
-        stroke={statusColors[key] || '#ccc'}
-        strokeWidth="25"
-        strokeDasharray={strokeDasharray}
-        strokeDashoffset={strokeDashoffset}
-        transform="rotate(-90 100 100)"
-        style={{ transition: 'stroke-dasharray 1s ease-in-out' }}
-      />
-    );
-  });
-
   return (
     <Card>
-      <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20 }}>Biểu đồ phân tích tiến độ</h3>
-      <div style={{ display: 'flex', gap: 40, alignItems: 'center', flexWrap: 'wrap' }}>
-        <div style={{ width: 200, height: 200, position: 'relative' }}>
-          <svg viewBox="0 0 200 200" style={{ width: '100%', height: '100%' }}>
-            {svgPieces}
-            <text x="100" y="105" textAnchor="middle" fontSize="32" fill="#111" fontWeight="800">
-              {total}
-            </text>
-            <text x="100" y="125" textAnchor="middle" fontSize="12" fill="#64748b" fontWeight="600">
-              NHIỆM VỤ
-            </text>
-          </svg>
-        </div>
-        <div style={{ flex: 1, minWidth: 250, display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {Object.keys(statuses).map(key => {
-            const val = statuses[key];
-            const pct = total ? Math.round((val / total) * 100) : 0;
-            return (
-              <div key={key}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ width: 10, height: 10, borderRadius: '50%', background: statusColors[key] || '#ccc' }} />
-                    <span style={{ fontSize: 14, fontWeight: 600, color: '#334155' }}>{key}</span>
-                  </div>
-                  <span style={{ fontSize: 14, color: '#64748b', fontWeight: 500 }}>
-                    <strong style={{ color: '#111' }}>{val}</strong> ({pct}%)
-                  </span>
-                </div>
-                <div style={{ height: 8, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' }}>
-                  <div 
-                    style={{ 
-                      height: '100%', 
-                      width: `${pct}%`, 
-                      background: statusColors[key] || '#ccc', 
-                      borderRadius: 4,
-                      transition: 'width 1s ease-in-out'
-                    }} 
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
+      <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20 }}>Biểu đồ phân tích tiến độ theo giai đoạn</h3>
+      <div style={{ width: "100%", height: 350 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={chartData}
+            margin={{
+              top: 20,
+              right: 30,
+              left: 0,
+              bottom: 5,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+            <XAxis dataKey="name" tick={{ fill: "#64748b", fontSize: 13 }} axisLine={{ stroke: "#cbd5e1" }} tickLine={false} />
+            <YAxis tick={{ fill: "#64748b", fontSize: 13 }} axisLine={{ stroke: "#cbd5e1" }} tickLine={false} allowDecimals={false} />
+            <Tooltip 
+              contentStyle={{ borderRadius: 8, border: "none", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)" }}
+              cursor={{ fill: "#f1f5f9" }}
+            />
+            <Legend wrapperStyle={{ paddingTop: 20, fontSize: 14, fontWeight: 500 }} />
+            
+            {/* Cột 1: Tổng số */}
+            <Bar dataKey="Tổng số" fill="#94a3b8" radius={[4, 4, 0, 0]} barSize={24} />
+            {/* Cột 2: Hoàn thành */}
+            <Bar dataKey="Hoàn thành" fill="#10b981" radius={[4, 4, 0, 0]} barSize={24} />
+            {/* Cột 3: Quá hạn */}
+            <Bar dataKey="Quá hạn" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={24} />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </Card>
   );
