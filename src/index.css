@@ -73,12 +73,11 @@ body::before {
 /* ── App Shell ──────────────────────────────────────────────── */
 .app-shell {
   display: flex;
-  height: 100vh;
+  position: fixed;
+  inset: 0;
   width: 100%;
-  min-width: 360px;
-  position: relative;
-  overflow-x: auto;
-  overflow-y: hidden;
+  height: 100%;
+  overflow: hidden;
 }
 
 .app-main {
