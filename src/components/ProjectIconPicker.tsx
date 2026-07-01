@@ -7,7 +7,7 @@ import {
   Feather, Flag, Flame, Gamepad, Gift, Headphones, Heart, Image,
   Key, Leaf, Lightbulb, Map, Microscope, Music, Package, Palette,
   PieChart, Puzzle, Radio, Scissors, Shield, ShoppingBag, Speaker,
-  Sun, Tent, Tool, Trophy, Truck, Umbrella, Video, Wand
+  Sun, Tent, Wrench, Trophy, Truck, Umbrella, Video, Wand
 } from 'lucide-react';
 import { FormField } from './UI';
 
@@ -19,7 +19,7 @@ export const ICON_MAP: Record<string, any> = {
   Feather, Flag, Flame, Gamepad, Gift, Headphones, Heart, Image,
   Key, Leaf, Lightbulb, Map, Microscope, Music, Package, Palette,
   PieChart, Puzzle, Radio, Scissors, Shield, ShoppingBag, Speaker,
-  Sun, Tent, Tool, Trophy, Truck, Umbrella, Video, Wand
+  Sun, Tent, Wrench, Trophy, Truck, Umbrella, Video, Wand
 };
 
 export const PRESET_ICONS = Object.keys(ICON_MAP);
