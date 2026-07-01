@@ -1,3 +1,0 @@
-﻿src/pages/Dashboard/DashboardChart.tsx(86,7): error TS17015: Expected corresponding closing tag for JSX fragment.
-src/pages/Dashboard/DashboardChart.tsx(86,9): error TS1109: Expression expected.
-src/pages/Dashboard/DashboardChart.tsx(87,1): error TS1005: '}' expected.
