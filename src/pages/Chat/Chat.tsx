@@ -62,6 +62,7 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
   const [searchDone, setSearchDone] = useState(false);
   const [attachedFile, setAttachedFile] = useState<{ file: File; url: string; type: string } | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
@@ -230,6 +231,26 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      
+      const sizeMB = file.size / (1024 * 1024);
+      const isImage = file.type.startsWith("image/");
+      const isVideo = file.type.startsWith("video/");
+      
+      if (isImage && sizeMB > 150) {
+        toast.error("Hình ảnh tải lên không được vượt quá 150MB!");
+        if (fileInputRef.current) fileInputRef.current.value = "";
+        return;
+      }
+      if (isVideo && sizeMB > 200) {
+        toast.error("Video tải lên không được vượt quá 200MB!");
+        if (fileInputRef.current) fileInputRef.current.value = "";
+        return;
+      }
+      if (!isImage && !isVideo && sizeMB > 20) {
+        toast.error("Tệp tải lên không được vượt quá 20MB!");
+        if (fileInputRef.current) fileInputRef.current.value = "";
+        return;
+      }
       setUploading(true);
       try {
         const formData = new FormData();
@@ -428,7 +449,7 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                   {/* Avatar */}
                   <div style={{ position: "relative" }}>
                     {getRoomType(room) === 1 ? (
-                      <Avatar name={getDisplayName(room)} size="md" />
+                      <Avatar name={getDisplayName(room)} size="md" src={getProp(room, 'HINH_DAI_DIEN')} />
                     ) : (
                       <div style={{
                         width: "52px", height: "52px", borderRadius: "14px",
@@ -496,7 +517,7 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                   </Btn>
                 )}
                 {getRoomType(selectedRoom) === 1 ? (
-                  <Avatar name={getDisplayName(selectedRoom)} size="md" />
+                  <Avatar name={getDisplayName(selectedRoom)} size="md" src={getProp(selectedRoom, 'HINH_DAI_DIEN')} />
                 ) : (
                   <div style={{
                     width: "40px", height: "40px", borderRadius: "12px", background: "#f8fafc",
@@ -705,14 +726,14 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                       style={{ display: "flex", flexDirection: isMine ? "row-reverse" : "row", marginBottom: "16px", gap: "12px" }}
                     >
                       {!isMine && (
-                        <Avatar name={tenNv} size="sm" />
+                        <Avatar name={tenNv} size="sm" src={getProp(msg, 'HINH_DAI_DIEN')} />
                       )}
                       <div style={{ maxWidth: "70%", display: "flex", flexDirection: "column", alignItems: isMine ? "flex-end" : "flex-start" }}>
                         {!isMine && <span style={{ fontSize: "11px", fontWeight: 700, color: "#64748b", marginLeft: "4px", marginBottom: "4px" }}>{tenNv}</span>}
                         <div style={{
                           padding: "10px 16px",
                           borderRadius: isMine ? "16px 16px 4px 16px" : "4px 16px 16px 16px",
-                          background: isMine ? "#111" : "#fff",
+                          background: isMine ? "var(--primary-color)" : "#fff",
                           color: isMine ? "#fff" : "#1e293b",
                           fontSize: "14px", lineHeight: "1.5",
                           boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
@@ -721,7 +742,12 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                           {getProp(msg, 'fileurl') ? (
                             <div style={{ marginBottom: noiDung ? 8 : 0 }}>
                               {getProp(msg, 'filetype')?.startsWith('image/') ? (
-                                <img src={`${API_URL}${getProp(msg, 'fileurl')}`} alt="attachment" style={{ maxWidth: 200, borderRadius: 8 }} />
+                                <img 
+    src={`${API_URL}${getProp(msg, 'fileurl')}`} 
+    alt="attachment" 
+    style={{ maxWidth: 200, borderRadius: 8, cursor: "pointer" }} 
+    onClick={() => setPreviewImage(`${API_URL}${getProp(msg, 'fileurl')}`)}
+  />
                               ) : (
                                 <a href={`${API_URL}${getProp(msg, 'fileurl')}`} target="_blank" rel="noreferrer" style={{ color: isMine ? "#fff" : "#2563eb", textDecoration: "underline", display: "flex", alignItems: "center", gap: 4 }}>
                                   <Paperclip size={14} /> Tệp đính kèm
@@ -748,9 +774,9 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                 <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: "#f1f5f9", borderRadius: 8, marginBottom: 12, width: "fit-content" }}>
                   <Paperclip size={14} color="#64748b" />
                   <span style={{ fontSize: 13, color: "#475569" }}>{attachedFile.file.name}</span>
-                  <Btn type="button" onClick={() => setAttachedFile(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", display: "flex", padding: 4 }}>
+                  <button type="button" onClick={() => setAttachedFile(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", display: "flex", padding: 4 }}>
                     <X size={14} />
-                  </Btn>
+                  </button>
                 </div>
               )}
               <form
@@ -762,11 +788,11 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
               >
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} style={{ display: 'none' }} />
                 {(!isMobile && !embeddedRoomId) && (
-                  <Btn type="button" className="input-action-btn" onClick={() => toast.info("Tính năng gửi icon đang được phát triển")}><Smile size={20} /></Btn>
+                  <button type="button" className="input-action-btn" onClick={() => toast.info("Tính năng gửi icon đang được phát triển")}><Smile size={20} /></button>
                 )}
-                <Btn type="button" className="input-action-btn" onClick={() => fileInputRef.current?.click()} style={{ flexShrink: 0 }}>
+                <button type="button" className="input-action-btn" onClick={() => fileInputRef.current?.click()} style={{ flexShrink: 0 }}>
                   {uploading ? <Spinner size={20} color="#64748b" /> : <Paperclip size={20} />}
-                </Btn>
+                </button>
                 <input
                   placeholder="Viết tin nhắn..."
                   value={messageInput}
@@ -774,10 +800,9 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                   style={{ flex: 1, border: "none", background: "none", outline: "none", padding: "10px 0", fontSize: "14px", minWidth: "60px" }}
                 />
                 {(!isMobile && !embeddedRoomId) && (
-                  <Btn type="button" className="input-action-btn" onClick={() => toast.info("Tính năng gửi hình ảnh đang được phát triển")}><ImageIcon size={20} /></Btn>
+                  <button type="button" className="input-action-btn" onClick={() => toast.info("Tính năng gửi hình ảnh đang được phát triển")}><ImageIcon size={20} /></button>
                 )}
-                <Btn
-                  type="submit"
+                <button type="submit"
                   disabled={(!messageInput.trim() && !attachedFile) || uploading}
                   style={{
                     width: "40px", height: "40px", borderRadius: "12px", background: "#111", flexShrink: 0,
@@ -787,7 +812,7 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                   }}
                 >
                   <Send size={18} />
-                </Btn>
+                </button>
               </form>
             </div>
           </>
