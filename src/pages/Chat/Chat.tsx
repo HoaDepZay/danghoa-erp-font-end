@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 import { api, tokenStorage, API_URL } from "../../services/api";
+import chatService from "../../services/chatService";
 import { toast, formatDate, getProp } from "../../utils/helpers";
 import { Spinner, Avatar } from "../../components/UI";
 import { getManv, toArray, getUserName } from "../../utils/user";
@@ -60,6 +61,8 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchDone, setSearchDone] = useState(false);
+  const [editingMessageId, setEditingMessageId] = useState<string | number | null>(null);
+  const [activeMessageMenu, setActiveMessageMenu] = useState<string | number | null>(null);
   const [attachedFile, setAttachedFile] = useState<{ file: File; url: string; type: string } | null>(null);
   const [uploading, setUploading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -68,6 +71,7 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const messageInputRef = useRef<HTMLInputElement>(null);
   const myMaNv = getManv(user);
 
   // 1. Kết nối Socket
@@ -91,6 +95,26 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
       if (roomId) {
         setLatestMsgMap(prev => ({ ...prev, [roomId]: newMsg }));
       }
+    });
+
+    socket.on("chat:message_edited", (payload) => {
+      setMessages(prev => prev.map(m => {
+        const maTN = getProp(m, 'MaTN') || getProp(m, 'MaTinNhan');
+        if (maTN == payload.messageId) {
+          return { ...m, noidung: payload.noiDung, DA_CHINH_SUA: 1, NOI_DUNG: payload.noiDung };
+        }
+        return m;
+      }));
+    });
+
+    socket.on("chat:message_revoked", (payload) => {
+      setMessages(prev => prev.map(m => {
+        const maTN = getProp(m, 'MaTN') || getProp(m, 'MaTinNhan');
+        if (maTN == payload.messageId) {
+          return { ...m, noidung: "Tin nhắn đã bị thu hồi", DA_THU_HOI: 1, fileurl: null, filetype: null, FILE_URL: null, FILE_TYPE: null };
+        }
+        return m;
+      }));
     });
 
     return () => { socket.disconnect(); socketRef.current = null; };
@@ -277,6 +301,31 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if ((!messageInput.trim() && !attachedFile) || !selectedRoom || !socketRef.current) return;
+    
+    if (editingMessageId) {
+       try {
+         await chatService.editMessage(editingMessageId, messageInput);
+         socketRef.current.emit("chat:message_edited", {
+           maPhong: getRoomId(selectedRoom),
+           messageId: editingMessageId,
+           noiDung: messageInput
+         });
+         // Cập nhật state nội bộ ngay lập tức
+         setMessages(prev => prev.map(m => {
+           const maTN = getProp(m, 'MaTN') || getProp(m, 'MaTinNhan');
+           if (maTN == editingMessageId) {
+             return { ...m, noidung: messageInput, DA_CHINH_SUA: 1, NOI_DUNG: messageInput };
+           }
+           return m;
+         }));
+         setEditingMessageId(null);
+         setMessageInput("");
+       } catch(err: any) {
+         toast.error(err.response?.data?.message || "Không thể sửa tin nhắn");
+       }
+       return;
+    }
+
     const currentMsg = messageInput;
     const fileUrl = attachedFile?.url;
     const fileType = attachedFile?.type;
@@ -294,6 +343,39 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
         setMessageInput(currentMsg);
       }
     });
+  };
+
+  const handleRevokeMessage = async (messageId: any) => {
+    try {
+      await chatService.revokeMessage(messageId);
+      socketRef.current?.emit("chat:message_revoked", {
+        maPhong: getRoomId(selectedRoom),
+        messageId: messageId
+      });
+      // Cập nhật state nội bộ ngay lập tức
+      setMessages(prev => prev.map(m => {
+        const maTN = getProp(m, 'MaTN') || getProp(m, 'MaTinNhan');
+        if (maTN == messageId) {
+          return { ...m, noidung: "Tin nhắn đã bị thu hồi", DA_THU_HOI: 1, fileurl: null, filetype: null, FILE_URL: null, FILE_TYPE: null };
+        }
+        return m;
+      }));
+      toast.success("Đã thu hồi tin nhắn");
+    } catch(err: any) {
+      toast.error(err.response?.data?.message || "Không thể thu hồi tin nhắn");
+    }
+    setActiveMessageMenu(null);
+  };
+
+  const handleDeleteMessageForMe = async (messageId: any) => {
+    try {
+      await chatService.deleteMessageForMe(messageId);
+      setMessages(prev => prev.filter(m => (getProp(m, 'MaTN') || getProp(m, 'MaTinNhan')) != messageId));
+      toast.success("Đã xóa tin nhắn khỏi phía bạn");
+    } catch(err: any) {
+      toast.error(err.response?.data?.message || "Không thể xóa tin nhắn");
+    }
+    setActiveMessageMenu(null);
   };
 
   // ─── Search messages ────────────────────────────────────────────────────────
@@ -396,12 +478,12 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
       <div
         className="chat-sidebar"
         style={{
-          width: isMobile ? "100%" : "320px", borderRight: "1px solid #f1f5f9",
+          width: isMobile ? "100%" : "320px", borderRight: "1px solid #cbd5e1",
           display: embeddedRoomId ? "none" : (isMobile && !showSidebar ? "none" : "flex"),
-          flexDirection: "column", background: "#fdfdff", flexShrink: 0,
+          flexDirection: "column", background: "#f1f5f9", flexShrink: 0,
         }}
       >
-        <div style={{ padding: "24px", borderBottom: "1px solid #f1f5f9" }}>
+        <div style={{ padding: "24px", borderBottom: "1px solid #cbd5e1" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
             <h2 style={{ margin: 0, fontSize: "22px", fontWeight: 800 }}>Tin nhắn</h2>
           </div>
@@ -442,10 +524,10 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                   style={{
                     display: "flex", alignItems: "center", gap: "12px", padding: "12px",
                     borderRadius: "14px", cursor: "pointer", transition: "all 0.2s",
-                    background: isSelected ? "#f1f5f9" : "transparent",
+                    background: isSelected ? "#2563eb" : "transparent",
                     marginBottom: "2px",
                   }}
-                  className="room-item"
+                  className={`room-item ${isSelected ? 'selected' : ''}`}
                 >
                   {/* Avatar */}
                   <div style={{ position: "relative" }}>
@@ -454,9 +536,9 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                     ) : (
                       <div style={{
                         width: "52px", height: "52px", borderRadius: "14px",
-                        background: isSelected ? "#fff" : "#f1f5f9",
-                        display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b",
-                        boxShadow: isSelected ? "0 4px 6px -1px rgb(0 0 0 / 0.1)" : "none",
+                        background: isSelected ? "rgba(255,255,255,0.2)" : "#f1f5f9",
+                        display: "flex", alignItems: "center", justifyContent: "center", color: isSelected ? "#fff" : "#64748b",
+                        boxShadow: "none",
                         flexShrink: 0,
                       }}>
                         {getRoomIcon(getRoomType(room))}
@@ -468,14 +550,14 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "3px" }}>
                       <h4 style={{
-                        margin: 0, fontSize: "14px", fontWeight: 700, color: "#1e293b",
+                        margin: 0, fontSize: "14px", fontWeight: 700, color: isSelected ? "#ffffff" : "#1e293b",
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                       }}>
                         {getDisplayName(room)}
                       </h4>
                       {/* ← Thời gian tin nhắn mới nhất */}
                       {latestTime && (
-                        <span style={{ fontSize: "10px", color: "#94a3b8", flexShrink: 0, marginLeft: 4 }}>
+                        <span style={{ fontSize: "10px", color: isSelected ? "#bfdbfe" : "#94a3b8", flexShrink: 0, marginLeft: 4 }}>
                           {fmtPreviewTime(latestTime)}
                         </span>
                       )}
@@ -483,7 +565,7 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                     {/* ← Preview tin nhắn mới nhất */}
                     <p style={{
                       margin: 0, fontSize: "12px",
-                      color: latestContent ? "#64748b" : "#94a3b8",
+                      color: isSelected ? "#dbeafe" : (latestContent ? "#64748b" : "#94a3b8"),
                       overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                       fontStyle: latestContent ? "normal" : "italic",
                     }}>
@@ -724,42 +806,124 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                   return (
                     <div
                       key={getProp(msg, 'MaTN') || getProp(msg, 'MaTinNhan') || idx}
-                      style={{ display: "flex", flexDirection: isMine ? "row-reverse" : "row", marginBottom: "16px", gap: "12px" }}
+                      style={{ display: "flex", flexDirection: isMine ? "row-reverse" : "row", marginBottom: "16px", gap: "12px", position: "relative" }}
+                      className="message-row"
                     >
                       {!isMine && (
                         <Avatar name={tenNv} size="sm" src={getProp(msg, 'HINH_DAI_DIEN')} />
                       )}
                       <div style={{ maxWidth: "70%", display: "flex", flexDirection: "column", alignItems: isMine ? "flex-end" : "flex-start" }}>
                         {!isMine && <span style={{ fontSize: "11px", fontWeight: 700, color: "#64748b", marginLeft: "4px", marginBottom: "4px" }}>{tenNv}</span>}
-                        <div style={{
-                          padding: "10px 16px",
-                          borderRadius: isMine ? "16px 16px 4px 16px" : "4px 16px 16px 16px",
-                          background: isMine ? "var(--primary-color)" : "#fff",
-                          color: isMine ? "#fff" : "#1e293b",
-                          fontSize: "14px", lineHeight: "1.5",
-                          boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                          border: isMine ? "none" : "1px solid #f1f5f9",
-                        }}>
-                          {getProp(msg, 'fileurl') ? (
-                            <div style={{ marginBottom: noiDung ? 8 : 0 }}>
-                              {getProp(msg, 'filetype')?.startsWith('image/') ? (
-                                <img 
-    src={`${API_URL}${getProp(msg, 'fileurl')}`} 
-    alt="attachment" 
-    style={{ maxWidth: 200, borderRadius: 8, cursor: "pointer" }} 
-    onClick={() => setPreviewImage(`${API_URL}${getProp(msg, 'fileurl')}`)}
-  />
-                              ) : (
-                                <a href={`${API_URL}${getProp(msg, 'fileurl')}`} target="_blank" rel="noreferrer" style={{ color: isMine ? "#fff" : "#2563eb", textDecoration: "underline", display: "flex", alignItems: "center", gap: 4 }}>
-                                  <Paperclip size={14} /> Tệp đính kèm
-                                </a>
-                              )}
-                            </div>
-                          ) : null}
-                          {noiDung}
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexDirection: isMine ? "row-reverse" : "row", position: "relative" }}>
+                          <div style={{
+                            padding: "10px 16px",
+                            borderRadius: isMine ? "16px 16px 4px 16px" : "4px 16px 16px 16px",
+                            background: getProp(msg, 'DA_THU_HOI') ? "#f1f5f9" : (isMine ? "var(--primary-color)" : "#fff"),
+                            color: getProp(msg, 'DA_THU_HOI') ? "#94a3b8" : (isMine ? "#fff" : "#1e293b"),
+                            fontStyle: getProp(msg, 'DA_THU_HOI') ? "italic" : "normal",
+                            fontSize: "14px", lineHeight: "1.5",
+                            boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                            border: isMine ? "none" : "1px solid #f1f5f9",
+                          }}>
+                            {getProp(msg, 'fileurl') ? (
+                              <div style={{ marginBottom: noiDung ? 8 : 0 }}>
+                                {getProp(msg, 'filetype')?.startsWith('image/') ? (
+                                  <img 
+                                    src={getProp(msg, 'fileurl').startsWith('http') ? getProp(msg, 'fileurl') : `${API_URL}${getProp(msg, 'fileurl')}`} 
+                                    alt="attachment" 
+                                    style={{ maxWidth: 200, borderRadius: 8, cursor: "pointer" }} 
+                                    onClick={() => setPreviewImage(getProp(msg, 'fileurl').startsWith('http') ? getProp(msg, 'fileurl') : `${API_URL}${getProp(msg, 'fileurl')}`)}
+                                  />
+                                ) : (
+                                  <a href={getProp(msg, 'fileurl').startsWith('http') ? getProp(msg, 'fileurl') : `${API_URL}${getProp(msg, 'fileurl')}`} target="_blank" rel="noreferrer" style={{ color: isMine ? "#fff" : "#2563eb", textDecoration: "underline", display: "flex", alignItems: "center", gap: 4 }}>
+                                    <Paperclip size={14} /> Tệp đính kèm
+                                  </a>
+                                )}
+                              </div>
+                            ) : null}
+                            {noiDung}
+                          </div>
+                          
+                          {/* Message Menu */}
+                          <div className="message-menu-btn" style={{ 
+                            display: "flex", alignItems: "center", opacity: activeMessageMenu === (getProp(msg, 'MaTN') || getProp(msg, 'MaTinNhan')) ? 1 : 0, 
+                            transition: "opacity 0.2s", position: "relative", zIndex: 10 
+                          }}>
+                            <Btn 
+                              variant="ghost" 
+                              onClick={() => setActiveMessageMenu(activeMessageMenu === (getProp(msg, 'MaTN') || getProp(msg, 'MaTinNhan')) ? null : (getProp(msg, 'MaTN') || getProp(msg, 'MaTinNhan')))}
+                              style={{ width: 28, height: 28, padding: 0, borderRadius: "50%", background: "#f1f5f9" }}
+                            >
+                              <MoreVertical size={14} color="#64748b" />
+                            </Btn>
+                            {activeMessageMenu === (getProp(msg, 'MaTN') || getProp(msg, 'MaTinNhan')) && (
+                              <div style={{
+                                position: "absolute", top: "100%", right: isMine ? 0 : "auto", left: isMine ? "auto" : 0,
+                                background: "#fff", border: "1px solid #e2e8f0", borderRadius: 8, boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                                zIndex: 20, minWidth: 160, padding: 4
+                              }}>
+                                {isMine && !getProp(msg, 'DA_THU_HOI') && (
+                                  <>
+                                    <button 
+                                      onClick={() => {
+                                        const timeDiff = new Date().getTime() - new Date(THOI_GIAN).getTime();
+                                        if (timeDiff > 24 * 60 * 60 * 1000) {
+                                          toast.error("Chỉ có thể sửa tin nhắn trong vòng 24 giờ");
+                                        } else if (getProp(msg, 'fileurl')) {
+                                          toast.error("Không thể sửa nội dung tin nhắn có đính kèm file");
+                                        } else {
+                                          setEditingMessageId(getProp(msg, 'MaTN') || getProp(msg, 'MaTinNhan'));
+                                          setMessageInput(noiDung);
+                                          setTimeout(() => messageInputRef.current?.focus(), 100);
+                                        }
+                                        setActiveMessageMenu(null);
+                                      }}
+                                      style={{ width: "100%", padding: "8px 12px", textAlign: "left", background: "transparent", border: "none", cursor: "pointer", fontSize: 13, color: "#1e293b", borderRadius: 4 }}
+                                      onMouseOver={e => e.currentTarget.style.background = "#f1f5f9"}
+                                      onMouseOut={e => e.currentTarget.style.background = "transparent"}
+                                    >
+                                      Sửa tin nhắn
+                                    </button>
+                                    <button 
+                                      onClick={() => {
+                                        const timeDiff = new Date().getTime() - new Date(THOI_GIAN).getTime();
+                                        if (timeDiff > 24 * 60 * 60 * 1000) {
+                                          toast.error("Chỉ có thể thu hồi tin nhắn trong vòng 24 giờ");
+                                        } else {
+                                          if (window.confirm("Bạn có chắc muốn thu hồi tin nhắn này với mọi người?")) {
+                                            handleRevokeMessage(getProp(msg, 'MaTN') || getProp(msg, 'MaTinNhan'));
+                                          }
+                                        }
+                                        setActiveMessageMenu(null);
+                                      }}
+                                      style={{ width: "100%", padding: "8px 12px", textAlign: "left", background: "transparent", border: "none", cursor: "pointer", fontSize: 13, color: "#1e293b", borderRadius: 4 }}
+                                      onMouseOver={e => e.currentTarget.style.background = "#f1f5f9"}
+                                      onMouseOut={e => e.currentTarget.style.background = "transparent"}
+                                    >
+                                      Thu hồi (Mọi người)
+                                    </button>
+                                  </>
+                                )}
+                                <button 
+                                  onClick={() => {
+                                    if (window.confirm("Tin nhắn này sẽ bị xóa khỏi máy bạn. Người khác vẫn thấy. Bạn có chắc không?")) {
+                                      handleDeleteMessageForMe(getProp(msg, 'MaTN') || getProp(msg, 'MaTinNhan'));
+                                    }
+                                    setActiveMessageMenu(null);
+                                  }}
+                                  style={{ width: "100%", padding: "8px 12px", textAlign: "left", background: "transparent", border: "none", cursor: "pointer", fontSize: 13, color: "#ef4444", borderRadius: 4 }}
+                                  onMouseOver={e => e.currentTarget.style.background = "#fee2e2"}
+                                  onMouseOut={e => e.currentTarget.style.background = "transparent"}
+                                >
+                                  Xóa (Chỉ mình tôi)
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <span style={{ fontSize: "10px", color: "#94a3b8", marginTop: "4px", padding: "0 4px" }}>
+                        <span style={{ fontSize: "10px", color: "#94a3b8", marginTop: "4px", padding: "0 4px", display: "flex", alignItems: "center", gap: 4 }}>
                           {formatDate(THOI_GIAN)}
+                          {getProp(msg, 'DA_CHINH_SUA') && !getProp(msg, 'DA_THU_HOI') && <span>(Đã chỉnh sửa)</span>}
                         </span>
                       </div>
                     </div>
@@ -770,7 +934,13 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
             </div>
 
             {/* Input Area */}
-            <div style={{ padding: "20px 24px", background: "#fff", borderTop: "1px solid #f1f5f9" }}>
+            <div style={{ padding: "20px 24px", background: "#fff", borderTop: "1px solid #f1f5f9", position: "relative" }}>
+              {editingMessageId && (
+                <div style={{ position: "absolute", top: -36, left: 24, padding: "6px 12px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 12, color: "#64748b", display: "flex", alignItems: "center", gap: 8 }}>
+                  Đang sửa tin nhắn...
+                  <button onClick={() => { setEditingMessageId(null); setMessageInput(""); }} style={{ border: "none", background: "transparent", color: "#ef4444", cursor: "pointer", padding: 0, fontWeight: 600 }}>Hủy</button>
+                </div>
+              )}
               {attachedFile && (
                 <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: "#f1f5f9", borderRadius: 8, marginBottom: 12, width: "fit-content" }}>
                   <Paperclip size={14} color="#64748b" />
@@ -796,7 +966,8 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                   {uploading ? <Spinner size={20} color="#64748b" /> : <Paperclip size={20} />}
                 </button>
                 <input
-                  placeholder="Viết tin nhắn..."
+                  ref={messageInputRef}
+                  placeholder={editingMessageId ? "Sửa tin nhắn..." : "Viết tin nhắn..."}
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   style={{ flex: 1, border: "none", background: "none", outline: "none", padding: "10px 0", fontSize: "14px", minWidth: "60px" }}

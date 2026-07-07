@@ -2474,3 +2474,16 @@ select.form-input {
 .react-datepicker__triangle {
   display: none;
 }
+
+.room-item {
+  transition: all 0.2s ease;
+}
+.room-item:hover {
+  background-color: #e2e8f0 !important;
+}
+.room-item.selected:hover {
+  background-color: #2563eb !important;
+}
+
+.message-row:hover .message-menu-btn { opacity: 1 !important; }
+.message-menu-btn:hover { opacity: 1 !important; }
