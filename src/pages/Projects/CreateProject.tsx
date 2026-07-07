@@ -333,7 +333,7 @@ const CreateProject: React.FC<any> = ({ onNavigate }) => {
                   {members.map(m => (
                     <div key={m.MA_NV} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: "#fff", border: "1px solid #e2e8f0", borderRadius: 10 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <Avatar name={m.HO_TEN || m.MA_NV} size="sm" />
+                        <Avatar name={m.HO_TEN || m.MA_NV} size="sm"  src={m?.HINH_DAI_DIEN} />
                         <div>
                           <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: "#0f172a" }}>{m.HO_TEN}</p>
                           <p style={{ fontSize: 12, color: "#3b82f6", margin: 0, fontWeight: 500 }}>{m.TEN_VAI_TRO}</p>

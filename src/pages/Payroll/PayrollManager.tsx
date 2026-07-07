@@ -253,7 +253,7 @@ const EmployeePayrollModal: React.FC<{
         display: "flex", alignItems: "center", gap: 16,
         paddingBottom: 16, borderBottom: "1.5px solid #f0f0f0", marginBottom: 16,
       }}>
-        <Avatar name={getHoTen((employee || {}) as Employee)} size="lg" />
+        <Avatar name={getHoTen((employee || {}) as Employee)} size="lg" src={employee?.HINH_DAI_DIEN} />
         <div style={{ flex: 1 }}>
           <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>{getHoTen((employee || {}) as Employee)}</h3>
           <div style={{ display: "flex", gap: 12, marginTop: 4, flexWrap: "wrap" }}>

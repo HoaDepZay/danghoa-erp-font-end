@@ -97,22 +97,38 @@ const EmployeeProfile = ({ user, onNavigate }: { user: any; onNavigate: (page: s
           marginTop: -48,
           position: "relative"
         }}>
-          <div style={{ 
-            width: 128, 
-            height: 128, 
-            borderRadius: 12, 
-            border: "4px solid #fff", 
-            backgroundColor: "#f1f5f9",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 48,
-            fontWeight: "bold",
-            color: "#94a3b8",
-            boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)"
-          }}>
-            {emp.HO_TEN?.charAt(0).toUpperCase()}
-          </div>
+          {emp.HINH_DAI_DIEN ? (
+            <img 
+              src={emp.HINH_DAI_DIEN} 
+              alt={emp.HO_TEN} 
+              style={{
+                width: 128, 
+                height: 128, 
+                borderRadius: 12, 
+                border: "4px solid #fff", 
+                backgroundColor: "#f1f5f9",
+                objectFit: "cover",
+                boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)"
+              }}
+            />
+          ) : (
+            <div style={{ 
+              width: 128, 
+              height: 128, 
+              borderRadius: 12, 
+              border: "4px solid #fff", 
+              backgroundColor: "#f1f5f9",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 48,
+              fontWeight: "bold",
+              color: "#94a3b8",
+              boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)"
+            }}>
+              {emp.HO_TEN?.charAt(0).toUpperCase()}
+            </div>
+          )}
           
           <div style={{ flex: 1, minWidth: 250, paddingTop: 48 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
@@ -333,7 +349,7 @@ const EmployeeProfile = ({ user, onNavigate }: { user: any; onNavigate: (page: s
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 16 }}>
                   {departmentInfo?.nhanVien?.map((nv: any) => (
                     <div key={nv.MA_NV} style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, border: "1px solid var(--border-light)", borderRadius: 8 }}>
-                      <Avatar name={nv.HO_TEN} size="md" />
+                      <Avatar name={nv.HO_TEN || nv.TEN_NV || "User"} src={nv.HINH_DAI_DIEN} size="md" />
                       <div style={{ flex: 1, overflow: "hidden" }}>
                         <p style={{ fontSize: 14, fontWeight: 600, margin: 0, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{nv.HO_TEN}</p>
                         <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "4px 0 0" }}>{nv.CHUC_VU}</p>

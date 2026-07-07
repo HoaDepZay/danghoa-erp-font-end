@@ -435,7 +435,7 @@ const PhaseDetails = ({ user, onNavigate }: any) => {
               <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
                 {phaseMembers.map(m => (
                   <div key={m.MA_NV} style={{ display: "flex", alignItems: "center", gap: 8, background: "#f8fafc", padding: "6px 12px 6px 6px", borderRadius: 20, border: "1px solid #e2e8f0" }}>
-                    <Avatar name={m.HO_TEN || m.TEN_NV || m.MA_NV} size="sm" />
+                    <Avatar name={m.HO_TEN || m.TEN_NV || m.MA_NV} size="sm"  src={m?.HINH_DAI_DIEN} />
                     <div style={{ display: "flex", flexDirection: "column" }}>
                       <span style={{ fontSize: 13, fontWeight: 700, color: "#1e293b", lineHeight: 1.2, marginBottom: 4 }}>{m.HO_TEN || m.TEN_NV || m.MA_NV}</span>
                       <Badge color={m.VAI_TRO?.toLowerCase().includes("trưởng") ? "blue" : "purple"}>{m.VAI_TRO}</Badge>

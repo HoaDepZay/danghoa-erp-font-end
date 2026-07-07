@@ -100,7 +100,7 @@ export const OrgChart: React.FC = () => {
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {selectedNode?.employees.map(emp => (
               <div key={emp.MA_NV} style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, border: "1px solid #e2e8f0", borderRadius: 8 }}>
-                <Avatar name={emp.HO_TEN} size="md" />
+                <Avatar name={emp.HO_TEN || emp.TEN_NV || "User"} src={emp.HINH_DAI_DIEN} size="md" />
                 <div style={{ flex: 1 }}>
                   <p style={{ margin: 0, fontWeight: 600, color: "#0f172a" }}>{emp.HO_TEN}</p>
                   <p style={{ margin: "4px 0 0", fontSize: 12, color: "#64748b" }}>{emp.EMAIL || "—"}</p>

@@ -182,7 +182,7 @@ export const AdminEmployeeTab: React.FC<{ adminData: any }> = ({ adminData }) =>
                     </td>
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <Avatar name={emp.HO_TEN} size="sm" />
+                        <Avatar name={emp.HO_TEN || emp.TEN_NV || "User"} src={emp.HINH_DAI_DIEN} size="sm" />
                          <span style={{ fontWeight: 600 }}>{emp.HO_TEN}</span>
                       </div>
                     </td>

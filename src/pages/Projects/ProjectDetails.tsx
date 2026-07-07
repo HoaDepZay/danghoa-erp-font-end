@@ -614,7 +614,7 @@ const ProjectDetails = ({ user, onNavigate }: any) => {
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <Avatar name={m.HO_TEN || m.EMAIL || m.MA_NV} size="md" />
+                        <Avatar name={m.HO_TEN || m.EMAIL || m.MA_NV} size="md"  src={m?.HINH_DAI_DIEN} />
                         <div>
                           <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: "#1e293b" }}>
                             {m.HO_TEN || m.EMAIL || m.MA_NV}

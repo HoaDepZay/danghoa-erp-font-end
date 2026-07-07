@@ -1,4 +1,5 @@
 import React, { ReactNode, CSSProperties } from "react";
+import { API_URL } from "../../services/api";
 export { default as Drawer } from "./Drawer";
 export { default as SharedCalendar } from "./SharedCalendar";
 export { default as Table } from "./Table";
@@ -85,11 +86,24 @@ const stringToColorIndex = (str: string) => {
 };
 
 // ── Avatar ────────────────────────────────────────────────────────────────────
-export const Avatar = ({ name = "", size = "md" }: { name?: string, size?: "sm" | "md" | "lg" | "xl" }) => {
+export const Avatar = ({ name = "", size = "md", src }: { name?: string, size?: "sm" | "md" | "lg" | "xl", src?: string | null }) => {
   const letter = name?.split(" ").pop()?.charAt(0)?.toUpperCase() || "?";
   const sizeClass = { sm: "avatar-sm", md: "avatar-md", lg: "avatar-lg", xl: "avatar-xl" }[size] || "avatar-md";
   const colorIndex = name ? stringToColorIndex(name) : 0;
   const colors = AVATAR_COLORS[colorIndex];
+  
+  if (src) {
+    const finalSrc = src.startsWith("/uploads/") ? `${API_URL}${src}` : src;
+    return (
+      <img
+        src={finalSrc}
+        alt={name}
+        className={`avatar ${sizeClass}`}
+        style={{ objectFit: "cover" }}
+      />
+    );
+  }
+
   return (
     <div 
       className={`avatar ${sizeClass}`}

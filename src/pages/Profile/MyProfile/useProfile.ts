@@ -6,6 +6,7 @@ export const useProfile = (user: any) => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState<string>("");
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const MA_NV = getManv(user);
 
   const handleProfileUpdated = (updated: any) => {
@@ -50,6 +51,24 @@ export const useProfile = (user: any) => {
       .finally(() => setLoading(false));
   }, [MA_NV, user]);
 
-  return { profile, loading, modal, setModal, handleProfileUpdated, MA_NV };
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !MA_NV) return;
+    setUploadingAvatar(true);
+    try {
+      const res = await api.uploadAvatar(MA_NV, file);
+      if (res.data?.avatarUrl || res.data?.data?.avatarUrl) {
+        const url = res.data.avatarUrl || res.data.data.avatarUrl;
+        setProfile((prev: any) => ({ ...prev, HINH_DAI_DIEN: url }));
+        alert("Cập nhật ảnh đại diện thành công!");
+      }
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Lỗi cập nhật ảnh đại diện");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  return { profile, loading, modal, setModal, handleProfileUpdated, MA_NV, handleAvatarUpload, uploadingAvatar };
 };
 

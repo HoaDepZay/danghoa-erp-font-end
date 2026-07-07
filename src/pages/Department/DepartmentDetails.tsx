@@ -247,7 +247,7 @@ const DepartmentDetails = ({ user, onNavigate }: any) => {
                     padding: 12, border: "1px solid #e2e8f0", borderRadius: 8, background: "#f8fafc"
                   }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <Avatar name={m.HO_TEN} size={40} />
+                      <Avatar name={m.HO_TEN || m.TEN_NV || "User"} src={m.HINH_DAI_DIEN} size={40} />
                       <div>
                         <div style={{ fontWeight: 600, color: "#1e293b", fontSize: 14 }}>{m.HO_TEN}</div>
                         <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>

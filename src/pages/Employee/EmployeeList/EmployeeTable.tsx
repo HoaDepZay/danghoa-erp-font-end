@@ -36,7 +36,7 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ loading, employees
             title={`Chi tiết nhân viên ${emp.HO_TEN}`}
           >
             <div style={{ position: "relative", display: "inline-block" }}>
-              <Avatar name={emp.HO_TEN} size="sm" />
+              <Avatar name={emp.HO_TEN || emp.TEN_NV || "User"} src={emp.HINH_DAI_DIEN} size="sm" />
               {isOnline && (
                 <span 
                   style={{

@@ -9,6 +9,13 @@ const employeeService = {
   getProfile: (MA_NV: string) => axiosClient.get(`/employees/${MA_NV}`),
   getCoworkers: (MA_PHG: string | number) => axiosClient.get(`/employees/coworkers/${MA_PHG}`),
   updateEmployeeInfo: (data: any) => axiosClient.put("/employees/update-info", data),
+  uploadAvatar: (id: string | number, file: File) => {
+    const formData = new FormData();
+    formData.append("avatar", file);
+    return axiosClient.post(`/employees/${id}/avatar`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
 };
 
 export default employeeService;

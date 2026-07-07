@@ -364,7 +364,7 @@ const ProjectDetailModal: React.FC<any> = ({
                 {members.map((m: any) => (
                   <div key={m.MA_NV} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: "#f8f8f8", borderRadius: 12 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <Avatar name={m.HO_TEN} size="sm" />
+                      <Avatar name={m.HO_TEN || m.TEN_NV || "User"} src={m.HINH_DAI_DIEN} size="sm" />
                       <div>
                         <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>{m.HO_TEN}</p>
                         <p style={{ fontSize: 11, color: "#999", margin: 0 }}>{m.VAI_TRO_DU_AN}</p>

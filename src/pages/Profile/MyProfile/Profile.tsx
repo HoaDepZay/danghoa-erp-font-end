@@ -1,5 +1,5 @@
-import React from "react";
-import { UserCircle, Lock, Mail, Phone, MapPin, Calendar, Shield } from "lucide-react";
+import React, { useRef } from "react";
+import { UserCircle, Lock, Mail, Phone, MapPin, Calendar, Shield, Camera } from "lucide-react";
 import { formatDate, getProp } from "../../../utils/helpers";
 import { Btn, Card, Avatar, Badge, Spinner } from "../../../components/UI/index";
 import { useProfile } from "./useProfile";
@@ -20,7 +20,8 @@ interface ProfileProps {
 }
 
 const Profile: React.FC<ProfileProps> = ({ user }) => {
-  const { profile, loading, modal, setModal, handleProfileUpdated } = useProfile(user);
+  const { profile, loading, modal, setModal, handleProfileUpdated, handleAvatarUpload, uploadingAvatar } = useProfile(user);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [showNotice, setShowNotice] = React.useState(false);
 
   React.useEffect(() => {
@@ -77,7 +78,37 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
       {/* Profile card */}
       <Card>
         <div className="flex items-center gap-4 flex-wrap">
-           <Avatar name={name} size="xl" />
+          <div style={{ position: "relative", display: "inline-block" }}>
+            <Avatar name={name} size="xl" src={getProp(emp, 'HINH_DAI_DIEN')} />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingAvatar}
+              style={{
+                position: "absolute",
+                bottom: 0,
+                right: 0,
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                border: "2px solid white",
+                background: "#f3f4f6",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: uploadingAvatar ? "wait" : "pointer",
+                padding: 0
+              }}
+            >
+              {uploadingAvatar ? <Spinner size={14} color="#666" /> : <Camera size={14} color="#666" />}
+            </button>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              style={{ display: "none" }} 
+              accept="image/*" 
+              onChange={handleAvatarUpload} 
+            />
+          </div>
           <div style={{ flex: "1 1 240px", minWidth: 0 }}>
              <h2 style={{ fontSize: 22, fontWeight: 800, color: "#111", margin: 0 }}>{name}</h2>
             <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>

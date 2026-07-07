@@ -84,7 +84,7 @@ export const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ isOpen, onClos
         <div>
           {/* Avatar header */}
           <div style={{ display: "flex", alignItems: "center", gap: 16, background: "#f8f8f8", borderRadius: 14, padding: "16px 18px", marginBottom: 20 }}>
-            <Avatar name={emp.HO_TEN} size="lg" />
+            <Avatar name={emp.HO_TEN || emp.TEN_NV || "User"} src={emp.HINH_DAI_DIEN} size="lg" />
             <div>
               <p style={{ fontWeight: 700, fontSize: 16, margin: "0 0 6px" }}>{emp.HO_TEN}</p>
               <Badge color={ROLE_COLORS[emp.CHUC_VU] || "gray"}>{emp.CHUC_VU}</Badge>
