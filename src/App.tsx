@@ -28,7 +28,7 @@ import PhaseDetails from "./pages/Projects/PhaseDetails";
 import OrgChart from "./pages/OrgChart/OrgChart";
 import Expenses from "./pages/Expenses/Expenses";
 
-import { getUserLevel } from "./utils/user";
+import { getUserLevel, getManv } from "./utils/user";
 import { api } from "./services/api";
 
 // ── Error Boundary ──────────────────────────────────────────────────────────
@@ -158,7 +158,36 @@ function App() {
     try {
       const savedUser = localStorage.getItem("user");
       const token = localStorage.getItem("accessToken") || localStorage.getItem("token");
-      if (savedUser && token) setUser(JSON.parse(savedUser));
+      if (savedUser && token) {
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+        
+        // Fetch latest profile in background to keep data in sync
+        const MA_NV = getManv(parsedUser);
+        if (MA_NV) {
+          api.getProfile(MA_NV)
+            .then((res: any) => {
+              const latestUser = res.data?.employee || res.data?.data || res.data;
+              if (latestUser) {
+                const mergedUser = { ...parsedUser, ...latestUser };
+                setUser(mergedUser);
+                localStorage.setItem("user", JSON.stringify(mergedUser));
+              }
+            })
+            .catch(() => {
+              api.getEmployee(MA_NV)
+                .then((res: any) => {
+                  const latestUser = res.data?.employee || res.data?.data || res.data;
+                  if (latestUser) {
+                    const mergedUser = { ...parsedUser, ...latestUser };
+                    setUser(mergedUser);
+                    localStorage.setItem("user", JSON.stringify(mergedUser));
+                  }
+                })
+                .catch(() => {});
+            });
+        }
+      }
     } catch {
       localStorage.removeItem("user");
       localStorage.removeItem("token");
