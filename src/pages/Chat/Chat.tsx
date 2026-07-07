@@ -64,6 +64,7 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
   const [uploading, setUploading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -787,6 +788,7 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                 }}
               >
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} style={{ display: 'none' }} />
+                <input type="file" ref={imageInputRef} onChange={handleFileChange} accept="image/*" style={{ display: 'none' }} />
                 {(!isMobile && !embeddedRoomId) && (
                   <button type="button" className="input-action-btn" onClick={() => toast.info("Tính năng gửi icon đang được phát triển")}><Smile size={20} /></button>
                 )}
@@ -800,7 +802,7 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                   style={{ flex: 1, border: "none", background: "none", outline: "none", padding: "10px 0", fontSize: "14px", minWidth: "60px" }}
                 />
                 {(!isMobile && !embeddedRoomId) && (
-                  <button type="button" className="input-action-btn" onClick={() => toast.info("Tính năng gửi hình ảnh đang được phát triển")}><ImageIcon size={20} /></button>
+                  <button type="button" className="input-action-btn" onClick={() => imageInputRef.current?.click()}><ImageIcon size={20} /></button>
                 )}
                 <button type="submit"
                   disabled={(!messageInput.trim() && !attachedFile) || uploading}
