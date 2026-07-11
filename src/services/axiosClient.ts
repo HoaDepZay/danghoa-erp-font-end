@@ -69,7 +69,7 @@ axiosClient.interceptors.response.use(
       requestUrl.includes("/auth/verify-otp") ||
       requestUrl.includes("/auth/refresh-token");
 
-    if ((status === 401 || status === 403) && !isPublicAuthRequest && !originalRequest._retry) {
+    if (status === 401 && !isPublicAuthRequest && !originalRequest._retry) {
       const refreshToken = tokenStorage.getRefreshToken();
 
       if (!refreshToken) {

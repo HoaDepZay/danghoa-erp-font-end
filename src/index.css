@@ -49,6 +49,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   color: var(--text-dark);
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   display: block !important;
   place-items: initial !important;
@@ -657,6 +658,11 @@ select.form-input {
 }
 
 /* ── Table ──────────────────────────────────────────────────── */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 .data-table {
   width: 100%;
   border-collapse: collapse;
@@ -1373,10 +1379,11 @@ select.form-input {
   display: none;
   position: fixed;
   inset: 0;
-  background: transparent;
+  background: rgba(0, 0, 0, 0.4);
   z-index: 45;
   opacity: 0;
   pointer-events: none;
+  transition: opacity 0.25s ease;
 }
 
 .sidebar-backdrop.show {

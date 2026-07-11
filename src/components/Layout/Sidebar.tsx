@@ -35,11 +35,11 @@ const NAV_ITEMS = [
   { key: "chat", label: "Tin nhắn", icon: MessageSquare, minLevel: 1 },
   {key: "employees", label: "Nhân viên", icon: Users, minLevel: 1},
   {key: "departments", label: "Phòng ban", icon: Building2, minLevel: 1},
-  {key: "org-chart", label: "Sơ đồ tổ chức", icon: Network, minLevel: 1},
+  // {key: "org-chart", label: "Sơ đồ tổ chức", icon: Network, minLevel: 1},
   {key: "myLeave",    label: "Nghỉ phép",   icon: FileText,      minLevel: 1}, // Mọi NV nộp đơn
   {key: "leave",      label: "Quản lý đơn",  icon: FileText,      minLevel: 3}, // Manager duyệt
   {key: "contracts", label: "Hợp đồng",  icon: FileSignature, minLevel: 3},
-  {key: "analytics", label: "HR Analytics", icon: BarChart3,     minLevel: 3},
+  // {key: "analytics", label: "HR Analytics", icon: BarChart3,     minLevel: 3},
   { key: "admin",    label: "Quản trị",   icon: ShieldAlert,   minLevel: 4 },
 ];
 

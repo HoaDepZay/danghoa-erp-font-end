@@ -17,6 +17,7 @@ export interface TableProps<T> {
   emptyIcon?: ReactNode;
   rowKey?: string | ((record: T) => string);
   className?: string;
+  onRowClick?: (record: T) => void;
 }
 
 export function Table<T>({
@@ -27,6 +28,7 @@ export function Table<T>({
   emptyIcon,
   rowKey = "id",
   className = "",
+  onRowClick,
 }: TableProps<T>) {
   const getRowKey = (record: T, index: number) => {
     if (typeof rowKey === "function") return rowKey(record);
@@ -61,7 +63,11 @@ export function Table<T>({
             </tr>
           ) : (
             data.map((record, index) => (
-              <tr key={getRowKey(record, index)}>
+              <tr 
+                key={getRowKey(record, index)} 
+                onClick={() => onRowClick && onRowClick(record)}
+                style={onRowClick ? { cursor: "pointer" } : {}}
+              >
                 {columns.map((col, colIndex) => (
                   <td
                     key={col.key || colIndex}

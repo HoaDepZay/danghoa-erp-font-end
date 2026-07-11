@@ -156,7 +156,7 @@ const EmployeeProfile = ({ user, onNavigate }: { user: any; onNavigate: (page: s
         display: "flex", 
         gap: 24, 
         borderBottom: "1px solid var(--border-light)", 
-        marginBottom: 24,
+        marginBottom: 16,
         overflowX: "auto"
       }}>
         {[
@@ -166,7 +166,7 @@ const EmployeeProfile = ({ user, onNavigate }: { user: any; onNavigate: (page: s
           { id: "attendance", label: "Chấm công" },
           { id: "payroll", label: "Lương thưởng" }
         ].map(tab => (
-          <Btn
+          <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             style={{
@@ -183,7 +183,7 @@ const EmployeeProfile = ({ user, onNavigate }: { user: any; onNavigate: (page: s
             }}
           >
             {tab.label}
-          </Btn>
+          </button>
         ))}
       </div>
 
@@ -272,53 +272,7 @@ const EmployeeProfile = ({ user, onNavigate }: { user: any; onNavigate: (page: s
                   </p>
                 </div>
               </div>
-            </Card>
-
-            {/* Quick Stats/Actions */}
-            <Card>
-              <h4 style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", marginBottom: 16 }}>Lối tắt</h4>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                <Btn style={{ 
-                  width: "100%", 
-                  display: "flex", 
-                  alignItems: "center", 
-                  justifyContent: "space-between", 
-                  padding: 12, 
-                  borderRadius: 8, 
-                  border: "1px solid var(--border-light)", 
-                  background: "transparent",
-                  cursor: "pointer",
-                  transition: "background 0.2s"
-                }} onMouseOver={(e) => e.currentTarget.style.background = "var(--surface-dim)"} onMouseOut={(e) => e.currentTarget.style.background = "transparent"}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <CalendarDays size={18} color="var(--text-muted)" />
-                    <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-dark)" }}>Lịch sử nghỉ phép</span>
-                  </div>
-                  <ArrowLeft size={16} color="#cbd5e1" style={{ transform: "rotate(180deg)" }} />
-                </Btn>
-                
-                <Btn style={{ 
-                  width: "100%", 
-                  display: "flex", 
-                  alignItems: "center", 
-                  justifyContent: "space-between", 
-                  padding: 12, 
-                  borderRadius: 8, 
-                  border: "1px solid var(--border-light)", 
-                  background: "transparent",
-                  cursor: "pointer",
-                  transition: "background 0.2s"
-                }} onMouseOver={(e) => e.currentTarget.style.background = "var(--surface-dim)"} onMouseOut={(e) => e.currentTarget.style.background = "transparent"}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <FileText size={18} color="var(--text-muted)" />
-                    <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-dark)" }}>Hợp đồng lao động</span>
-                  </div>
-                  <ArrowLeft size={16} color="#cbd5e1" style={{ transform: "rotate(180deg)" }} />
-                </Btn>
-              </div>
-            </Card>
-
-          </div>
+            </Card>          </div>
         </div>
       ) : activeTab === "employment" ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>

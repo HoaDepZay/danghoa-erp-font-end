@@ -40,9 +40,9 @@ export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, u
         const bgCol = dept.COLOR ? `${dept.COLOR}15` : fallbackColors.bg;
         const iconName = dept.ICON || 'Building';
         return (
-          <div key={dept.MA_PHG} className="card" style={{ transition: "box-shadow 0.15s", cursor: "pointer", background: "#fff", borderRadius: 16, padding: 16, border: "1px solid #eee" }}
-            onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.1)"}
-            onMouseLeave={(e) => e.currentTarget.style.boxShadow = ""}
+          <div key={dept.MA_PHG} className="card" style={{ transition: "all 0.2s ease", cursor: "pointer", border: "1px solid transparent" }}
+            onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 10px 25px -5px rgba(0,0,0,0.1)"; e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.boxShadow = ""; e.currentTarget.style.borderColor = "transparent"; e.currentTarget.style.transform = "none"; }}
             onClick={() => {
               localStorage.setItem("selectedDeptId", String(dept.MA_PHG));
               if (onNavigate) {
@@ -89,9 +89,11 @@ export const DepartmentTable: React.FC<DepartmentTableProps> = ({ departments, u
                  }
                }}
               style={{
-                marginTop: 14, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
-                fontSize: 12, color: "#888", background: "#f8f8f8", border: "none", borderRadius: 10, padding: "8px", cursor: "pointer",
+                marginTop: 16, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                fontSize: 13, fontWeight: 600, color: "var(--primary-color)", background: "var(--primary-light)", border: "none", borderRadius: 8, padding: "10px", cursor: "pointer", transition: "all 0.2s"
               }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "var(--primary-color)"; e.currentTarget.style.color = "#fff"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "var(--primary-light)"; e.currentTarget.style.color = "var(--primary-color)"; }}
             >
               <span>Xem chi tiết</span><ChevronRight size={13} />
             </Btn>

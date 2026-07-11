@@ -586,10 +586,11 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
         {selectedRoom ? (
           <>
             {/* Chat Header */}
-            <div style={{
-              padding: isMobile ? "12px 16px" : "16px 24px", borderBottom: "1px solid #f1f5f9",
-              display: "flex", justifyContent: "space-between", alignItems: "center", background: "#fff",
-            }}>
+            {!embeddedRoomId && (
+              <div style={{
+                padding: isMobile ? "12px 16px" : "16px 24px", borderBottom: "1px solid #f1f5f9",
+                display: "flex", justifyContent: "space-between", alignItems: "center", background: "#fff",
+              }}>
               <div style={{ display: "flex", alignItems: "center", gap: isMobile ? "8px" : "12px", minWidth: 0 }}>
                 {isMobile && (
                   <Btn
@@ -651,6 +652,7 @@ const Chat = ({ user, embeddedRoomId, embeddedRoom }: { user: any; embeddedRoomI
                 )}
               </div>
             </div>
+            )}
 
             {/* ← Search Panel */}
             {showSearch && (

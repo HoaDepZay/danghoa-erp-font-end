@@ -31,8 +31,7 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ loading, employees
         const isOnline = statusText === "DANG_LAM_VIEC" || statusText === "Đang làm việc";
         return (
           <div 
-            style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} 
-            onClick={() => onViewDetail(emp.MA_NV)}
+            style={{ display: "flex", alignItems: "center", gap: 10 }} 
             title={`Chi tiết nhân viên ${emp.HO_TEN}`}
           >
             <div style={{ position: "relative", display: "inline-block" }}>
@@ -135,6 +134,7 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({ loading, employees
       emptyText="Không tìm thấy nhân viên"
       emptyIcon={<Search size={40} />}
       rowKey="MA_NV"
+      onRowClick={(emp) => onViewDetail(emp.MA_NV)}
     />
   );
 };
