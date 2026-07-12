@@ -51,13 +51,13 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onForgotPassword,
           <span style={{ fontSize: 13, color: banner.color, fontWeight: 500, lineHeight: 1.5 }}>
             {banner.text}
           </span>
-          <Btn
+          <button
             type="button"
             onClick={() => setPendingStatus(null)}
             style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: banner.color, padding: 0, flexShrink: 0 }}
           >
             ✕
-          </Btn>
+          </button>
         </div>
       )}
 
@@ -95,21 +95,21 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onForgotPassword,
           onFocus={(e) => { e.target.style.borderColor = "#111"; e.target.style.backgroundColor = "#fff"; }}
           onBlur={(e) => { e.target.style.borderColor = "#f0f0f0"; e.target.style.backgroundColor = "#fafafa"; }}
         />
-        <Btn
+        <button
           type="button"
           tabIndex={-1}
           onClick={() => setShowPass((v) => !v)}
           style={S.iconRight}
         >
           {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-        </Btn>
+        </button>
       </div>
 
       {/* Forgot Password */}
       <div style={S.forgotWrap}>
-        <Btn type="button" onClick={onForgotPassword} style={S.forgotLink}>
+        <button type="button" onClick={onForgotPassword} style={S.forgotLink}>
           Quên mật khẩu?
-        </Btn>
+        </button>
       </div>
 
       {/* Submit */}

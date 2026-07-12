@@ -176,13 +176,13 @@ const Login: React.FC<LoginProps> = ({
         <div style={S.divider}>
           <p style={S.footer}>
             Chưa có tài khoản?{" "}
-            <Btn
+            <button
               type="button"
               onClick={onSwitchToRegister}
               style={S.footerLink}
             >
               Đăng ký ngay
-            </Btn>
+            </button>
           </p>
         </div>
       </div>
