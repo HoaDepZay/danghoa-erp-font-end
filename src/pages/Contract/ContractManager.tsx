@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { api } from "../../services/api";
 import { toast, formatDate } from "../../utils/helpers";
-import { AlertTriangle, FilePlus, X, Building2 } from "lucide-react";
+import { AlertTriangle, FilePlus, X, Building2, PenTool } from "lucide-react";
 import {
 Badge,
   Spinner,
@@ -9,89 +9,33 @@ Badge,
   Btn,
   FormField,
 } from "../../components/UI/index";
+import { getUserLevel } from "../../utils/user";
 
 const CONTRACT_TYPES = ["Thử việc", "1 năm", "3 năm", "Vô thời hạn"];
 
-const ContractManager = ({ user }: { user: any }) => {
+const ContractManager = ({ user, onNavigate }: { user: any; onNavigate: (page: string) => void }) => {
   const [contracts, setContracts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [employees, setEmployees] = useState<any[]>([]);
-  const [selectedMaNv, setSelectedMaNv] = useState("");
 
-  // 🌟 ĐÃ CHUẨN HÓA STATE FORM SANG ĐỊNH DẠNG TEN_TRUONG
-  const [form, setForm] = useState({
-    MA_NV: "",
-    LOAI_HOP_DONG: "Thử việc",
-    TU_NGAY: "",
-    DEN_NGAY: "",
-    LUONG_CO_BAN: "",
-    NGAY_KY: "",
-    GHI_CHU: "",
-  });
-  const [saving, setSaving] = useState(false);
+  const userLevel = getUserLevel(user);
+  const isDirectorOrAdmin = userLevel >= 4;
 
   useEffect(() => {
     fetchContracts();
-    api.getEmployees({ pageSize: 200 }).then((res: any) => {
-      const data = res.data?.data || res.data?.employees || res.data;
-      setEmployees(Array.isArray(data) ? data : data?.data || []);
-    }).catch(e => console.error(e));
   }, []);
 
   const fetchContracts = async () => {
     setLoading(true);
     try {
-      const res = await api.getContracts();
+      const maNV = user.MA_NV || user.ma_nv;
+      const res = isDirectorOrAdmin 
+        ? await api.getContracts() 
+        : await api.getContractByMaNV(maNV);
       setContracts(res.data?.data || []);
     } catch {
       toast.error("Không thể lấy danh sách hợp đồng");
     } finally {
       setLoading(false);
-    }
-  };
-
-  // 🌟 ĐÃ CHUẨN HÓA HÀM KHỞI TẠO FORM
-  const openForm = (MA_NV = "") => {
-    setSelectedMaNv(MA_NV);
-    setForm({
-      MA_NV,
-      LOAI_HOP_DONG: "1 năm",
-      TU_NGAY: "",
-      DEN_NGAY: "",
-      LUONG_CO_BAN: "",
-      NGAY_KY: "",
-      GHI_CHU: "",
-    });
-    setShowForm(true);
-  };
-
-  const set = (k: string) => (e: any) =>
-    setForm((f) => ({ ...f, [k]: e.target.value }));
-
-  // 🌟 ĐÃ CHUẨN HÓA LOGIC SAVE & PAYLOAD GỬI LÊN API
-  const handleSave = async () => {
-    if (!form.MA_NV || !form.TU_NGAY || !form.LUONG_CO_BAN) {
-      return toast.error("Vui lòng điền đầy đủ: Mã NV, Từ ngày, Lương cơ bản");
-    }
-    setSaving(true);
-    try {
-      await api.createContract({
-        MA_NV: form.MA_NV,
-        LOAI_HOP_DONG: form.LOAI_HOP_DONG,
-        TU_NGAY: form.TU_NGAY,
-        DEN_NGAY: form.DEN_NGAY || undefined,
-        LUONG_CO_BAN: Number(form.LUONG_CO_BAN),
-        NGAY_KY: form.NGAY_KY || undefined,
-        GHI_CHU: form.GHI_CHU || undefined,
-      });
-      toast.success("Đã tạo hợp đồng thành công");
-      setShowForm(false);
-      fetchContracts();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Lỗi tạo hợp đồng");
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -109,13 +53,18 @@ const ContractManager = ({ user }: { user: any }) => {
           <p>Danh sách tất cả hợp đồng của nhân viên</p>
         </div>
         <div className="section-header-actions">
-          <Btn
-            variant="primary"
-            onClick={() => openForm()}
-            icon={<FilePlus size={16} />}
-          >
-            Tạo hợp đồng mới
-          </Btn>
+          {isDirectorOrAdmin && (
+            <Btn
+              variant="primary"
+              onClick={() => {
+                localStorage.removeItem("edit_contract_data");
+                onNavigate("contract_create");
+              }}
+              icon={<FilePlus size={16} />}
+            >
+              Tạo hợp đồng mới
+            </Btn>
+          )}
         </div>
       </div>
 
@@ -139,8 +88,8 @@ const ContractManager = ({ user }: { user: any }) => {
               <thead>
                 <tr>
                   <th>Nhân viên</th>
-
                   <th>Loại hợp đồng</th>
+                  <th>Trạng thái</th>
                   <th>Ngày bắt đầu</th>
                   <th>Ngày hết hạn</th>
                   <th>Còn lại</th>
@@ -162,6 +111,19 @@ const ContractManager = ({ user }: { user: any }) => {
                       <td>
                         <Badge color={loai === "Thử việc" ? "yellow" : "blue"}>
                           {loai}
+                        </Badge>
+                      </td>
+                      <td>
+                        <Badge color={
+                          c.TRANG_THAI === "DANG THUC HIEN" ? "green" :
+                          c.TRANG_THAI === "HET HAN" ? "red" :
+                          c.TRANG_THAI === "HUY" ? "gray" :
+                          "blue"
+                        }>
+                          {c.TRANG_THAI === "CHUA BAT DAU" ? "Chưa bắt đầu" :
+                           c.TRANG_THAI === "DANG THUC HIEN" ? "Đang thực hiện" :
+                           c.TRANG_THAI === "HET HAN" ? "Hết hạn" :
+                           c.TRANG_THAI === "HUY" ? "Hủy" : c.TRANG_THAI}
                         </Badge>
                       </td>
                       <td>{formatDate(c.TU_NGAY)}</td>
@@ -193,13 +155,30 @@ const ContractManager = ({ user }: { user: any }) => {
                         </span>
                       </td>
                       <td>
-                        <Btn
-                          variant="primary"
-                          onClick={() => openForm(c.MA_NV)}
-                          icon={<FilePlus size={14} />}
-                        >
-                          Gia hạn / Ký mới
-                        </Btn>
+                        <div style={{ display: "flex", gap: 8 }}>
+                          {isDirectorOrAdmin && (
+                            <Btn
+                              variant="primary"
+                              onClick={() => {
+                                localStorage.setItem("edit_contract_data", JSON.stringify(c));
+                                onNavigate("contract_create");
+                              }}
+                              icon={<PenTool size={14} />}
+                            >
+                              Chỉnh sửa
+                            </Btn>
+                          )}
+                          <Btn
+                            variant="secondary"
+                            onClick={() => {
+                              localStorage.setItem("selected_contract", JSON.stringify(c));
+                              localStorage.setItem("contract_back_to", "contracts");
+                              onNavigate("contract_details");
+                            }}
+                          >
+                            Chi tiết
+                          </Btn>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -210,120 +189,7 @@ const ContractManager = ({ user }: { user: any }) => {
         )}
       </Card>
 
-      {/* Modal Tạo Hợp Đồng */}
-      {showForm && (
-        <div className="modal-overlay" onClick={() => setShowForm(false)}>
-          <div
-            className="modal-box modal-lg"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="modal-header">
-              <h3>Tạo / Gia hạn hợp đồng</h3>
-              <Btn
-                className="modal-close"
-                onClick={() => setShowForm(false)}
-              >
-                <X size={20} />
-              </Btn>
-            </div>
-            <div
-              className="modal-body"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 16,
-              }}
-            >
-              <FormField label="Nhân viên *">
-                <select
-                  className="form-input"
-                  value={form.MA_NV}
-                  onChange={set("MA_NV")}
-                >
-                  <option value="">-- Chọn nhân viên --</option>
-                  {employees.map(emp => (
-                    <option key={emp.MA_NV} value={emp.MA_NV}>{emp.HO_TEN} ({emp.MA_NV})</option>
-                  ))}
-                </select>
-              </FormField>
-              <FormField label="Loại hợp đồng *">
-                <select
-                  className="form-input"
-                  value={form.LOAI_HOP_DONG}
-                  onChange={set("LOAI_HOP_DONG")}
-                >
-                  {CONTRACT_TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
-              </FormField>
-              <FormField label="Ngày bắt đầu *">
-                <input
-                  className="form-input"
-                  type="date"
-                  value={form.TU_NGAY}
-                  onChange={set("TU_NGAY")}
-                />
-              </FormField>
-              <FormField label="Ngày hết hạn">
-                <input
-                  className="form-input"
-                  type="date"
-                  value={form.DEN_NGAY}
-                  onChange={set("DEN_NGAY")}
-                  placeholder="Bỏ trống nếu vô thời hạn"
-                />
-              </FormField>
-              <FormField label="Lương cơ bản *">
-                <input
-                  className="form-input"
-                  type="number"
-                  value={form.LUONG_CO_BAN}
-                  onChange={set("LUONG_CO_BAN")}
-                  placeholder="VD: 10000000"
-                />
-              </FormField>
-              <FormField label="Ngày ký">
-                <input
-                  className="form-input"
-                  type="date"
-                  value={form.NGAY_KY}
-                  onChange={set("NGAY_KY")}
-                />
-              </FormField>
-              <div style={{ gridColumn: "1 / -1" }}>
-                <FormField label="Ghi chú">
-                  <textarea
-                    className="form-input"
-                    rows={3}
-                    value={form.GHI_CHU}
-                    onChange={set("GHI_CHU")}
-                    placeholder="Ghi chú thêm..."
-                  />
-                </FormField>
-              </div>
-            </div>
-            <div
-              className="modal-footer"
-              style={{
-                display: "flex",
-                gap: 10,
-                justifyContent: "flex-end",
-                marginTop: 20,
-              }}
-            >
-              <Btn variant="secondary" onClick={() => setShowForm(false)}>
-                Hủy
-              </Btn>
-              <Btn variant="primary" loading={saving} onClick={handleSave}>
-                Lưu hợp đồng
-              </Btn>
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 };

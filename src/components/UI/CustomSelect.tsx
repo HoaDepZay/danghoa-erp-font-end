@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { ChevronDown } from "lucide-react";
 
 export interface CustomSelectOption {
@@ -28,19 +29,50 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   variant = "default",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [coords, setCoords] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLUListElement>(null);
 
   const selectedOption = options.find((opt) => opt.value === value);
 
+  const updatePosition = () => {
+    if (dropdownRef.current) {
+      const rect = dropdownRef.current.getBoundingClientRect();
+      setCoords({
+        top: rect.bottom + 6,
+        left: rect.left,
+        width: rect.width,
+      });
+    }
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
+    const handleScrollOrResize = (e: Event) => {
+      if (e.target && (e.target as HTMLElement).closest && (e.target as HTMLElement).closest(".custom-select-portal-menu")) {
+        return;
+      }
+      if (isOpen) setIsOpen(false);
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    window.addEventListener("scroll", handleScrollOrResize, true);
+    window.addEventListener("resize", handleScrollOrResize);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScrollOrResize, true);
+      window.removeEventListener("resize", handleScrollOrResize);
+    };
+  }, [isOpen]);
 
   const handleSelect = (val: string | number) => {
     if (disabled) return;
@@ -51,7 +83,12 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   return (
     <div
       ref={dropdownRef}
-      style={{ ...style, position: "relative", width: style.width || "100%", userSelect: "none" }}
+      style={{
+        ...style,
+        position: "relative",
+        width: style.width || "100%",
+        userSelect: "none",
+      }}
     >
       <div
         className={variant === "default" ? `form-input ${className}`.trim() : className}
@@ -61,68 +98,89 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
           alignItems: "center",
           cursor: disabled ? "not-allowed" : "pointer",
           opacity: disabled ? 0.6 : 1,
-          backgroundColor: variant === "default" ? "#fff" : "transparent",
-          minHeight: variant === "default" ? "38px" : "auto",
-          border: variant === "ghost" ? "none" : undefined,
-          padding: variant === "ghost" ? 0 : undefined,
+          backgroundColor: variant === "default" ? "var(--input-bg, #fff)" : "transparent",
+          color: "var(--text-primary, #334155)",
+          minHeight: variant === "default" ? "42px" : "auto",
+          borderRadius: variant === "default" ? "10px" : undefined,
+          border: variant === "ghost" ? "none" : "1px solid var(--border-color, #e2e8f0)",
+          padding: variant === "ghost" ? 0 : "10px 14px",
+          boxShadow: variant === "default" ? "0 1px 2px 0 rgba(0, 0, 0, 0.05)" : "none",
+          transition: "all 0.2s ease",
         }}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          if (!disabled) setIsOpen((prev) => !prev);
+          if (!disabled) {
+            if (!isOpen) updatePosition();
+            setIsOpen((prev) => !prev);
+          }
         }}
       >
-        <span style={{ color: selectedOption ? "inherit" : (variant === "ghost" ? "inherit" : "#888"), overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <span style={{ color: selectedOption ? "var(--text-primary, #1e293b)" : "#94a3b8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "14px" }}>
           {selectedOption ? selectedOption.label : placeholder}
         </span>
-        <ChevronDown size={variant === "ghost" ? 14 : 16} color={variant === "ghost" ? "currentColor" : "#888"} style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s", marginLeft: 4 }} />
+        <ChevronDown size={variant === "ghost" ? 14 : 18} color={variant === "ghost" ? "currentColor" : "#64748b"} style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s ease", marginLeft: 8 }} />
       </div>
 
-      {isOpen && !disabled && (
+      {isOpen && !disabled && ReactDOM.createPortal(
         <ul
+          ref={menuRef}
+          className="custom-select-portal-menu"
           style={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            right: 0,
-            marginTop: 4,
-            padding: "4px 0",
-            backgroundColor: "#fff",
-            border: "1px solid #e2e8f0",
-            borderRadius: 8,
-            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-            zIndex: 99999,
-            maxHeight: 250,
+            position: "fixed",
+            top: coords.top,
+            left: coords.left,
+            width: coords.width,
+            padding: "6px",
+            backgroundColor: "var(--card-bg, #fff)",
+            border: "1px solid var(--border-color, #e2e8f0)",
+            borderRadius: 12,
+            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+            zIndex: 9999999,
+            maxHeight: 260,
             overflowY: "auto",
             listStyle: "none",
           }}
         >
           {options.length === 0 ? (
-            <li style={{ padding: "8px 12px", color: "#888", textAlign: "center", fontSize: 14 }}>
+            <li style={{ padding: "10px 14px", color: "#94a3b8", textAlign: "center", fontSize: 14 }}>
               Không có dữ liệu
             </li>
           ) : (
-            options.map((opt) => (
-              <li
-                key={opt.value}
-                onClick={() => handleSelect(opt.value)}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f1f5f9")}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                style={{
-                  padding: "8px 12px",
-                  cursor: "pointer",
-                  fontSize: 14,
-                  backgroundColor: value === opt.value ? "#e2e8f0" : "transparent",
-                  fontWeight: value === opt.value ? 600 : 400,
-                  transition: "background-color 0.15s ease",
-                  color: "#334155" // Keep ghost variant options readable
-                }}
-              >
-                {opt.label}
-              </li>
-            ))
+            options.map((opt) => {
+              const isSelected = value === opt.value;
+              return (
+                <li
+                  key={opt.value}
+                  onClick={() => handleSelect(opt.value)}
+                  onMouseEnter={(e) => {
+                    if (!isSelected) e.currentTarget.style.backgroundColor = "var(--hover-bg, #f1f5f9)";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSelected) e.currentTarget.style.backgroundColor = "transparent";
+                  }}
+                  style={{
+                    padding: "10px 14px",
+                    cursor: "pointer",
+                    fontSize: 14,
+                    borderRadius: 8,
+                    marginBottom: 2,
+                    backgroundColor: isSelected ? "var(--primary-color, #3b82f6)" : "transparent",
+                    color: isSelected ? "#fff" : "var(--text-primary, #334155)",
+                    fontWeight: isSelected ? 600 : 400,
+                    transition: "all 0.15s ease",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <span>{opt.label}</span>
+                </li>
+              );
+            })
           )}
-        </ul>
+        </ul>,
+        document.body
       )}
     </div>
   );

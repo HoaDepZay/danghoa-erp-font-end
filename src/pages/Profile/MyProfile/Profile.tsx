@@ -6,7 +6,8 @@ import { useProfile } from "./useProfile";
 import { ChangePassModal } from "./ChangePassModal";
 import { UpdateProfileModal } from "./UpdateProfileModal";
 import Modal from "../../../components/UI/Modal";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, FileText } from "lucide-react";
+import { api } from "../../../services/api";
 
 const ROLE_COLORS: Record<string, string> = {
   "Quản lý": "black",
@@ -17,9 +18,10 @@ const ROLE_COLORS: Record<string, string> = {
 
 interface ProfileProps {
   user: any;
+  onNavigate: (page: string) => void;
 }
 
-const Profile: React.FC<ProfileProps> = ({ user }) => {
+const Profile: React.FC<ProfileProps> = ({ user, onNavigate }) => {
   const { profile, loading, modal, setModal, handleProfileUpdated, handleAvatarUpload, uploadingAvatar } = useProfile(user);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showNotice, setShowNotice] = React.useState(false);
@@ -40,6 +42,14 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
       }
     }
   }, [loading, profile]);
+
+  const [contracts, setContracts] = React.useState<any[]>([]);
+  React.useEffect(() => {
+    const maNV = getProp(user, 'MA_NV') || getProp(user, 'ma_nv');
+    if (maNV) {
+      api.getContractByMaNV(maNV).then(res => setContracts(res.data?.data || [])).catch(e => console.error(e));
+    }
+  }, [user]);
 
   if (loading) {
     return (
@@ -183,6 +193,46 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
               </div>
             ))}
           </div>
+
+          <div style={{ borderTop: "1px solid #eee", margin: "16px 0" }} />
+          
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+            <FileText size={16} color="#aaa" />
+            <h3 style={{ fontWeight: 700, fontSize: 15, margin: 0 }}>Danh sách Hợp đồng</h3>
+          </div>
+          {contracts.length === 0 ? (
+            <p style={{ fontSize: 13, color: "#888", margin: 0 }}>Chưa có hợp đồng nào được lưu.</p>
+          ) : (
+            <div className="grid-1" style={{ gap: 10 }}>
+              {contracts.map(c => (
+                <div key={c.MA_HD || Math.random()} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px", borderRadius: 10, background: "#fafafa", border: "1px solid #f1f5f9" }}>
+                  <div>
+                    <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#111" }}>{c.LOAI_HOP_DONG}</p>
+                    <p style={{ margin: "4px 0 0", fontSize: 12, color: "#64748b" }}>
+                      {formatDate(c.TU_NGAY)} {c.DEN_NGAY ? `- ${formatDate(c.DEN_NGAY)}` : "- Vô thời hạn"}
+                    </p>
+                  </div>
+                  {c.URL_CHI_TIET ? (
+                    <Btn size="sm" variant="secondary" onClick={() => {
+                      localStorage.setItem("selected_contract", JSON.stringify(c));
+                      localStorage.setItem("contract_back_to", "profile");
+                      onNavigate("contract_details");
+                    }}>
+                      Chi tiết
+                    </Btn>
+                  ) : (
+                    <Btn size="sm" variant="secondary" onClick={() => {
+                      localStorage.setItem("selected_contract", JSON.stringify(c));
+                      localStorage.setItem("contract_back_to", "profile");
+                      onNavigate("contract_details");
+                    }}>
+                      Chi tiết
+                    </Btn>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </Card>
       </div>
 

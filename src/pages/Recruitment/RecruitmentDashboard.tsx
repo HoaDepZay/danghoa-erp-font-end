@@ -10,24 +10,13 @@ import {
   Badge,
   Spinner,
   EmptyState,
-  FormField,
-  Input,
 } from '../../components/UI/index';
-import Modal from '../../components/UI/Modal';
-import { Briefcase, Users, Calendar, Plus, MapPin, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Briefcase, Users, Calendar, Plus, MapPin, ArrowRight } from 'lucide-react';
 
 const RecruitmentDashboard = ({ user, onNavigate }: { user?: any; onNavigate?: (page: string) => void }) => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    TIEU_DE: '',
-    SO_LUONG: 1,
-    HAN_NOP: '',
-    MA_PHG: 1,
-  });
 
   const userLevel = getUserLevel(user);
 
@@ -49,43 +38,11 @@ const RecruitmentDashboard = ({ user, onNavigate }: { user?: any; onNavigate?: (
         ? depRes.data
         : depRes?.data?.data || depRes?.data?.departments || [];
       setDepartments(depList);
-      if (depList.length > 0) {
-        setFormData((prev) => ({ ...prev, MA_PHG: depList[0].MA_PHG || depList[0].ma_phg || 1 }));
-      }
     } catch (error) {
       console.error(error);
       toast.error('Không thể tải danh sách tuyển dụng');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleCreateSubmit = async () => {
-    if (!formData.TIEU_DE.trim()) {
-      return toast.error('Vui lòng nhập tiêu đề chiến dịch');
-    }
-    if (formData.SO_LUONG < 1) {
-      return toast.error('Số lượng tuyển dụng tối thiểu là 1');
-    }
-
-    try {
-      setSubmitting(true);
-      const maCD = 'CD' + Date.now().toString().slice(-4);
-      await api.createCampaign({
-        MA_CD: maCD,
-        TIEU_DE: formData.TIEU_DE,
-        SO_LUONG: Number(formData.SO_LUONG),
-        HAN_NOP: formData.HAN_NOP || null,
-        MA_PHG: Number(formData.MA_PHG) || 1,
-      });
-      toast.success('Tạo chiến dịch tuyển dụng thành công!');
-      setShowCreateModal(false);
-      setFormData({ TIEU_DE: '', SO_LUONG: 1, HAN_NOP: '', MA_PHG: departments[0]?.MA_PHG || 1 });
-      fetchData();
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'Có lỗi xảy ra khi tạo chiến dịch');
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -103,7 +60,10 @@ const RecruitmentDashboard = ({ user, onNavigate }: { user?: any; onNavigate?: (
           userLevel >= 3 ? (
             <Btn
               variant="primary"
-              onClick={() => setShowCreateModal(true)}
+              onClick={() => {
+                localStorage.removeItem('editCampaignId');
+                if (onNavigate) onNavigate('campaign_create');
+              }}
               icon={<Plus size={16} />}
             >
               Tạo chiến dịch mới
@@ -226,102 +186,38 @@ const RecruitmentDashboard = ({ user, onNavigate }: { user?: any; onNavigate?: (
                   <span style={{ fontSize: 13, fontWeight: 600, color: '#3b82f6' }}>
                     📥 {cd.TONG_UNG_VIEN || 0} ứng viên
                   </span>
-                  <Btn
-                    variant="secondary"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      goToDetails(cd.MA_CD);
-                    }}
-                    icon={<ArrowRight size={14} />}
-                  >
-                    Kanban / Chi tiết
-                  </Btn>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {userLevel >= 3 && (
+                      <Btn
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          localStorage.setItem('editCampaignId', cd.MA_CD);
+                          if (onNavigate) onNavigate('campaign_edit');
+                        }}
+                      >
+                        ✏️ Sửa
+                      </Btn>
+                    )}
+                    <Btn
+                      variant="secondary"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        goToDetails(cd.MA_CD);
+                      }}
+                      icon={<ArrowRight size={14} />}
+                    >
+                      Kanban / Chi tiết
+                    </Btn>
+                  </div>
                 </div>
               </Card>
             );
           })}
         </div>
       )}
-
-      {/* Create Modal */}
-      <Modal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        title="Tạo chiến dịch tuyển dụng mới"
-        footer={
-          <>
-            <Btn variant="secondary" onClick={() => setShowCreateModal(false)}>
-              Hủy
-            </Btn>
-            <Btn
-              variant="primary"
-              loading={submitting}
-              onClick={handleCreateSubmit}
-              icon={<CheckCircle2 size={16} />}
-            >
-              Tạo chiến dịch
-            </Btn>
-          </>
-        }
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <FormField label="Tiêu đề chiến dịch *">
-            <Input
-              placeholder="VD: Tuyển dụng lập trình viên Fullstack / Frontend..."
-              value={formData.TIEU_DE}
-              onChange={(e) => setFormData({ ...formData, TIEU_DE: e.target.value })}
-            />
-          </FormField>
-
-          <FormField label="Phòng ban phụ trách *">
-            <select
-              className="form-input"
-              value={formData.MA_PHG}
-              onChange={(e) => setFormData({ ...formData, MA_PHG: Number(e.target.value) })}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: 8,
-                border: '1px solid var(--border-color, #cbd5e1)',
-                outline: 'none',
-                background: 'var(--card-bg, #fff)',
-                color: 'var(--text-primary, #0f172a)',
-              }}
-            >
-              {departments.length > 0 ? (
-                departments.map((dep: any) => (
-                  <option key={dep.MA_PHG || dep.ma_phg} value={dep.MA_PHG || dep.ma_phg}>
-                    {dep.TEN_PHG || dep.ten_phg}
-                  </option>
-                ))
-              ) : (
-                <option value={1}>Phòng Kỹ thuật / Công nghệ</option>
-              )}
-            </select>
-          </FormField>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <FormField label="Số lượng cần tuyển *">
-              <Input
-                type="number"
-                min={1}
-                placeholder="Số lượng"
-                value={formData.SO_LUONG}
-                onChange={(e) => setFormData({ ...formData, SO_LUONG: Number(e.target.value) })}
-              />
-            </FormField>
-
-            <FormField label="Hạn nộp hồ sơ">
-              <Input
-                type="date"
-                value={formData.HAN_NOP}
-                onChange={(e) => setFormData({ ...formData, HAN_NOP: e.target.value })}
-              />
-            </FormField>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 };

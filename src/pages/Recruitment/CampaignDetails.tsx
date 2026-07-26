@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import { Applicant } from '../../types/recruitment';
 import { toast } from '../../utils/helpers';
+import { API_URL } from '../../services/axiosClient';
 import {
   SectionHeader,
   Card,
@@ -10,9 +11,16 @@ import {
   Spinner,
   FormField,
   Input,
+  CustomSelect,
 } from '../../components/UI/index';
 import Modal from '../../components/UI/Modal';
 import { ArrowLeft, User, Mail, Phone, Paperclip, CheckCircle, UserCheck } from 'lucide-react';
+
+const getFullUrl = (url?: string | null) => {
+  if (!url) return '#';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  return `${API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+};
 
 const STATUS_COLUMNS = [
   { id: 'NEW', label: 'Mới ứng tuyển', color: '#3b82f6', bg: '#eff6ff' },
@@ -198,12 +206,14 @@ const CampaignDetails = ({ onNavigate }: any) => {
                     Chưa có ứng viên
                   </div>
                 ) : (
-                  colApplicants.map((uv) => (
+                  colApplicants.map((uv, idx) => (
                     <Card
                       key={uv.MA_UV}
                       style={{
                         borderLeft: `4px solid ${col.color}`,
                         boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
+                        position: 'relative',
+                        zIndex: colApplicants.length - idx,
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -248,7 +258,7 @@ const CampaignDetails = ({ onNavigate }: any) => {
                         </div>
                         {uv.URL_CV && (
                           <a
-                            href={uv.URL_CV}
+                            href={getFullUrl(uv.URL_CV)}
                             target="_blank"
                             rel="noreferrer"
                             style={{
@@ -269,27 +279,14 @@ const CampaignDetails = ({ onNavigate }: any) => {
                       {/* Status Dropdown */}
                       {col.id !== 'HIRED' && (
                         <div style={{ marginTop: 10 }}>
-                          <select
-                            className="form-input"
+                          <CustomSelect
                             value={uv.TRANG_THAI}
-                            onChange={(e) => handleStatusChange(uv.MA_UV, e.target.value)}
-                            style={{
-                              width: '100%',
-                              padding: '6px 10px',
-                              fontSize: 12,
-                              borderRadius: 6,
-                              border: '1px solid #cbd5e1',
-                              background: '#f8fafc',
-                              color: '#334155',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            {STATUS_COLUMNS.map((c) => (
-                              <option key={c.id} value={c.id}>
-                                Chuyển: {c.label}
-                              </option>
-                            ))}
-                          </select>
+                            onChange={(e: any) => handleStatusChange(uv.MA_UV, e.target.value)}
+                            options={STATUS_COLUMNS.map((c) => ({
+                              label: `Chuyển: ${c.label}`,
+                              value: c.id,
+                            }))}
+                          />
                         </div>
                       )}
 
@@ -361,30 +358,18 @@ const CampaignDetails = ({ onNavigate }: any) => {
             </FormField>
 
             <FormField label="Phòng ban trực thuộc *">
-              <select
-                className="form-input"
+              <CustomSelect
                 value={hireForm.MA_PHG}
-                onChange={(e) => setHireForm({ ...hireForm, MA_PHG: Number(e.target.value) })}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  borderRadius: 8,
-                  border: '1px solid var(--border-color, #cbd5e1)',
-                  outline: 'none',
-                  background: 'var(--card-bg, #fff)',
-                  color: 'var(--text-primary, #0f172a)',
-                }}
-              >
-                {departments.length > 0 ? (
-                  departments.map((dep: any) => (
-                    <option key={dep.MA_PHG || dep.ma_phg} value={dep.MA_PHG || dep.ma_phg}>
-                      {dep.TEN_PHG || dep.ten_phg}
-                    </option>
-                  ))
-                ) : (
-                  <option value={1}>Phòng Kỹ thuật / Công nghệ</option>
-                )}
-              </select>
+                onChange={(e: any) => setHireForm({ ...hireForm, MA_PHG: Number(e.target.value) })}
+                options={
+                  departments.length > 0
+                    ? departments.map((dep: any) => ({
+                        label: dep.TEN_PHG || dep.ten_phg || dep.TEN_PB,
+                        value: dep.MA_PHG || dep.ma_phg,
+                      }))
+                    : [{ label: "Phòng Kỹ thuật / Công nghệ", value: 1 }]
+                }
+              />
             </FormField>
           </div>
         )}

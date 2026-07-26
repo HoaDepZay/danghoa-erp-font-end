@@ -22,11 +22,16 @@ import Attendance from "./pages/Attendance/Attendance";
 import LeaveManagement from "./pages/Leave/LeaveManagement";
 import LeaveRequest from "./pages/Leave/LeaveRequest";
 import ContractManager from "./pages/Contract/ContractManager";
+import CreateContract from "./pages/Contract/CreateContract";
+import ContractDetails from "./pages/Contract/ContractDetails";
 import Analytics from "./pages/Analytics/Analytics";
 import ProjectDetails from "./pages/Projects/ProjectDetails";
 import PhaseDetails from "./pages/Projects/PhaseDetails";
 import OrgChart from "./pages/OrgChart/OrgChart";
 import Expenses from "./pages/Expenses/Expenses";
+import RecruitmentDashboard from "./pages/Recruitment/RecruitmentDashboard";
+import CampaignDetails from "./pages/Recruitment/CampaignDetails";
+import CreateCampaign from "./pages/Recruitment/CreateCampaign";
 
 import { getUserLevel, getManv } from "./utils/user";
 import { api } from "./services/api";
@@ -88,6 +93,9 @@ const PAGES: Record<string, React.FC<any>> = {
   leave: LeaveManagement,      // Manager/Admin: xem tất cả đơn
   myLeave: LeaveRequest,        // Nhân viên: nộp đơn của mình
   contracts: ContractManager,
+  contract_create: CreateContract,
+  createContract: CreateContract,
+  contract_details: ContractDetails,
   analytics: Analytics,
   project_details: ProjectDetails,
   phase_details: PhaseDetails,
@@ -95,6 +103,10 @@ const PAGES: Record<string, React.FC<any>> = {
   employee_profile: EmployeeProfile,
   "org-chart": OrgChart,
   expenses: Expenses,
+  recruitment: RecruitmentDashboard,
+  campaign_details: CampaignDetails,
+  campaign_create: CreateCampaign,
+  campaign_edit: CreateCampaign,
 };
 
 const PAGE_MIN_LEVEL: Record<string, number> = {
@@ -111,7 +123,10 @@ const PAGE_MIN_LEVEL: Record<string, number> = {
   attendance: 1,
   leave: 3,        // Manager/Admin mới xem tất cả đơn
   myLeave: 1,      // Mọi nhân viên đều có thể nộp đơn
-  contracts: 3,
+  contracts: 1,    // Cho phép mọi nhân viên vào trang (bên trong sẽ ẩn UI theo role)
+  contract_create: 4, // Chỉ Giám đốc/Admin tạo hợp đồng
+  createContract: 4,
+  contract_details: 1, // Tất cả nhân viên có thể xem chi tiết hợp đồng
   analytics: 3, // HR Analytics - Manager level
   project_details: 1,
   phase_details: 1,
@@ -119,6 +134,10 @@ const PAGE_MIN_LEVEL: Record<string, number> = {
   employee_profile: 1,
   "org-chart": 1,
   expenses: 1,
+  recruitment: 3,
+  campaign_details: 3,
+  campaign_create: 3,
+  campaign_edit: 3,
 };
 
 function App() {

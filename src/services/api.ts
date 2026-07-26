@@ -11,6 +11,8 @@ import dashboardService from "./dashboardService";
 import expenseService from "./expenseService";
 import notificationService from "./notificationService";
 import phaseService from "./project/phaseService";
+import fileService from "./fileService";
+import recruitmentService from "./recruitmentService";
 
 export const api = {
   ...authService,
@@ -25,6 +27,8 @@ export const api = {
   ...expenseService,
   ...notificationService,
   ...phaseService,
+  ...fileService,
+  ...recruitmentService,
 };
 
 export { API_URL, tokenStorage };

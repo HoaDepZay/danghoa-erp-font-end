@@ -13,6 +13,10 @@ const PAGE_TITLES: Record<string, string> = {
   departments: "Phòng ban",
   projects: "Dự án",
   payroll: "Bảng lương",
+  recruitment: "Quản lý Tuyển dụng",
+  campaign_details: "Chi tiết Chiến dịch",
+  campaign_create: "Tạo Chiến dịch Tuyển dụng",
+  campaign_edit: "Chỉnh sửa Chiến dịch Tuyển dụng",
   admin: "Quản trị hệ thống",
   developer: "Developer Portal",
 };

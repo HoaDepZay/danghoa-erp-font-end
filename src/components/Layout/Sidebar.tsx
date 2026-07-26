@@ -20,12 +20,14 @@ import {
   Terminal,
   ChevronDown,
   Network,
+  Briefcase,
 } from "lucide-react";
 import { getDisplayRole, getUserLevel, getUserName } from "../../utils/user";
 import { useEffect, useState } from "react";
 
 const NAV_ITEMS = [
   { key: "dashboard", label: "Tổng quan", icon: LayoutDashboard, minLevel: 1 },
+  { key: "profile", label: "Hồ sơ của tôi", icon: UserCircle, minLevel: 1 },
   { key: "schedule", label: "Lịch làm việc", icon: CalendarDays, minLevel: 1 },
   { key: "attendance", label: "Chấm công", icon: ScanLine, minLevel: 1 },
   { key: "payroll", label: "Bảng lương", icon: Wallet, minLevel: 1 },
@@ -39,6 +41,7 @@ const NAV_ITEMS = [
   {key: "myLeave",    label: "Nghỉ phép",   icon: FileText,      minLevel: 1}, // Mọi NV nộp đơn
   {key: "leave",      label: "Quản lý đơn",  icon: FileText,      minLevel: 3}, // Manager duyệt
   {key: "contracts", label: "Hợp đồng",  icon: FileSignature, minLevel: 3},
+  {key: "recruitment", label: "Tuyển dụng",  icon: Briefcase, minLevel: 3},
   // {key: "analytics", label: "HR Analytics", icon: BarChart3,     minLevel: 3},
   { key: "admin",    label: "Quản trị",   icon: ShieldAlert,   minLevel: 4 },
 ];
